@@ -1,0 +1,1709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CSIT 6 · Learn</title>
+<script>
+  try { var t = localStorage.getItem("csit6.theme");
+    if (!t) t = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", t);
+  } catch (e) { document.documentElement.setAttribute("data-theme", "dark"); }
+</script>
+<style>
+  :root{
+    --bg:#0a0c10;--panel:#11141a;--panel2:#161a22;--line:#232936;
+    --txt:#e7eaf0;--mut:#9aa3b6;--dim:#697389;
+    --acc:#6ee7b7;--warn:#fbbf24;--bad:#f87171;--info:#7dd3fc;
+    --code:#0d1117;--on:#06231a;--shadow:none;--gl:#39414f;
+  }
+  html[data-theme="light"]{
+    --bg:#f7f8f5;--panel:#fff;--panel2:#f1f4ec;--line:#e0e5da;
+    --txt:#151a17;--mut:#4f5a6d;--dim:#8b93a1;
+    --acc:#0e8f63;--warn:#a16207;--bad:#b91c1c;--info:#0369a1;
+    --code:#f2f4ee;--on:#fff;--shadow:0 1px 2px rgba(20,30,22,.05),0 8px 24px -16px rgba(20,30,22,.25);--gl:#b2bda6;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+    font:15px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  a{color:var(--acc)}
+  .top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:16px;
+    padding:12px 22px;border-bottom:1px solid var(--line);
+    background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(10px)}
+  .brand{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+  .brand b{color:var(--acc)}
+  nav{display:flex;gap:4px;margin-left:8px;flex-wrap:wrap}
+  nav button{background:none;border:0;color:var(--mut);font:inherit;font-size:13.5px;
+    padding:6px 11px;border-radius:8px;cursor:pointer}
+  nav button:hover{color:var(--txt);background:var(--panel2)}
+  nav button.on{color:var(--txt);background:var(--panel2);box-shadow:inset 0 -2px 0 var(--acc)}
+  .spacer{flex:1}
+  .link{font-size:12.5px;color:var(--mut);text-decoration:none;border:1px solid var(--line);
+    padding:6px 11px;border-radius:8px}
+  .link:hover{color:var(--txt);border-color:var(--acc)}
+  .wrap{max-width:1080px;margin:0 auto;padding:26px 20px 90px}
+  h1{font-size:26px;letter-spacing:-.02em;margin:0 0 6px}
+  .sub{color:var(--mut);font-size:14px;margin:0 0 24px}
+
+  /* cards */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;
+    cursor:pointer;transition:border-color .18s,transform .18s;box-shadow:var(--shadow)}
+  .card:hover{border-color:var(--acc);transform:translateY(-2px)}
+  .card .tag{font:600 10.5px/1 ui-monospace,monospace;letter-spacing:.1em;color:var(--dim);
+    background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:4px 7px;display:inline-block}
+  .card h3{margin:11px 0 6px;font-size:16.5px;letter-spacing:-.01em}
+  .card p{margin:0;color:var(--mut);font-size:13.3px;line-height:1.5}
+  .card .go{margin-top:12px;font-size:12px;color:var(--acc)}
+
+  /* lab shell */
+  .labhead{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+  .back{background:var(--panel);border:1px solid var(--line);color:var(--mut);border-radius:8px;
+    padding:6px 11px;font-size:12.5px;cursor:pointer}
+  .back:hover{color:var(--txt);border-color:var(--acc)}
+  .labtitle{font-size:17px;font-weight:600}
+  .labtitle small{display:block;font-size:11.5px;color:var(--dim);font-weight:400;letter-spacing:.04em}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px;box-shadow:var(--shadow)}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+  .field{display:flex;flex-direction:column;gap:5px}
+  .field.wide{flex:1 1 100%;min-width:0}
+  .field.wide input{width:100%}
+  .field label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+  input[type=text],input[type=number],select{background:var(--panel2);border:1px solid var(--line);
+    color:var(--txt);border-radius:8px;padding:9px 11px;font:inherit;font-size:14px;outline:none;min-width:120px}
+  input:focus,select:focus{border-color:var(--acc)}
+  button.act{background:var(--acc);color:var(--on);border:0;border-radius:8px;padding:9px 15px;
+    font:inherit;font-size:13.5px;font-weight:600;cursor:pointer}
+  button.act:hover{filter:brightness(1.07)}
+  button.ghost{background:transparent;color:var(--mut);border:1px solid var(--line);border-radius:8px;
+    padding:8px 13px;font:inherit;font-size:13px;cursor:pointer}
+  button.ghost:hover{color:var(--txt);border-color:var(--acc)}
+  code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  code{background:var(--code);border:1px solid var(--line);border-radius:5px;padding:1px 5px;font-size:.9em}
+  pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:13px 15px;
+    overflow:auto;font:13px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace;margin:0}
+  table{border-collapse:collapse;width:100%;font-size:13px;margin-top:8px}
+  th,td{border:1px solid var(--line);padding:6px 9px;text-align:left}
+  th{background:var(--panel2);font-weight:600;font-size:12px}
+  .err{color:var(--bad);font-size:13px}
+
+  /* graph */
+  .graph{width:100%;overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--code);padding:6px}
+  svg{display:block}
+  .node circle{fill:var(--panel);stroke:var(--gl);stroke-width:1.6}
+  .node.accept circle{fill:none;stroke:var(--acc)}
+  .node.accept circle:first-child{fill:var(--panel);stroke:var(--gl)}
+  .node.start circle:first-child{stroke:var(--acc);stroke-width:2}
+  .node text{fill:var(--txt);font:11px ui-monospace,monospace;text-anchor:middle}
+  .edge{fill:none;stroke:var(--mut);stroke-width:1.4;opacity:.85}
+  .edge.eps{stroke-dasharray:4 3;opacity:.6}
+  .elabel{fill:var(--mut);font:10.5px ui-monospace,monospace;text-anchor:middle;paint-order:stroke;
+    stroke:var(--code);stroke-width:4px;stroke-linejoin:round}
+  .arrow{fill:var(--mut);opacity:.85}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:9px;font-size:11.5px;color:var(--dim)}
+  .legend span{display:flex;align-items:center;gap:6px}
+  .legend .dot{width:9px;height:9px;border-radius:50%;border:1.6px solid var(--gl);display:inline-block}
+  .legend .dot.acc{border:2.4px solid var(--acc)}
+  .legend .dot.eps{border:1.5px dashed var(--mut);border-radius:50%}
+  .legend .dot.start{border-color:var(--acc)}
+
+  /* pipeline */
+  .pipe{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+  .stage{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:10px;
+    padding:10px 13px;background:var(--panel2);transition:.25s}
+  .stage .no{font:11px ui-monospace,monospace;color:var(--dim);min-width:18px}
+  .stage .name{font-size:13.5px;font-weight:600;min-width:150px}
+  .stage .desc{font-size:12.5px;color:var(--mut)}
+  .stage.pass{border-color:color-mix(in srgb,var(--acc) 55%,var(--line))}
+  .stage.stop{border-color:var(--warn);background:color-mix(in srgb,var(--warn) 12%,var(--panel2))}
+  .stage.skip{opacity:.35}
+  .stage.now{box-shadow:0 0 0 2px color-mix(in srgb,var(--acc) 45%,transparent)}
+  .log{font:12.5px/1.7 ui-monospace,monospace;color:var(--mut);max-height:170px;overflow:auto;
+    white-space:pre-wrap;background:var(--code);border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-top:12px}
+
+  /* why it works */
+  .whytools{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:0 0 16px}
+  .whytools .hint{font-size:11.5px;color:var(--dim);margin-left:auto}
+  .why{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;
+    margin-bottom:12px;box-shadow:var(--shadow);transition:border-color .2s;scroll-margin-top:76px}
+  .why.open{border-color:color-mix(in srgb,var(--acc) 40%,var(--line))}
+  .why.playing{border-color:var(--acc);box-shadow:0 0 0 2px color-mix(in srgb,var(--acc) 22%,transparent)}
+  .whyhead{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+  .whyhead h3{margin:0;font-size:15px;letter-spacing:-.01em}
+  .wtag{font:600 10px/1 ui-monospace,monospace;letter-spacing:.1em;color:var(--dim);
+    background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:4px 6px}
+  .wheat{margin-left:auto;font-size:11px;color:var(--dim);white-space:nowrap}
+  .wone{margin:10px 0 0;font-size:17.5px;line-height:1.45;letter-spacing:-.01em;color:var(--txt)}
+  .wone::before{content:"“";color:var(--acc);font-weight:700}
+  .wone::after{content:"”";color:var(--acc);font-weight:700}
+  .wbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .wbody{margin-top:14px;border-top:1px dashed var(--line);padding-top:14px}
+  .wsec{margin:0 0 13px}
+  .wlab{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:3px}
+  .wsec p{margin:0;font-size:14px;line-height:1.65;color:var(--mut)}
+  .wstory{border-left:3px solid var(--acc);background:var(--panel2);border-radius:0 10px 10px 0;
+    padding:12px 15px;margin:0 0 14px;font-size:14.5px;line-height:1.7;color:var(--txt)}
+  .wsteps{margin:0 0 14px;padding:0;list-style:none;counter-reset:ws}
+  .wsteps li{counter-increment:ws;display:flex;gap:11px;padding:7px 0;border-bottom:1px dashed var(--line)}
+  .wsteps li:last-child{border-bottom:0}
+  .wsteps li::before{content:counter(ws);font:600 11px/1 ui-monospace,monospace;color:var(--acc);
+    border:1px solid color-mix(in srgb,var(--acc) 45%,var(--line));border-radius:50%;
+    width:20px;height:20px;display:grid;place-items:center;flex:none;margin-top:2px}
+  .wsteps b{display:block;font-size:13.5px;color:var(--txt);font-weight:600}
+  .wsteps span{font-size:13px;color:var(--mut);line-height:1.55}
+  .wexam{background:color-mix(in srgb,var(--acc) 8%,transparent);border:1px solid var(--acc-line);
+    border-radius:10px;padding:11px 13px}
+  .wexam p{margin:0;font-size:13.5px;color:var(--txt);line-height:1.6}
+  @media (max-width:560px){
+    .why{padding:15px 15px;scroll-margin-top:104px}
+    .wone{font-size:16.5px}
+    .wheat{margin-left:0;flex-basis:100%}
+  }
+
+  /* drill */
+  .qcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;box-shadow:var(--shadow)}
+  .qmeta{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+  .chip{font-size:11px;color:var(--dim);background:var(--panel2);border:1px solid var(--line);
+    border-radius:6px;padding:3px 8px}
+  .qtext{font-size:18px;line-height:1.55;margin:0 0 6px;letter-spacing:-.01em}
+  .hintline{font-size:13px;color:var(--mut);margin-top:14px}
+  .rate{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:22px}
+  .rate button{padding:11px 8px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);
+    color:var(--txt);font:inherit;font-size:13px;cursor:pointer;line-height:1.35}
+  .rate button b{display:block;font-size:12px;color:var(--dim);font-weight:500;margin-top:2px}
+  .rate button:hover{border-color:var(--acc)}
+  .rate button[data-k=again]:hover{border-color:var(--bad)}
+  .progress{height:4px;background:var(--panel2);border-radius:99px;overflow:hidden;margin-bottom:18px}
+  .progress i{display:block;height:100%;background:var(--acc);transition:width .3s}
+  .statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px}
+  .stat b{display:block;font-size:24px;font-variant-numeric:tabular-nums}
+  .stat span{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em}
+  .bar{height:6px;background:var(--panel2);border-radius:99px;overflow:hidden;margin-top:9px}
+  .bar i{display:block;height:100%;background:var(--acc)}
+  .empty{color:var(--dim);text-align:center;padding:50px 0;font-size:14px}
+
+  /* ---------- topics ---------- */
+  .subchips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+  .subchips button{background:var(--panel);border:1px solid var(--line);color:var(--mut);
+    font:inherit;font-size:12.5px;padding:6px 11px;border-radius:99px;cursor:pointer}
+  .subchips button:hover{color:var(--txt);border-color:var(--acc)}
+  .subchips button.on{color:var(--on);background:var(--acc);border-color:var(--acc);font-weight:600}
+  .unitgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+  .ucard{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:15px 16px;
+    cursor:pointer;transition:border-color .16s,transform .16s;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .ucard:hover{border-color:var(--acc);transform:translateY(-2px)}
+  .ucard .un{font:600 10.5px/1 ui-monospace,monospace;color:var(--dim);letter-spacing:.12em}
+  .ucard h3{margin:7px 0 6px;font-size:15px;letter-spacing:-.01em;line-height:1.35}
+  .ucard .heatline{font-size:11.5px;color:var(--mut);display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
+  .ucard .heatline b{color:var(--acc);font-weight:600}
+  .ubar{position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--acc);opacity:var(--o,.25)}
+
+  /* stepper */
+  .stepper{margin:6px 0 0}
+  .step{display:flex;gap:12px;padding:0;border-bottom:1px solid transparent;opacity:0;
+    max-height:0;overflow:hidden;transition:opacity .3s ease,max-height .35s ease}
+  .step.show{opacity:1;max-height:320px;padding:12px 0;border-bottom-color:var(--line)}
+  .step .sn{flex:0 0 26px;height:26px;border-radius:50%;border:1px solid var(--line);background:var(--panel2);
+    display:flex;align-items:center;justify-content:center;font:600 11px ui-monospace,monospace;color:var(--mut)}
+  .step.show .sn{border-color:var(--acc);color:var(--acc)}
+  .step b{display:block;font-size:13.5px;margin-bottom:2px}
+  .step p{margin:0;font-size:13px;color:var(--mut);line-height:1.55}
+  .stepctl{display:flex;gap:8px;align-items:center;margin-top:14px;flex-wrap:wrap}
+  .dots{display:flex;gap:4px;margin-left:auto}
+  .dots i{width:6px;height:6px;border-radius:50%;background:var(--line);display:block}
+  .dots i.on{background:var(--acc)}
+
+  /* flip cards */
+  .flipgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:9px;margin-top:10px}
+  .flip{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px 12px;
+    cursor:pointer;min-height:64px;transition:border-color .16s,background .16s}
+  .flip:hover{border-color:var(--acc)}
+  .flip .k{font-size:12.5px;font-weight:600;display:block}
+  .flip .v{font-size:12.5px;color:var(--mut);display:none;margin-top:6px;line-height:1.5}
+  .flip.open .v{display:block}
+  .flip.open{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 7%,var(--panel2))}
+  .flip .tap{font-size:10.5px;color:var(--dim);margin-top:4px;display:block}
+  .flip.open .tap{display:none}
+
+  .traps{margin:8px 0 0;padding-left:0;list-style:none}
+  .traps li{padding:7px 0 7px 22px;position:relative;font-size:13px;color:var(--mut);line-height:1.5;
+    border-bottom:1px dashed var(--line)}
+  .traps li::before{content:"✕";position:absolute;left:2px;top:6px;color:var(--warn);font-size:11px;font-weight:700}
+  .asklist{margin:8px 0 0;padding-left:0;list-style:none;counter-reset:a}
+  .asklist li{padding:6px 0 6px 24px;position:relative;font-size:13px;color:var(--mut);counter-increment:a}
+  .asklist li::before{content:counter(a);position:absolute;left:0;top:6px;color:var(--dim);font:600 10.5px ui-monospace,monospace}
+  .asklist li::after{content:"";}
+
+  /* answer kit */
+  .kit{border:1px solid var(--line);border-radius:12px;background:var(--panel2);padding:14px;margin-top:10px}
+  .kithead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .kithead b{font-size:12.5px;letter-spacing:.02em}
+  .kitbar{height:5px;background:var(--line);border-radius:99px;overflow:hidden;margin:10px 0 12px}
+  .kitbar i{display:block;height:100%;background:var(--acc);width:0;transition:width .3s}
+  .kmeta{display:flex;justify-content:space-between;gap:10px;margin:-6px 0 10px;
+    font:11px/1.4 ui-monospace,SFMono-Regular,monospace;color:var(--dim)}
+  .pt{display:flex;gap:9px;align-items:flex-start;padding:7px 0;font-size:13px;color:var(--mut);
+    border-bottom:1px dashed var(--line);line-height:1.5}
+  .pt.hidden{opacity:.35;filter:blur(3.5px);user-select:none}
+  .pt.hidden .txt{color:transparent;text-shadow:0 0 8px var(--mut)}
+  .pt .tick{flex:0 0 18px;height:18px;border-radius:5px;border:1px solid var(--line);background:var(--panel);
+    cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:transparent;margin-top:1px}
+  .pt.hit .tick{background:var(--acc);border-color:var(--acc);color:var(--on)}
+  .ansblock{white-space:pre-wrap;font-size:13.5px;line-height:1.75;background:var(--code);
+    border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin-top:10px;display:none}
+  .ansblock.show{display:block}
+
+  /* question hint (hover) */
+  .qwrap{position:relative}
+  .qtext{cursor:help;position:relative;display:inline}
+  .qtext:focus{outline:none}
+  .hintpop{position:absolute;left:0;top:calc(100% + 8px);z-index:20;width:min(520px,88vw);
+    background:var(--panel);border:1px solid var(--acc);border-radius:12px;padding:13px 15px;
+    box-shadow:0 18px 40px -20px rgba(0,0,0,.6);opacity:0;pointer-events:none;transform:translateY(-4px);
+    transition:opacity .18s,transform .18s;text-align:left}
+  .qwrap:hover .hintpop,.qwrap:focus-within .hintpop,.qwrap.pinned .hintpop{opacity:1;pointer-events:auto;transform:none}
+  .hintpop .hl{font:600 10px/1 ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--acc);display:block;margin-bottom:4px}
+  .hintpop p{margin:0 0 10px;font-size:12.8px;line-height:1.55;color:var(--mut)}
+  .hintpop p:last-child{margin-bottom:0}
+  .hintbtn{background:none;border:0;color:var(--dim);font:inherit;font-size:11.5px;cursor:pointer;
+    padding:2px 0;text-decoration:underline dotted;text-underline-offset:3px}
+  .hintbtn:hover{color:var(--acc)}
+
+  /* marks + sure shot */
+  .mchip{font:600 10.5px/1 ui-monospace,monospace;background:color-mix(in srgb,var(--acc) 16%,transparent);
+    color:var(--acc);border:1px solid color-mix(in srgb,var(--acc) 40%,transparent);border-radius:5px;padding:3px 6px}
+  .scard{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:15px 17px;margin-bottom:10px;
+    box-shadow:var(--shadow);cursor:pointer}
+  .scard:hover{border-color:var(--acc)}
+  .scard .top{display:flex;gap:10px;align-items:flex-start}
+  .scard .rank{font:700 13px ui-monospace,monospace;color:var(--dim);min-width:26px;padding-top:2px}
+  .scard .sz{font:700 11px ui-monospace,monospace;color:var(--on);background:var(--acc);border-radius:6px;
+    padding:3px 7px;height:fit-content;white-space:nowrap}
+  .scard h3{margin:0 0 5px;font-size:14.5px;line-height:1.45;letter-spacing:-.01em;font-weight:600}
+  .scard .meta2{font-size:11.5px;color:var(--dim);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .scard .body{display:none;margin-top:14px;border-top:1px solid var(--line);padding-top:14px}
+  .scard.open .body{display:block}
+  .scard.open{border-color:var(--acc)}
+  .unitrow{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:12.8px;border-bottom:1px solid var(--line)}
+  .unitrow .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .unitrow .rbar{flex:0 0 110px;height:6px;background:var(--panel2);border-radius:99px;overflow:hidden}
+  .unitrow .rbar i{display:block;height:100%;background:var(--acc)}
+  .unitrow .num{color:var(--dim);font:11px ui-monospace,monospace;min-width:58px;text-align:right}
+  .pq{padding:11px 0;border-bottom:1px solid var(--line)}
+  .pq:last-child{border-bottom:0}
+  .pq .qtext{font-size:14.5px;font-weight:500;line-height:1.55;display:block;cursor:pointer}
+  .pq .pqkit:not(:empty){margin-top:10px}
+  @media(max-width:640px){
+    .top{padding:10px 14px;gap:8px}
+    nav{gap:2px;margin-left:0}
+    nav button{font-size:12.5px;padding:6px 7px}
+    .link{font-size:12px;padding:5px 8px}
+    .unitrow .rbar{display:none}
+    .unitgrid{grid-template-columns:1fr}
+    .flipgrid{grid-template-columns:1fr 1fr}
+  }
+  @media(max-width:640px){.rate{grid-template-columns:repeat(2,1fr)}.stage .name{min-width:110px}}
+  @media(max-width:720px){
+    .top{padding:10px 14px;gap:10px;flex-wrap:wrap}
+    .brand{display:none}
+    nav{margin-left:0;order:2;width:100%}
+    .spacer{display:none}
+    .link{margin-left:0}
+    .link:first-of-type{margin-left:auto}
+    .wrap{padding:18px 14px 70px}
+    h1{font-size:22px}
+    .sub{font-size:13.2px;margin-bottom:18px}
+    .panel{padding:14px}
+    .row{gap:8px}
+    .field{flex:1 1 100%;min-width:0}
+    .field input,.field select{width:100%;min-width:0}
+    .labhead{gap:8px;align-items:flex-start}
+    .qtext{font-size:16.5px}
+    .qcard{padding:17px}
+    .statgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .stat b{font-size:20px}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">CSIT 6 · <b>Learn</b></div>
+  <nav id="nav">
+    <button data-view="topics" class="on">Topics</button>
+    <button data-view="why">Why</button>
+    <button data-view="labs">Labs</button>
+    <button data-view="drill">Drill</button>
+    <button data-view="sure">Sure Shot</button>
+    <button data-view="progress">Progress</button>
+  </nav>
+  <div class="spacer"></div>
+  <a class="link" href="reader.html">Reader</a>
+  <a class="link" href="index.html">Tracker</a>
+  <button class="link" id="theme" style="cursor:pointer;background:none">Light / dark</button>
+</header>
+
+<main class="wrap" id="view"></main>
+
+<script src="data/qbank.js"></script>
+<script src="data/answers.js"></script>
+<script src="data/topics.js"></script>
+<script src="data/logic.js"></script>
+<script src="data/repeats.js"></script>
+<script>
+/* =========================================================
+   storage
+   ========================================================= */
+const KEY = "csit6.srs.v1";
+let SRS = { reviews: {}, days: {} };
+try { SRS = Object.assign(SRS, JSON.parse(localStorage.getItem(KEY)) || {}); } catch (e) {}
+const saveSRS = () => { try { localStorage.setItem(KEY, JSON.stringify(SRS)); } catch (e) {} };
+
+const DAY = 86400000;
+const todayKey = () => new Date().toISOString().slice(0, 10);
+
+/* =========================================================
+   views + routing
+   ========================================================= */
+const view = document.getElementById("view");
+let route = { view: "topics", lab: null };
+
+function go(v, lab) {
+  route = { view: v, lab: lab || null };
+  const want = lab ? "#" + lab : v === "labs" ? "" : "#" + v;
+  try { history.replaceState(null, "", location.pathname + location.search + want); } catch (e) {}
+  document.querySelectorAll("#nav button").forEach((b) => b.classList.toggle("on", b.dataset.view === v && !lab));
+  render();
+  window.scrollTo(0, 0);
+}
+document.getElementById("nav").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-view]");
+  if (b) go(b.dataset.view);
+});
+document.getElementById("theme").addEventListener("click", () => {
+  const n = document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light";
+  document.documentElement.setAttribute("data-theme", n);
+  try { localStorage.setItem("csit6.theme", n); } catch (e) {}
+  /* every colour in this app comes from a CSS variable, so the browser repaints by itself —
+     no re-render, which means an open lab, a revealed step or an expanded answer survives the toggle */
+});
+
+/* =========================================================
+   LAB 1 — regex → NFA → DFA
+   ========================================================= */
+function regexLab() {
+  view.innerHTML = `
+  <div class="labhead">
+    <button class="back" onclick="go('labs')">← Labs</button>
+    <div class="labtitle">Regex → NFA → DFA <small>CDC Unit 2 · the question that appears every year</small></div>
+  </div>
+  <div class="panel">
+    <div class="row">
+      <div class="field"><label>Regular expression</label>
+        <input type="text" id="re" value="(a|b)*abb" spellcheck="false" /></div>
+      <div class="field"><label>Test string</label>
+        <input type="text" id="test" value="aabb" spellcheck="false" style="min-width:100px" /></div>
+      <button class="act" id="build">Build</button>
+    </div>
+    <p class="hintline">Operators: <code>|</code> union · <code>*</code> star · <code>+</code> plus · <code>?</code> optional · <code>( )</code> grouping. Concatenation is implicit. Alphabet = whatever letters you type.</p>
+    <div id="rerr" class="err"></div>
+  </div>
+  <div class="panel"><div id="nfaWrap"></div></div>
+  <div class="panel"><div id="dfaWrap"></div></div>`;
+
+  const R = document.getElementById("re");
+  const build = () => {
+    document.getElementById("rerr").textContent = "";
+    try {
+      const ast = parseRegex(R.value);
+      const nfa = thompson(ast);
+      const dfa = subset(nfa);
+      document.getElementById("nfaWrap").innerHTML =
+        `<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+           <b style="font-size:13.5px">Step 1 — ε-NFA (Thompson)</b>
+           <span style="font-size:12px;color:var(--mut)">${nfa.states.length} states, start = S0</span>
+         </div>` + svgGraph(nfa, nfa.start, new Set([nfa.accept])) +
+        trial(nfa, document.getElementById("test").value, "NFA");
+
+      const accept = new Set(dfa.states.filter((s) => s.accept).map((s) => s.id));
+      document.getElementById("dfaWrap").innerHTML =
+        `<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+           <b style="font-size:13.5px">Step 2 — DFA (subset construction)</b>
+           <span style="font-size:12px;color:var(--mut)">${dfa.states.length} states after merging ε-closures</span>
+         </div>` + svgGraph(dfa, dfa.start, accept) +
+        dfaTable(dfa) +
+        trial(dfa, document.getElementById("test").value, "DFA");
+    } catch (e) {
+      document.getElementById("rerr").textContent = "Cannot parse: " + e.message;
+      document.getElementById("nfaWrap").innerHTML = "";
+      document.getElementById("dfaWrap").innerHTML = "";
+    }
+  };
+  document.getElementById("build").addEventListener("click", build);
+  R.addEventListener("keydown", (e) => { if (e.key === "Enter") build(); });
+  build();
+}
+
+/* --- tiny regex front end --- */
+function parseRegex(src) {
+  const t = [...src.replace(/\s+/g, "")].map((c) => ("|*+?()".includes(c) ? { k: c } : { k: "lit", v: c }));
+  let i = 0;
+  const alt = () => { let n = cat(); while (t[i] && t[i].k === "|") { i++; n = { k: "alt", a: n, b: cat() }; } return n; };
+  const cat = () => {
+    let n = rep();
+    while (t[i] && t[i].k !== "|" && t[i].k !== ")") n = { k: "cat", a: n, b: rep() };
+    return n;
+  };
+  const rep = () => {
+    let n = atom();
+    while (t[i] && "*+?".includes(t[i].k)) { const op = t[i++].k; n = { k: op === "*" ? "star" : op === "+" ? "plus" : "opt", a: n }; }
+    return n;
+  };
+  const atom = () => {
+    const x = t[i];
+    if (!x) throw new Error("expression ends too early");
+    if (x.k === "(") { i++; const n = alt(); if (!t[i] || t[i].k !== ")") throw new Error("missing )"); i++; return n; }
+    if (x.k === "lit") { i++; return { k: "lit", v: x.v }; }
+    throw new Error(`unexpected "${x.k}"`);
+  };
+  const ast = alt();
+  if (i < t.length) throw new Error("trailing input near index " + i);
+  return ast;
+}
+
+function thompson(ast) {
+  const states = [];
+  const S = () => { const s = { id: states.length, eps: [], trans: [] }; states.push(s); return s.id; };
+  const build = (n) => {
+    if (n.k === "lit") { const a = S(), b = S(); states[a].trans.push({ sym: n.v, to: b }); return [a, b]; }
+    if (n.k === "cat") { const [a, b] = build(n.a); const [c, d] = build(n.b); states[b].eps.push(c); return [a, d]; }
+    if (n.k === "alt") {
+      const s = S(), e = S(); const [a, b] = build(n.a); const [c, d] = build(n.b);
+      states[s].eps.push(a, c); states[b].eps.push(e); states[d].eps.push(e); return [s, e];
+    }
+    if (n.k === "star") {
+      const s = S(), e = S(); const [a, b] = build(n.a);
+      states[s].eps.push(a, e); states[b].eps.push(a, e); return [s, e];
+    }
+    if (n.k === "plus") {
+      const s = S(), e = S(); const [a, b] = build(n.a);
+      states[s].eps.push(a); states[b].eps.push(a, e); return [s, e];
+    }
+    if (n.k === "opt") {
+      const s = S(), e = S(); const [a, b] = build(n.a);
+      states[s].eps.push(a, e); states[b].eps.push(e); return [s, e];
+    }
+    throw new Error("bad node");
+  };
+  const [start, accept] = build(ast);
+  return { states, start, accept };
+}
+
+function eclose(nfa, ids) {
+  const out = new Set(ids); const st = [...ids];
+  while (st.length) { const s = st.pop(); for (const n of nfa.states[s].eps) if (!out.has(n)) { out.add(n); st.push(n); } }
+  return out;
+}
+
+function subset(nfa) {
+  const alpha = [...new Set(nfa.states.flatMap((s) => s.trans.map((t) => t.sym)))].sort();
+  const startSet = eclose(nfa, [nfa.start]);
+  const sets = [startSet], index = new Map([[key(startSet), 0]]);
+  const states = [{ id: "D0", set: startSet, accept: startSet.has(nfa.accept), trans: [] }];
+  for (let q = 0; q < sets.length; q++) {
+    const cur = sets[q];
+    for (const a of alpha) {
+      const move = new Set();
+      for (const s of cur) for (const t of nfa.states[s].trans) if (t.sym === a) move.add(t.to);
+      if (!move.size) continue;
+      const cl = eclose(nfa, move);
+      const k = key(cl);
+      if (!index.has(k)) { index.set(k, sets.length); sets.push(cl); states.push({ id: "D" + (sets.length - 1), set: cl, accept: cl.has(nfa.accept), trans: [] }); }
+      states[q].trans.push({ sym: a, to: "D" + index.get(k) });
+    }
+  }
+  return { states, start: "D0", alphabet: alpha };
+}
+const key = (set) => [...set].sort((a, b) => a - b).join(",");
+
+/* --- SVG rendering --- */
+let graphSeq = 0;
+function svgGraph(g, startId, acceptSet) {
+  const uid = "ar" + ++graphSeq;
+  const byId = new Map(g.states.map((s) => [s.id, s]));
+
+  // BFS over symbol *and* ε moves: a Thompson NFA is a long chain of ε hops,
+  // so following only symbol edges would collapse every state into one column.
+  const level = new Map([[startId, 0]]);
+  const queue = [startId];
+  while (queue.length) {
+    const cur = queue.shift();
+    const st = byId.get(cur);
+    if (!st) continue;
+    for (const to of [...st.trans.map((t) => t.to), ...(st.eps || [])]) {
+      if (!level.has(to)) { level.set(to, level.get(cur) + 1); queue.push(to); }
+    }
+  }
+  const nodes = g.states.map((s) => s.id);
+  let maxL = 0;
+  for (const n of nodes) if (level.has(n)) maxL = Math.max(maxL, level.get(n));
+  for (const n of nodes) if (!level.has(n)) level.set(n, maxL + 1);
+  for (const n of nodes) maxL = Math.max(maxL, level.get(n));
+
+  // merge parallel edges: one path per ordered pair, symbols joined ("a,b" / "ε")
+  const edges = new Map();
+  const addEdge = (from, to, sym, eps) => {
+    const k = from + "→" + to;
+    const e = edges.get(k) || { from, to, syms: [], eps };
+    if (!e.syms.includes(sym)) e.syms.push(sym);
+    e.eps = e.eps && eps;
+    edges.set(k, e);
+  };
+  for (const st of g.states) {
+    for (const t of st.trans) addEdge(st.id, t.to, String(t.sym), false);
+    for (const to of st.eps || []) addEdge(st.id, to, "ε", true);
+  }
+
+  const byL = new Map();
+  for (const n of nodes) {
+    const l = level.get(n);
+    if (!byL.has(l)) byL.set(l, []);
+    byL.get(l).push(n);
+  }
+
+  const rows = Math.max(...[...byL.values()].map((a) => a.length), 1);
+  const cols = maxL + 1;
+  const CW = Math.max(64, Math.min(126, Math.round(980 / cols)));
+  const CH = 74;
+  const padL = 38, padT = 34;
+
+  const pos = new Map();
+  for (const [l, arr] of byL) {
+    const offset = ((rows - arr.length) * CH) / 2;
+    arr.forEach((n, i) => pos.set(n, { x: padL + 26 + l * CW, y: padT + 26 + offset + i * CH }));
+  }
+  const w = padL + (cols - 1) * CW + 96;
+  const h = Math.max(132, padT + rows * CH + 36);
+
+  let s = `<svg viewBox="0 0 ${w} ${h}" width="${w}" style="max-width:100%;height:auto" xmlns="http://www.w3.org/2000/svg">
+    <defs><marker id="${uid}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" class="arrow"/></marker></defs>`;
+
+  for (const e of edges.values()) {
+    const a = pos.get(e.from), b = pos.get(e.to);
+    if (!a || !b) continue;
+    const cls = e.eps ? "edge eps" : "edge";
+    let d, lx, ly;
+    if (e.from === e.to) {
+      d = `M${a.x - 11},${a.y - 17} C${a.x - 30},${a.y - 58} ${a.x + 30},${a.y - 58} ${a.x + 11},${a.y - 17}`;
+      lx = a.x; ly = a.y - 50;
+    } else {
+      const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy) || 1;
+      const ux = dx / len, uy = dy / len;
+      const sx = a.x + ux * 19, sy = a.y + uy * 19;
+      const ex = b.x - ux * 21, ey = b.y - uy * 21;
+      const span = Math.abs(dx) / CW + Math.abs(dy) / CH;
+      let bow = span > 1.7 ? -30 : 0;
+      if (edges.has(e.to + "→" + e.from)) bow = -46;
+      const mx = (sx + ex) / 2 - uy * bow, my = (sy + ey) / 2 + ux * bow;
+      d = `M${sx},${sy} Q${mx},${my} ${ex},${ey}`;
+      lx = (sx + ex) / 2 - uy * bow * 0.55;
+      ly = (sy + ey) / 2 + ux * bow * 0.55 - 5;
+    }
+    s += `<path class="${cls}" d="${d}" marker-end="url(#${uid})"/>`;
+    s += `<text class="elabel" x="${lx}" y="${ly}">${esc(e.syms.join(","))}</text>`;
+  }
+
+  // start arrow
+  const sp = pos.get(startId);
+  if (sp) s += `<path class="edge" d="M${sp.x - 44},${sp.y} L${sp.x - 21},${sp.y}" marker-end="url(#${uid})"/>`;
+
+  for (const [id, p] of pos) {
+    const cls = "node" + (id === startId ? " start" : "") + (acceptSet.has(id) ? " accept" : "");
+    s += `<g class="${cls}"><circle cx="${p.x}" cy="${p.y}" r="17"/>
+      <text x="${p.x}" y="${p.y + 4}">${esc(String(id).replace(/^S|^D/, ""))}</text>
+      ${acceptSet.has(id) ? `<circle cx="${p.x}" cy="${p.y}" r="21"/>` : ""}</g>`;
+  }
+  s += `</svg>`;
+
+  const legend = `<div class="legend"><span>${acceptSet.size ? "<i class=\"dot acc\"></i> accepting" : ""}</span>
+    <span>${edges.size && [...edges.values()].some((e) => e.eps) ? "<i class=\"dot eps\"></i> ε (empty) move" : ""}</span>
+    <span><i class="dot start"></i> start</span></div>`;
+  return `<div class="graph">${s}</div>${legend}`;
+}
+const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+
+function dfaTable(dfa) {
+  const rows = dfa.states.map((s) =>
+    `<tr><td>${s.id}${s.accept ? " ✓" : ""}</td>${dfa.alphabet.map((a) => {
+      const t = s.trans.find((x) => x.sym === a);
+      return `<td>${t ? t.to : "—"}</td>`;
+    }).join("")}</tr>`).join("");
+  return `<table><thead><tr><th>State</th>${dfa.alphabet.map((a) => `<th>${esc(a)}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function trial(aut, input, label) {
+  let cur = aut.start;
+  if (label === "NFA") {
+    let set = eclose(aut, [cur.id != null ? cur : aut.start]);
+    for (const ch of input) {
+      const nx = new Set();
+      for (const s of set) for (const t of aut.states[s].trans) if (t.sym === ch) nx.add(t.to);
+      set = eclose(aut, nx);
+      if (!set.size) break;
+    }
+    const ok = set.has(aut.accept);
+    return verdict(label, input, ok);
+  }
+  for (const ch of input) {
+    const t = aut.states.find((s) => s.id === cur).trans.find((x) => x.sym === ch);
+    if (!t) return verdict(label, input, false);
+    cur = t.to;
+  }
+  const st = aut.states.find((s) => s.id === cur);
+  return verdict(label, input, !!st.accept);
+}
+const verdict = (label, input, ok) =>
+  `<p class="hintline">${label} on <code>${esc(input || "ε")}</code> → <b style="color:${ok ? "var(--acc)" : "var(--bad)"}">${ok ? "ACCEPTED" : "REJECTED"}</b></p>`;
+
+/* =========================================================
+   LAB 2 — three address code
+   ========================================================= */
+function tacLab() {
+  view.innerHTML = `
+  <div class="labhead">
+    <button class="back" onclick="go('labs')">← Labs</button>
+    <div class="labtitle">Three-address code generator <small>CDC Unit 4 · TAC, quadruples, triples, CSE</small></div>
+  </div>
+  <div class="panel">
+    <div class="row">
+      <div class="field" style="flex:1"><label>Statement</label>
+        <input type="text" id="expr" value="a = b * -c + b * -c" spellcheck="false" style="width:100%" /></div>
+      <div class="field"><label>CSE</label>
+        <select id="cse"><option value="1">on</option><option value="0">off</option></select></div>
+      <button class="act" id="gen">Generate</button>
+    </div>
+    <p class="hintline">Try: <code>x = a*b + c*d - e</code> · <code>y = (a+b)*(a+b)</code> · <code>z = -x + y*2</code></p>
+    <div id="terr" class="err"></div>
+  </div>
+  <div class="panel"><div id="tacOut"></div></div>`;
+
+  const run = () => {
+    const out = document.getElementById("tacOut");
+    document.getElementById("terr").textContent = "";
+    try {
+      const r = genTAC(document.getElementById("expr").value, document.getElementById("cse").value === "1");
+      out.innerHTML = `
+        <b style="font-size:13.5px">Three-address code</b>
+        <pre style="margin-top:8px">${esc(r.lines.join("\n"))}</pre>
+        <b style="font-size:13.5px;display:block;margin-top:16px">Quadruples &nbsp;<span style="color:var(--dim);font-weight:400">(op, arg1, arg2, result)</span></b>
+        <pre style="margin-top:8px">${esc(r.quad.map((q, i) => `${i}:  (${q.join(", ")})`).join("\n"))}</pre>
+        <b style="font-size:13.5px;display:block;margin-top:16px">Triples &nbsp;<span style="color:var(--dim);font-weight:400">(op, arg1, arg2) — operands that are results are written as (n)</span></b>
+        <pre style="margin-top:8px">${esc(r.tri.map((t, i) => `(${i}):  (${t.join(", ")})`).join("\n"))}</pre>`;
+    } catch (e) {
+      document.getElementById("terr").textContent = e.message;
+      out.innerHTML = "";
+    }
+  };
+  document.getElementById("gen").addEventListener("click", run);
+  document.getElementById("expr").addEventListener("keydown", (e) => { if (e.key === "Enter") run(); });
+  run();
+}
+
+function genTAC(src, useCSE) {
+  const op = src.replace(/\s+/g, "");
+  if (!op) throw new Error("empty statement");
+  const parts = op.split(/=(.*)/s);
+  const lhs = op.includes("=") ? parts[0].trim() : null;
+  const rhs = op.includes("=") ? parts[1] : op;
+  if (!rhs) throw new Error("nothing on the right of =");
+  const toks = rhs.match(/[A-Za-z_]\w*|\d+(?:\.\d+)?|[-+*/()]/g);
+  if (!toks) throw new Error("no operands found");
+
+  // shunting-yard, with unary minus handled as "u-"
+  const prec = { "+": 1, "-": 1, "*": 2, "/": 2, "u-": 3, "u+": 3 };
+  const outq = [], ops = [];
+  let prev = null;
+  for (const t of toks) {
+    if (/^[A-Za-z_]\w*$/.test(t) || /^\d/.test(t)) { outq.push(t); prev = "val"; }
+    else if (t === "(") { ops.push(t); prev = "op"; }
+    else if (t === ")") {
+      while (ops.length && ops[ops.length - 1] !== "(") outq.push(ops.pop());
+      if (!ops.length) throw new Error("unbalanced )");
+      ops.pop(); prev = "val";
+    } else {
+      const un = (t === "-" || t === "+") && (prev === null || prev === "op");
+      const o = un ? "u" + t : t;
+      while (ops.length && ops[ops.length - 1] !== "(" && prec[ops[ops.length - 1]] >= prec[o]) outq.push(ops.pop());
+      ops.push(o); prev = "op";
+    }
+  }
+  while (ops.length) { const o = ops.pop(); if (o === "(") throw new Error("unbalanced ("); outq.push(o); }
+
+  let n = 0;
+  const lines = [], quad = [], tri = [];
+  const cseMap = new Map();
+  const isTemp = (x) => /^t\d+$/.test(x);
+  const tempName = (i) => "t" + i;
+  const triIndex = new Map();
+
+  const emit = (o, a1, a2) => {
+    const k = o + "|" + a1 + "|" + (a2 || "");
+    if (useCSE && cseMap.has(k)) return cseMap.get(k);
+    const t = tempName(++n);
+    const body = a2 === "" ? (o[0] === "u" ? o[1] + a1 : a1) : `${a1} ${o} ${a2}`;
+    lines.push(`${t} = ${body}`);
+    const opname = o === "u-" ? "uminus" : o;
+    quad.push([opname, a1, a2 === "" ? "-" : a2, t]);
+    const ti = tri.length;
+    tri.push([opname, a1, a2 === "" ? "-" : a2]);
+    if (isTemp(a1)) { const j = triIndex.get(a1); tri[ti][1] = `(${j})`; }
+    if (isTemp(a2)) { const j = triIndex.get(a2); tri[ti][2] = `(${j})`; }
+    triIndex.set(t, ti);
+    if (useCSE) cseMap.set(k, t);
+    return t;
+  };
+
+  const stack = [];
+  for (const t of outq) {
+    if (/^[A-Za-z_]\w*$/.test(t) || /^\d/.test(t)) { stack.push(t); continue; }
+    if (t === "u-" || t === "u+") { const a = stack.pop(); if (a === undefined) throw new Error("bad expression"); stack.push(t === "u-" ? emit("u-", a, "") : a); continue; }
+    const b = stack.pop(), a = stack.pop();
+    if (a === undefined || b === undefined) throw new Error("bad expression");
+    stack.push(emit(t, a, b));
+  }
+  if (stack.length !== 1) throw new Error("bad expression");
+  const result = stack[0];
+  if (lhs) lines.push(`${lhs} = ${result}`);
+  else lines.push(`result = ${result}`);
+  return { lines, quad, tri };
+}
+
+/* =========================================================
+   LAB 3 — COCOMO
+   ========================================================= */
+function cocomoLab() {
+  const MODES = {
+    organic: { a: 2.4, b: 1.05, c: 2.5, d: 0.38 },
+    semi: { a: 3.0, b: 1.12, c: 2.5, d: 0.35 },
+    embedded: { a: 3.6, b: 1.20, c: 2.5, d: 0.32 },
+  };
+  view.innerHTML = `
+  <div class="labhead">
+    <button class="back" onclick="go('labs')">← Labs</button>
+    <div class="labtitle">COCOMO calculator <small>SE Unit 10 · basic and intermediate model</small></div>
+  </div>
+  <div class="panel">
+    <div class="row">
+      <div class="field"><label>Size (KLOC)</label><input type="number" id="kloc" value="33.6" step="0.1" min="0.1" /></div>
+      <div class="field"><label>Mode</label>
+        <select id="mode"><option value="organic">Organic</option><option value="semi" selected>Semi-detached</option><option value="embedded">Embedded</option></select></div>
+      <div class="field"><label>Cost driver (EAF)</label><input type="number" id="eaf" value="1" step="0.01" min="0.1" /></div>
+      <div class="field"><label>Rate / person-month</label><input type="number" id="rate" value="0" step="1000" /></div>
+    </div>
+    <p class="hintline">Set EAF to 1 for basic COCOMO. Effort = a × KLOC^b × EAF · Time = c × Effort^d · Staff = Effort / Time.</p>
+  </div>
+  <div class="panel" id="cocOut"></div>`;
+
+  const calc = () => {
+    const K = parseFloat(document.getElementById("kloc").value) || 0;
+    const m = MODES[document.getElementById("mode").value];
+    const eaf = parseFloat(document.getElementById("eaf").value) || 1;
+    const rate = parseFloat(document.getElementById("rate").value) || 0;
+    const effort = m.a * Math.pow(K, m.b) * eaf;
+    const time = m.c * Math.pow(effort, m.d);
+    const staff = effort / time;
+    const prod = K / effort;
+    const cost = effort * rate;
+    const f = (x, d = 2) => Number(x).toFixed(d);
+
+    document.getElementById("cocOut").innerHTML = `
+      <div class="statgrid">
+        <div class="stat"><span>Effort</span><b>${f(effort)}</b>person-months</div>
+        <div class="stat"><span>Development time</span><b>${f(time)}</b>months</div>
+        <div class="stat"><span>Average staff</span><b>${f(staff)}</b>persons</div>
+        <div class="stat"><span>Productivity</span><b>${f(prod, 3)}</b>KLOC / PM</div>
+        ${rate ? `<div class="stat"><span>Cost</span><b>${Math.round(cost).toLocaleString()}</b>currency</div>` : ""}
+      </div>
+      <div style="margin-top:18px">
+        <b style="font-size:13px">The substitution (write this line in the exam — it earns method marks)</b>
+        <pre style="margin-top:8px">E = ${m.a} × (${K})^${m.b} × ${eaf} = ${f(effort)} PM
+D = ${m.c} × (${f(effort)})^${m.d} = ${f(time)} months
+P = E / D = ${f(effort)} / ${f(time)} = ${f(staff)} persons</pre>
+      </div>`;
+  };
+  ["kloc", "mode", "eaf", "rate"].forEach((id) => document.getElementById(id).addEventListener("input", calc));
+  calc();
+}
+
+/* =========================================================
+   LAB 4 — ASP.NET Core request pipeline
+   ========================================================= */
+function pipelineLab() {
+  const MW = [
+    { n: "Kestrel", d: "accepts TCP connection, parses the HTTP request" },
+    { n: "ExceptionHandler", d: "try/catch around everything downstream" },
+    { n: "HSTS", d: "adds Strict-Transport-Security on responses" },
+    { n: "HttpsRedirection", d: "issues a 307 if the request is plain HTTP" },
+    { n: "StaticFiles", d: "serves wwwroot if the path is a real file" },
+    { n: "Routing", d: "matches the URL to an endpoint, sets metadata" },
+    { n: "Authentication", d: "reads the cookie/JWT and sets HttpContext.User" },
+    { n: "Authorization", d: "evaluates [Authorize], roles, policies" },
+    { n: "Endpoint", d: "runs the controller action / minimal API handler" },
+    { n: "Response", d: "serialises the result and writes it back out" },
+  ];
+  const SCEN = {
+    static: { label: "GET /css/site.css", stop: 4, code: "200 · file streamed", why: "StaticFiles finds the file and short-circuits — Routing and auth never run." },
+    page: { label: "GET /Students/Index", stop: null, code: "200 · HTML", why: "Nothing short-circuits: every middleware calls next(), the action runs, and the response unwinds back out through the same stack." },
+    denied: { label: "GET /Admin/Users (not logged in)", stop: 7, code: "302 → /Account/Login", why: "Authorization fails and challenges the request. The action never executes." },
+    missing: { label: "GET /nope", stop: 5, code: "404", why: "Routing matches no endpoint, so nothing downstream handles it and the pipeline returns 404." },
+    http: { label: "GET http://site/ (plain HTTP)", stop: 3, code: "307 → https://site/", why: "HttpsRedirection stops the pipeline before anything else touches it." },
+  };
+
+  view.innerHTML = `
+  <div class="labhead">
+    <button class="back" onclick="go('labs')">← Labs</button>
+    <div class="labtitle">ASP.NET Core request pipeline <small>NCC Unit 3–4 · middleware order decides behaviour</small></div>
+  </div>
+  <div class="panel">
+    <div class="row" id="scen"></div>
+    <div class="log" id="log">Pick a request, then press Run.</div>
+  </div>
+  <div class="panel"><div class="pipe" id="pipe"></div></div>`;
+
+  document.getElementById("scen").innerHTML =
+    Object.entries(SCEN).map(([k, v]) => `<button class="ghost" data-scen="${k}">${v.label}</button>`).join("") +
+    `<button class="act" id="run">Run ▶</button>`;
+
+  let current = "page", timers = [];
+
+  const draw = (states) => {
+    document.getElementById("pipe").innerHTML = MW.map((m, i) => {
+      const st = states[i] || "";
+      return `<div class="stage ${st}"><span class="no">${i + 1}</span>
+        <span class="name">${m.n}</span><span class="desc">${m.d}</span></div>`;
+    }).join("");
+  };
+
+  const reset = () => { timers.forEach(clearTimeout); timers = []; draw({}); document.getElementById("log").textContent = "Pick a request, then press Run."; };
+  const run = () => {
+    reset();
+    const s = SCEN[current];
+    const logEl = document.getElementById("log");
+    logEl.textContent = "";
+    const states = {};
+    draw({});
+    const last = s.stop === null ? MW.length - 1 : s.stop;
+    for (let i = 0; i <= last; i++) {
+      timers.push(setTimeout(() => {
+        for (let j = 0; j < i; j++) states[j] = "pass";
+        states[i] = "now";
+        draw(Object.assign({}, states));
+        logEl.textContent += `→ ${MW[i].n}: ok\n`;
+        logEl.scrollTop = logEl.scrollHeight;
+        if (i === last) {
+          timers.push(setTimeout(() => {
+            if (s.stop === null) {
+              states[i] = "pass";
+              draw(Object.assign({}, states));
+              logEl.textContent += `\n✔ completed — unwinds back up the stack\n${s.code}\n\n${s.why}`;
+            } else {
+              states[i] = "stop";
+              for (let j = i + 1; j < MW.length; j++) states[j] = "skip";
+              draw(Object.assign({}, states));
+              logEl.textContent += `\n■ short-circuited here\n${s.code}\n\n${s.why}`;
+            }
+            logEl.scrollTop = logEl.scrollHeight;
+          }, 340));
+        }
+      }, i * 380));
+    }
+  };
+
+  document.getElementById("scen").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-scen]");
+    if (!b) return;
+    current = b.dataset.scen;
+    reset();
+    document.querySelectorAll("[data-scen]").forEach((x) => x.style.borderColor = "");
+    b.style.borderColor = "var(--acc)";
+  });
+  document.getElementById("run").addEventListener("click", run);
+  reset();
+  document.querySelector('[data-scen="page"]').style.borderColor = "var(--acc)";
+}
+
+/* =========================================================
+   LAB registry
+   ========================================================= */
+const LABS = [
+  { id: "regex", tag: "CSC376 · CDC U2", title: "Regex → NFA → DFA", desc: "Type a regex, watch Thompson construction build the NFA, then subset construction merge it into a DFA with a live transition table.", run: regexLab },
+  { id: "tac", tag: "CSC376 · CDC U4", title: "Three-address code", desc: "Any expression becomes TAC, quadruples and triples — with CSE on or off, so you see why common subexpressions get one temporary.", run: tacLab },
+  { id: "cocomo", tag: "CSC375 · SE U10", title: "COCOMO calculator", desc: "Move KLOC and mode, watch effort, schedule and staff size change — and see the exact substitution line to write in the exam.", run: cocomoLab },
+  { id: "pipe", tag: "CSC378 · NCC U3", title: "Request pipeline", desc: "Run five different requests through the middleware and see exactly which layer short-circuits and why.", run: pipelineLab },
+];
+
+function labsView() {
+  view.innerHTML = `
+    <h1>Interactive labs</h1>
+    <p class="sub">Four simulators for the topics that are procedural — the ones a textbook cannot teach you. Change the input, break it, watch what happens.</p>
+    <div class="grid">
+      ${LABS.map((l) => `<div class="card" data-lab="${l.id}">
+        <span class="tag">${l.tag}</span><h3>${l.title}</h3><p>${l.desc}</p>
+        <div class="go">Open lab →</div></div>`).join("")}
+    </div>`;
+  view.querySelectorAll("[data-lab]").forEach((c) =>
+    c.addEventListener("click", () => {
+      const l = LABS.find((x) => x.id === c.dataset.lab);
+      try { history.replaceState(null, "", "#" + l.id); } catch (e) {}
+      l.run();
+    }));
+}
+
+/* =========================================================
+   DRILL — spaced repetition over real papers
+   ========================================================= */
+const SUBJ = { se: "Software Engineering", cdc: "Compiler Design", egov: "E-Governance", ncc: "NET Centric Computing", tw: "Technical Writing", ecom: "E-Commerce" };
+let drill = { subj: "se", queue: [], i: 0, done: 0, size: 10 };
+
+function dueOf(q) { const r = SRS.reviews[q.id]; return r ? r.due : 0; }
+function isDue(q) { return dueOf(q) <= Date.now(); }
+
+function drillView() {
+  view.innerHTML = `
+    <h1>Drill</h1>
+    <p class="sub">Real exam questions, spaced by how well you recalled them. Reading the question is not answering it — say the answer out loud, then rate yourself honestly.</p>
+    <div class="panel">
+      <div class="row" style="margin-bottom:12px">
+        ${Object.entries(SUBJ).map(([k, v]) => `<button class="ghost" data-s="${k}" ${k === drill.subj ? 'style="border-color:var(--acc);color:var(--txt)"' : ""}>${v}</button>`).join("")}
+      </div>
+      <div class="row">
+        <button class="act" id="startDue">Practice due (${window.QBANK.filter((q) => q.s === drill.subj && isDue(q)).length})</button>
+        <button class="ghost" id="startAll">Random 10</button>
+        <button class="ghost" id="startNew">New only</button>
+      </div>
+    </div>
+    <div id="drillArea"></div>
+    <div class="panel" style="margin-top:14px">
+      <div class="kithead"><b>Answers for every question</b>
+        <span id="bankCount" style="font:11.5px ui-monospace,monospace;color:var(--dim)"></span></div>
+      <div class="row" style="margin:8px 0 6px">
+        <div class="field wide"><input id="bankSearch" type="text" placeholder="Search question text — “COCOMO”, “session state”, “SET”…" autocomplete="off" spellcheck="false" /></div>
+      </div>
+      <div class="subchips" style="margin-bottom:8px">
+        <button data-f="all" class="${bankQ.filter === "all" ? "on" : ""}">All</button>
+        <button data-f="ten" class="${bankQ.filter === "ten" ? "on" : ""}">10 marks</button>
+        <button data-f="five" class="${bankQ.filter === "five" ? "on" : ""}">5 marks</button>
+        <button data-f="repeat" class="${bankQ.filter === "repeat" ? "on" : ""}">Repeated</button>
+        <button data-f="new" class="${bankQ.filter === "new" ? "on" : ""}">Not answered</button>
+      </div>
+      <div id="bankList"></div>
+    </div>`;
+
+  view.querySelectorAll("[data-s]").forEach((b) => b.addEventListener("click", () => { drill.subj = b.dataset.s; drillView(); }));
+  document.getElementById("startDue").addEventListener("click", () => startDrill("due"));
+  document.getElementById("startAll").addEventListener("click", () => startDrill("mixed"));
+  document.getElementById("startNew").addEventListener("click", () => startDrill("new"));
+
+  const search = document.getElementById("bankSearch");
+  search.value = bankQ.text;
+  search.addEventListener("input", () => { bankQ.text = search.value; paintBank(); });
+  view.querySelectorAll("[data-f]").forEach((b) => b.addEventListener("click", () => {
+    bankQ.filter = b.dataset.f;
+    view.querySelectorAll("[data-f]").forEach((x) => x.classList.toggle("on", x === b));
+    paintBank();
+  }));
+  paintBank();
+}
+
+/* ---- browsable answer bank: every past question, hover + full kit ---- */
+let bankQ = { text: "", filter: "all" };
+
+function bankRows() {
+  const pool = window.QBANK.filter((q) => q.s === drill.subj);
+  const t = bankQ.text.trim().toLowerCase();
+  return pool.filter((q) => {
+    if (t && !q.q.toLowerCase().includes(t)) return false;
+    if (bankQ.filter === "ten") return (q.marks || 5) >= 10;
+    if (bankQ.filter === "five") return (q.marks || 5) < 10;
+    if (bankQ.filter === "repeat") return REPEAT_IDS.has(q.id);
+    if (bankQ.filter === "new") return !SRS.reviews[q.id];
+    return true;
+  });
+}
+
+function paintBank() {
+  const el = document.getElementById("bankList");
+  if (!el) return;
+  const total = window.QBANK.filter((q) => q.s === drill.subj).length;
+  const rows = bankRows();
+  document.getElementById("bankCount").textContent = `${rows.length} of ${total} · ${SUBJ[drill.subj]}`;
+  el.innerHTML = rows.length ? rows.map((q) => {
+    const u = (ansOf(q.id) || {}).u;
+    return `<div class="pq" data-q="${q.id}">
+      <div class="qmeta">
+        <span class="mchip">${q.marks || 5}m${q.guess ? " · est." : ""}</span>
+        <span class="chip">${q.y}</span>
+        ${q.sec ? `<span class="chip">${q.sec}</span>` : ""}
+        ${u ? `<span class="chip">Unit ${u}</span>` : ""}
+        ${REPEAT_IDS.has(q.id) ? `<span class="chip" style="color:var(--acc);border-color:var(--acc)">sure shot</span>` : ""}
+      </div>
+      <div class="qwrap"><p class="qtext" tabindex="0">${esc(q.q)}</p>${hintPop(q.id)}</div>
+      <div class="pqkit"></div>
+    </div>`;
+  }).join("") : `<div class="empty" style="padding:22px 0">Nothing matches that filter.</div>`;
+  el.querySelectorAll(".pq").forEach((row) => {
+    row.querySelector(".qtext").addEventListener("click", () => {
+      const box = row.querySelector(".pqkit");
+      if (row.dataset.open) { row.dataset.open = ""; box.innerHTML = ""; return; }
+      row.dataset.open = "1";
+      box.innerHTML = kitHTML(ansOf(row.dataset.q), "Answer · " + row.querySelector(".mchip").textContent);
+      wireKit(box);
+      box.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    });
+  });
+}
+
+function startDrill(mode) {
+  const pool = window.QBANK.filter((q) => q.s === drill.subj);
+  let list = pool.slice();
+  if (mode === "due") list = list.filter(isDue);
+  if (mode === "new") list = list.filter((q) => !SRS.reviews[q.id]);
+  for (let i = list.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [list[i], list[j]] = [list[j], list[i]]; }
+  drill.queue = list.slice(0, drill.size);
+  drill.i = 0; drill.done = 0;
+  if (!drill.queue.length) {
+    document.getElementById("drillArea").innerHTML = `<div class="empty">Nothing due for ${SUBJ[drill.subj]} — try “Mixed 10” or come back tomorrow.</div>`;
+    return;
+  }
+  showQuestion();
+}
+
+function showQuestion() {
+  const q = drill.queue[drill.i];
+  if (!q) return endDrill();
+  const area = document.getElementById("drillArea");
+  const pct = Math.round((drill.i / drill.queue.length) * 100);
+  area.innerHTML = `
+    <div class="progress"><i style="width:${pct}%"></i></div>
+    <div class="qcard">
+      <div class="qmeta">
+        <span class="chip">${SUBJ[q.s]}</span>
+        <span class="chip">${q.y}</span>
+        ${q.sec ? `<span class="chip">${q.sec}</span>` : ""}
+        <span class="mchip">${q.marks || 5} marks${q.guess ? " · est." : ""}</span>
+        <span class="chip">${drill.i + 1} / ${drill.queue.length}</span>
+      </div>
+      <div class="qwrap"><p class="qtext" tabindex="0" style="margin:0">${esc(q.q)}</p>${hintPop(q.id)}</div>
+      <p class="hintline">Answer it out loud or on paper first. Target: ${(q.marks || 5) >= 10 ? "12–14 minutes, one page" : "5–6 minutes, half a page"}.</p>
+      <div class="rate">
+        <button data-k="again">Again<b>blank</b></button>
+        <button data-k="hard">Hard<b>half of it</b></button>
+        <button data-k="good">Good<b>most of it</b></button>
+        <button data-k="easy">Easy<b>full answer</b></button>
+      </div>
+      <div id="drillKit"></div>
+      <div style="margin-top:10px"><span class="hintbtn" id="revealQ">Show answer kit →</span></div>
+    </div>`;
+  area.querySelectorAll(".rate button").forEach((b) => b.addEventListener("click", () => rate(q, b.dataset.k)));
+  document.getElementById("revealQ").addEventListener("click", (e) => {
+    const a = ansOf(q.id);
+    document.getElementById("drillKit").innerHTML = kitHTML(a, "Answer kit");
+    wireKit(document.getElementById("drillKit"));
+    e.target.textContent = "Hide answer kit";
+    e.target.style.display = "none";
+  });
+}
+
+function rate(q, k) {
+  const now = Date.now();
+  const r = SRS.reviews[q.id] || { ease: 2.5, interval: 0, reps: 0, seen: 0 };
+  r.seen++;
+  r.last = now;
+  if (k === "again") { r.interval = 0; r.ease = Math.max(1.3, r.ease - 0.2); r.due = now + 10 * 60000; }
+  else if (k === "hard") { r.interval = Math.max(1, r.interval * 1.2); r.ease = Math.max(1.3, r.ease - 0.15); r.due = now + r.interval * DAY; }
+  else if (k === "good") { r.interval = r.interval ? r.interval * r.ease : 1; r.due = now + r.interval * DAY; }
+  else { r.interval = r.interval ? r.interval * r.ease * 1.35 : 3; r.ease = Math.min(2.8, r.ease + 0.1); r.due = now + r.interval * DAY; }
+  r.reps++;
+  SRS.reviews[q.id] = r;
+  const d = todayKey();
+  SRS.days[d] = (SRS.days[d] || 0) + 1;
+  saveSRS();
+  drill.done++; drill.i++;
+  if (drill.i >= drill.queue.length) endDrill();
+  else if (k === "again") { drill.queue.push(q); showQuestion(); }
+  else showQuestion();
+}
+
+function endDrill() {
+  const area = document.getElementById("drillArea");
+  const total = window.QBANK.filter((q) => q.s === drill.subj).length;
+  const seen = window.QBANK.filter((q) => q.s === drill.subj && SRS.reviews[q.id]).length;
+  area.innerHTML = `
+    <div class="qcard" style="text-align:center">
+      <p style="font-size:13px;color:var(--dim);letter-spacing:.12em;text-transform:uppercase;margin:0">Session complete</p>
+      <h2 style="font-size:30px;margin:10px 0 4px">${drill.done} cards rated</h2>
+      <p style="color:var(--mut);margin:0 0 18px">${seen} of ${total} ${SUBJ[drill.subj]} questions now in rotation.</p>
+      <button class="act" onclick="go('drill')">Back to drill</button>
+    </div>`;
+}
+
+/* =========================================================
+   PROGRESS
+   ========================================================= */
+function progressView() {
+  const due = window.QBANK.filter(isDue).length;
+  const seen = Object.keys(SRS.reviews).length;
+  const days = Object.keys(SRS.days).sort();
+  let streak = 0;
+  for (let i = 0; i < 400; i++) {
+    const d = new Date(Date.now() - i * DAY).toISOString().slice(0, 10);
+    if (SRS.days[d]) streak++;
+    else if (i > 0) break;
+  }
+  const perSub = Object.entries(SUBJ).map(([k, v]) => {
+    const all = window.QBANK.filter((q) => q.s === k);
+    const s = all.filter((q) => SRS.reviews[q.id]).length;
+    const dq = all.filter(isDue).length;
+    return { k, v, all: all.length, seen: s, due: dq, pct: Math.round((s / all.length) * 100) };
+  });
+
+  view.innerHTML = `
+    <h1>Progress</h1>
+    <p class="sub">Counts what you have actually recalled, not what you have opened.</p>
+    <div class="statgrid" style="margin-bottom:16px">
+      <div class="stat"><span>In rotation</span><b>${seen}</b><div class="bar"><i style="width:${Math.round((seen / window.QBANK.length) * 100)}%"></i></div></div>
+      <div class="stat"><span>Due now</span><b>${due}</b><div style="font-size:11.5px;color:var(--dim);margin-top:6px">from ${window.QBANK.length} questions</div></div>
+      <div class="stat"><span>Day streak</span><b>${streak}</b><div style="font-size:11.5px;color:var(--dim);margin-top:6px">${days.length} active days</div></div>
+    </div>
+    <div class="panel">
+      ${perSub.map((p) => `
+        <div style="padding:11px 0;border-bottom:1px solid var(--line)">
+          <div style="display:flex;justify-content:space-between;font-size:13.5px">
+            <span>${p.v}</span><span style="color:var(--dim)">${p.seen}/${p.all} · ${p.due} due</span>
+          </div>
+          <div class="bar"><i style="width:${p.pct}%"></i></div>
+        </div>`).join("")}
+    </div>`;
+}
+
+/* =========================================================
+   shared — answers, hints, kit
+   ========================================================= */
+const ANS = window.ANSWERS || {};
+const TOP = window.TOPICS || {};
+const LOGIC = window.LOGIC || {};
+const REPS = window.REPEATS || [];
+const REPEAT_IDS = new Set(REPS.flatMap((c) => c.ids || []));
+const SUBORDER = ["se", "cdc", "egov", "ncc", "tw", "ecom"];
+
+const ansOf = (id) => ANS[id] || null;
+
+function bestAns(ids) {
+  let best = null;
+  for (const id of ids || []) {
+    const a = ansOf(id);
+    if (!a) continue;
+    if (!best || (a.ans || "").length > (best.ans || "").length) best = { ...a, id };
+  }
+  return best;
+}
+
+function hintPop(id) {
+  const a = ansOf(id);
+  if (!a || !a.logic) return "";
+  return `<div class="hintpop">
+    <span class="hl">What they are testing</span><p>${esc(a.logic)}</p>
+    <span class="hl">Learn it this way</span><p>${esc(a.how)}</p>
+  </div>`;
+}
+
+function kitHTML(a, label) {
+  if (!a) return `<div class="empty" style="padding:26px 0">No written answer for this one yet.</div>`;
+  const pts = (a.skel || []).map((s, i) =>
+    `<div class="pt hidden" data-i="${i}"><span class="tick">✓</span><span class="txt">${esc(s)}</span></div>`).join("");
+  const n = (a.skel || []).length;
+  return `<div class="kit" data-kit>
+    <div class="kithead"><b>${label || "Answer kit"}</b><span class="hintbtn" data-next>Reveal next point →</span></div>
+    <div class="kitbar"><i></i></div>
+    <div class="kmeta"><span data-cov>0 / ${n} written</span><span data-pct>0%</span></div>
+    ${pts}
+    <div class="kithead" style="margin:12px 0 0">
+      <span class="hintbtn" data-all>Show model answer</span>
+      <span class="hintbtn" data-reset>Reset</span>
+    </div>
+    <div class="ansblock">${esc(a.ans)}</div>
+  </div>`;
+}
+
+function wireKit(root) {
+  root.querySelectorAll("[data-kit]").forEach((k) => {
+    const bar = k.querySelector(".kitbar i");
+    const ans = k.querySelector(".ansblock");
+    const cov = k.querySelector("[data-cov]");
+    const pct = k.querySelector("[data-pct]");
+    const pts = [...k.querySelectorAll(".pt")];
+    const upd = () => {
+      const hit = pts.filter((p) => p.classList.contains("hit")).length;
+      bar.style.width = (pts.length ? (hit / pts.length) * 100 : 0) + "%";
+      if (cov) cov.textContent = `${hit} / ${pts.length} written`;
+      if (pct) pct.textContent = Math.round((pts.length ? (hit / pts.length) * 100 : 0)) + "%";
+    };
+    pts.forEach((p) => p.addEventListener("click", (e) => {
+      if (e.target.closest(".tick")) p.classList.toggle("hit");
+      else p.classList.remove("hidden");
+      upd();
+    }));
+    const next = k.querySelector("[data-next]");
+    if (next) next.addEventListener("click", () => {
+      const h = pts.find((p) => p.classList.contains("hidden"));
+      if (h) h.classList.remove("hidden");
+      else { ans.classList.add("show"); next.textContent = "All points shown"; }
+      upd();
+    });
+    k.querySelector("[data-all]").addEventListener("click", () => {
+      pts.forEach((p) => p.classList.remove("hidden"));
+      ans.classList.toggle("show");
+      upd();
+    });
+    k.querySelector("[data-reset]").addEventListener("click", () => {
+      pts.forEach((p) => { p.classList.add("hidden"); p.classList.remove("hit"); });
+      ans.classList.remove("show");
+      next.textContent = "Reveal next point →";
+      upd();
+    });
+    upd();
+  });
+}
+
+/* unit heat = how many real questions and marks each unit carries */
+function unitHeat(sub) {
+  const rows = (TOP[sub] || []).map((u) => ({ n: u.n, name: u.name, q: 0, m: 0 }));
+  const byN = new Map(rows.map((r) => [r.n, r]));
+  for (const q of window.QBANK) {
+    if (q.s !== sub) continue;
+    const a = ansOf(q.id);
+    if (!a || !a.u) continue;
+    const r = byN.get(Number(a.u));
+    if (r) { r.q++; r.m += Number(q.marks) || 5; }
+  }
+  return rows.sort((a, b) => b.m - a.m || b.q - a.q || a.n - b.n);
+}
+
+/* =========================================================
+   TOPICS
+   ========================================================= */
+let topicSub = "se";
+
+/* unit-learned flags — the same key index.html counts, so ticking here moves the tracker there */
+const PROG_KEY = "csit6.progress.v1";
+const OLD_UNIT_KEY = "csit6.learned.units";
+function readProgress() {
+  try { return JSON.parse(localStorage.getItem(PROG_KEY)) || {}; } catch (e) { return {}; }
+}
+(function migrateOldUnits() {
+  let old = {};
+  try { old = JSON.parse(localStorage.getItem(OLD_UNIT_KEY)) || {}; } catch (e) {}
+  const st = readProgress();
+  let touched = false;
+  for (const k in old) {
+    const m = /^([a-z]+)-(\d+)$/.exec(k);
+    if (!m) continue;
+    st[m[1]] = st[m[1]] || {};
+    if (!st[m[1]][m[2]]) { st[m[1]][m[2]] = true; touched = true; }
+  }
+  if (touched) { try { localStorage.setItem(PROG_KEY, JSON.stringify(st)); } catch (e) {} }
+})();
+const readUnits = () => readProgress();
+const setUnitDone = (sub, n) => {
+  const st = readProgress();
+  st[sub] = st[sub] || {};
+  st[sub][n] = true;
+  try { localStorage.setItem(PROG_KEY, JSON.stringify(st)); } catch (e) {}
+};
+window.UNITDONE = readUnits;
+window.setUnitDone = setUnitDone;
+
+function openTopic(sub, n) {
+  route = { view: "topic", sub, unit: n };
+  try { history.replaceState(null, "", "#topic-" + sub + "-" + n); } catch (e) {}
+  document.querySelectorAll("#nav button").forEach((b) => b.classList.toggle("on", b.dataset.view === "topics"));
+  render();
+  window.scrollTo(0, 0);
+}
+
+function topicsView() {
+  const units = TOP[topicSub] || [];
+  const heat = unitHeat(topicSub);
+  const maxM = Math.max(1, ...heat.map((r) => r.m));
+  const totalQ = window.QBANK.filter((q) => q.s === topicSub).length;
+  const totalM = window.QBANK.filter((q) => q.s === topicSub).reduce((s, q) => s + (Number(q.marks) || 5), 0);
+  const done = window.UNITDONE ? window.UNITDONE() : {};
+
+  view.innerHTML = `
+    <h1>Topics</h1>
+    <p class="sub">Every unit of all six papers, as a causal chain you can follow once and remember — not a summary to re-read. Hover any past question to see what the examiner is testing.</p>
+    <div class="subchips">${SUBORDER.map((s) => `<button data-sub="${s}" class="${s === topicSub ? "on" : ""}">${SUBJ[s]}</button>`).join("")}</div>
+    ${units.length ? `
+    <div class="panel" style="margin-bottom:16px">
+      <div class="kithead" style="margin-bottom:6px"><b>Where the marks are · ${SUBJ[topicSub]}</b>
+        <span style="font:11.5px ui-monospace,monospace;color:var(--dim)">${totalQ} questions · ${totalM} marks across past papers</span></div>
+      ${heat.map((r) => `<div class="unitrow">
+        <span class="nm"><b style="font-weight:600;color:var(--txt)">U${r.n}</b> ${esc(r.name)}</span>
+        <span class="rbar"><i style="width:${Math.round((r.m / maxM) * 100)}%"></i></span>
+        <span class="num">${r.q}q · ${r.m}m</span>
+      </div>`).join("")}
+    </div>
+    <div class="unitgrid">
+      ${units.map((u) => {
+        const h = heat.find((r) => r.n === u.n) || { q: 0, m: 0 };
+        const isDone = !!(done[topicSub] && done[topicSub][u.n]);
+        return `<div class="ucard" data-open="${u.n}">
+          <span class="ubar" style="--o:${Math.min(0.85, 0.12 + (h.m / maxM) * 0.8)}"></span>
+          <span class="un">UNIT ${u.n}${isDone ? " · DONE" : ""} · ${h.q} QUESTIONS</span>
+          <h3>${esc(u.name)}</h3>
+          <p style="margin:0;font-size:12.8px;color:var(--mut);line-height:1.5">${esc(u.hook)}</p>
+          <div class="heatline"><b>${h.m} marks</b><span>${u.keys.length} key facts</span><span>${u.traps.length} traps</span></div>
+        </div>`;
+      }).join("")}
+    </div>` : `<div class="empty">Topic content is still being written — the Labs and Drill tabs work now.</div>`}`;
+
+  view.querySelectorAll("[data-sub]").forEach((b) => b.addEventListener("click", () => { topicSub = b.dataset.sub; topicsView(); }));
+  view.querySelectorAll("[data-open]").forEach((c) => c.addEventListener("click", () => openTopic(topicSub, Number(c.dataset.open))));
+}
+
+function topicView() {
+  const units = TOP[route.sub] || [];
+  const u = units.find((x) => x.n === route.unit);
+  if (!u) { go("topics"); return; }
+  const heat = unitHeat(route.sub).find((r) => r.n === u.n) || { q: 0, m: 0 };
+  const qs = window.QBANK.filter((q) => q.s === route.sub && ansOf(q.id) && Number(ansOf(q.id).u) === u.n);
+
+  view.innerHTML = `
+    <div class="labhead">
+      <button class="back" onclick="go('topics')">← Topics</button>
+      <button class="back" onclick="openWhy('${route.sub}', ${u.n})">Why it works →</button>
+      <div class="labtitle">Unit ${u.n} · ${esc(u.name)} <small>${SUBJ[route.sub]} · ${heat.q} past questions · ${heat.m} marks</small></div>
+    </div>
+    <div class="panel" style="margin-bottom:12px">
+      <p style="margin:0;font-size:14px;line-height:1.6;color:var(--txt)">${esc(u.hook)}</p>
+    </div>
+    <div class="panel" style="margin-bottom:12px">
+      <div class="kithead"><b>The chain, one step at a time</b><span style="font:11px ui-monospace,monospace;color:var(--dim)">click to reveal · each step follows from the last</span></div>
+      <div class="stepper" id="stepper">
+        ${u.steps.map((s, i) => `<div class="step ${i === 0 ? "show" : ""}" data-step="${i}">
+          <span class="sn">${i + 1}</span><div><b>${esc(s.t)}</b><p>${esc(s.d)}</p></div></div>`).join("")}
+      </div>
+      <div class="stepctl">
+        <button class="act" id="stepNext">Next step →</button>
+        <button class="ghost" id="stepAll">Show all</button>
+        <div class="dots">${u.steps.map((_, i) => `<i class="${i === 0 ? "on" : ""}"></i>`).join("")}</div>
+      </div>
+    </div>
+    <div class="panel" style="margin-bottom:12px">
+      <div class="kithead"><b>Key facts — flip to check</b><span style="font:11px ui-monospace,monospace;color:var(--dim)">say it before you flip</span></div>
+      <div class="flipgrid">${u.keys.map((k) => `<div class="flip"><span class="k">${esc(k.k)}</span><span class="v">${esc(k.v)}</span><span class="tap">tap to reveal</span></div>`).join("")}</div>
+    </div>
+    <div class="panel" style="margin-bottom:12px">
+      <div class="kithead"><b>Traps that cost marks</b></div>
+      <ul class="traps">${u.traps.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>
+      <div class="kithead" style="margin:14px 0 0"><b>How the paper asks it</b></div>
+      <ol class="asklist">${u.asks.map((t) => `<li>${esc(t)}</li>`).join("")}</ol>
+    </div>
+    <div class="panel" style="margin-bottom:12px">
+      <div class="kithead"><b>Every past question on this unit (${qs.length})</b>
+        <span style="font:11px ui-monospace,monospace;color:var(--dim)">hover the question for the examiner's target · click it for the answer</span></div>
+      ${qs.length ? qs.map((q) => `<div class="pq" data-q="${q.id}">
+        <div class="qmeta"><span class="mchip">${q.marks || 5}m</span><span class="chip">${q.y}</span>${q.sec ? `<span class="chip">${q.sec}</span>` : ""}</div>
+        <div class="qwrap"><p class="qtext" tabindex="0" style="font-size:14.5px;margin:2px 0 0">${esc(q.q)}</p>${hintPop(q.id)}</div>
+        <div class="pqkit"></div>
+      </div>`).join("") : `<div class="empty" style="padding:20px 0">No past question maps to this unit.</div>`}
+    </div>
+    <div class="panel">
+      <div class="kithead"><b>Write this answer, then tick what you got</b><span class="hintbtn" id="markDone">Mark unit learned</span></div>
+      ${kitHTML({ skel: u.skel, ans: u.answer }, "Model answer · " + u.name)}
+    </div>`;
+
+  const stepper = document.getElementById("stepper");
+  const dots = [...document.querySelectorAll(".dots i")];
+  const reveal = (n) => {
+    const el = stepper.querySelector(`[data-step="${n}"]`);
+    if (el) el.classList.add("show");
+    if (dots[n]) dots[n].classList.add("on");
+  };
+  let shown = 1;
+  document.getElementById("stepNext").addEventListener("click", () => {
+    if (shown < u.steps.length) { reveal(shown); shown++; }
+    else document.getElementById("stepNext").textContent = "That is the whole chain";
+  });
+  document.getElementById("stepAll").addEventListener("click", () => { u.steps.forEach((_, i) => reveal(i)); shown = u.steps.length; });
+  view.querySelectorAll(".flip").forEach((f) => f.addEventListener("click", () => f.classList.toggle("open")));
+  view.querySelectorAll(".pq").forEach((row) => {
+    row.querySelector(".qtext").addEventListener("click", () => {
+      const box = row.querySelector(".pqkit");
+      if (row.dataset.open) { row.dataset.open = ""; box.innerHTML = ""; return; }
+      row.dataset.open = "1";
+      box.innerHTML = kitHTML(ansOf(row.dataset.q), "Answer · " + row.querySelector(".mchip").textContent);
+      wireKit(box);
+    });
+  });
+  document.getElementById("markDone").addEventListener("click", (e) => {
+    if (window.setUnitDone) window.setUnitDone(route.sub, u.n);
+    e.target.textContent = "Marked learned ✓";
+  });
+  wireKit(view);
+}
+
+/* =========================================================
+   SURE SHOT
+   ========================================================= */
+let sureSub = "all";
+
+/* =========================================================
+   WHY IT WORKS — the intuition layer (story first, marks second)
+   ========================================================= */
+let whySub = (() => {
+  try { const s = localStorage.getItem("csit6.why.sub"); return SUBORDER.includes(s) ? s : "se"; }
+  catch (e) { return "se"; }
+})();
+let whyLean = false;
+let whyPlay = { on: false, i: 0 };
+
+const logicOf = (sub) => (LOGIC[sub] || []);
+
+function whyText(u) {
+  return [u.name + ".", u.oneLiner, u.hook, u.why, u.story, u.idea,
+    ...u.steps.map((s, i) => `Step ${i + 1}: ${s.t}. ${s.d}`), u.exam].join(" ");
+}
+
+function stopSpeech() {
+  whyPlay.on = false;
+  try { if ("speechSynthesis" in window) window.speechSynthesis.cancel(); } catch (e) {}
+  view.querySelectorAll(".why.playing").forEach((c) => c.classList.remove("playing"));
+}
+
+function speakWhy(text, onEnd) {
+  if (!("speechSynthesis" in window)) { if (onEnd) onEnd(); return; }
+  const synth = window.speechSynthesis;
+  synth.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const voices = synth.getVoices();
+  const v = voices.find((x) => /^en-IN/i.test(x.lang)) || voices.find((x) => /^en/i.test(x.lang));
+  if (v) u.voice = v;
+  u.lang = v ? v.lang : "en-IN";
+  u.rate = 0.95;
+  let done = false, timer = 0;
+  const finish = () => { if (done) return; done = true; clearTimeout(timer); if (onEnd) onEnd(); };
+  u.onend = finish;
+  u.onerror = finish;
+  timer = setTimeout(finish, Math.max(9000, text.split(/\s+/).length * 430));
+  synth.speak(u);
+}
+
+function openWhy(sub, n) {
+  stopSpeech();
+  if (sub && SUBORDER.includes(sub)) whySub = sub;
+  try { localStorage.setItem("csit6.why.sub", whySub); } catch (e) {}
+  route = { view: "why" };
+  try { history.replaceState(null, "", "#why-" + whySub + (n ? "-" + n : "")); } catch (e) {}
+  document.querySelectorAll("#nav button").forEach((b) => b.classList.toggle("on", b.dataset.view === "why"));
+  whyView();
+  if (n) {
+    const card = view.querySelector(`.why[data-u="${n}"]`);
+    if (card) {
+      setCardOpen(card, true);
+      requestAnimationFrame(() => card.scrollIntoView({ block: "start", behavior: "smooth" }));
+      return;
+    }
+  }
+  window.scrollTo(0, 0);
+}
+
+function setCardOpen(card, open) {
+  const body = card.querySelector(".wbody");
+  if (body) body.hidden = !open;
+  card.classList.toggle("open", !!open);
+  const b = card.querySelector("[data-open]");
+  if (b) b.textContent = open ? "Hide the story" : "Tell me why";
+}
+
+function whyView() {  const units = logicOf(whySub);
+  const heat = unitHeat(whySub);
+  const canSpeak = "speechSynthesis" in window;
+
+  view.innerHTML = `
+    <h1>Why it works</h1>
+    <p class="sub">The logic under every unit: the mess it fixes, one story that carries it, and the single sentence to keep. Built for low-focus days — the bold line alone is worth marks, and the rest can be read to you.</p>
+    <div class="subchips">${SUBORDER.map((s) => `<button data-sub="${s}" class="${s === whySub ? "on" : ""}">${SUBJ[s]}</button>`).join("")}</div>
+    <div class="whytools">
+      ${canSpeak ? `<button class="act" id="playAll">▶ Play all — hands-free</button>
+        <button class="ghost" id="stopAll">Stop</button>` : ""}
+      <button class="ghost" id="gist">${whyLean ? "Show the full logic" : "Gist only — one line each"}</button>
+      <span class="hint">${units.length} units · ${canSpeak ? "reads aloud offline with your browser's voice" : "no speech voice in this browser"}</span>
+    </div>
+    ${units.length ? units.map((u) => {
+      const h = heat.find((r) => r.n === u.n) || { q: 0, m: 0 };
+      return `<article class="why" data-u="${u.n}">
+        <div class="whyhead">
+          <span class="wtag">UNIT ${u.n}</span>
+          <h3>${esc(u.name)}</h3>
+          <span class="wheat">${h.q} past questions · ${h.m} marks</span>
+        </div>
+        <p class="wone">${esc(u.oneLiner)}</p>
+        ${whyLean ? "" : `<div class="wbtns">
+          <button class="ghost" data-open>Tell me why</button>
+          ${canSpeak ? `<button class="ghost" data-read>▸ Read this one</button>` : ""}
+        </div>`}
+        <div class="wbody" hidden>
+          <div class="wsec"><span class="wlab">The scene</span><p>${esc(u.hook)}</p></div>
+          <div class="wsec"><span class="wlab">Without this idea</span><p>${esc(u.why)}</p></div>
+          <div class="wstory">${esc(u.story)}</div>
+          <div class="wsec"><span class="wlab">The move</span><p>${esc(u.idea)}</p></div>
+          <ol class="wsteps">${u.steps.map((s) => `<li><div><b>${esc(s.t)}</b><span>${esc(s.d)}</span></div></li>`).join("")}</ol>
+          <div class="wexam"><span class="wlab">Turn it into marks</span><p>${esc(u.exam)}</p></div>
+        </div>
+      </article>`;
+    }).join("") : `<div class="panel"><p style="margin:0;color:var(--mut)">This layer is still being written for ${SUBJ[whySub]} — the other subjects are ready.</p></div>`}`;
+
+  view.querySelectorAll("[data-sub]").forEach((b) => b.addEventListener("click", () => {
+    stopSpeech();
+    whySub = b.dataset.sub;
+    try { localStorage.setItem("csit6.why.sub", whySub); } catch (e) {}
+    whyView();
+  }));
+
+  const gist = document.getElementById("gist");
+  if (gist) gist.addEventListener("click", () => { stopSpeech(); whyLean = !whyLean; whyView(); });
+
+  const playBtn = document.getElementById("playAll");
+  if (playBtn) playBtn.addEventListener("click", () => {
+    const list = logicOf(whySub);
+    if (!list.length) return;
+    stopSpeech();
+    whyPlay = { on: true, i: 0 };
+    const step = () => {
+      if (!whyPlay.on) return;
+      if (whyPlay.i >= list.length) { stopSpeech(); return; }
+      const u = list[whyPlay.i++];
+      const card = view.querySelector(`.why[data-u="${u.n}"]`);
+      view.querySelectorAll(".why").forEach((c) => c.classList.remove("playing"));
+      if (card) {
+        card.classList.add("playing");
+        setCardOpen(card, true);
+        card.scrollIntoView({ block: "center", behavior: "smooth" });
+      }
+      speakWhy(whyText(u), step);
+    };
+    step();
+  });
+
+  const stopBtn = document.getElementById("stopAll");
+  if (stopBtn) stopBtn.addEventListener("click", stopSpeech);
+
+  view.querySelectorAll("[data-open]").forEach((b) => b.addEventListener("click", () => {
+    const card = b.closest(".why");
+    setCardOpen(card, card.querySelector(".wbody").hidden);
+  }));
+
+  view.querySelectorAll("[data-read]").forEach((b) => b.addEventListener("click", () => {
+    const card = b.closest(".why");
+    const u = logicOf(whySub).find((x) => String(x.n) === card.dataset.u);
+    if (!u) return;
+    stopSpeech();
+    setCardOpen(card, true);
+    card.classList.add("playing");
+    speakWhy(whyText(u), () => card.classList.remove("playing"));
+  }));
+}
+
+function sureView() {
+  const list = REPS.filter((c) => sureSub === "all" || c.s === sureSub);
+  const hot = list.filter((c) => c.count >= 3);
+
+  view.innerHTML = `
+    <h1>Sure shot</h1>
+    <p class="sub">Questions that came back almost word for word across different years. ${hot.length} of these have appeared 3+ times. Each one carries the answer, the logic behind it, and the order to write it in.</p>
+    <div class="subchips">
+      <button data-sub="all" class="${sureSub === "all" ? "on" : ""}">All subjects</button>
+      ${SUBORDER.map((s) => `<button data-sub="${s}" class="${s === sureSub ? "on" : ""}">${SUBJ[s]} (${REPS.filter((c) => c.s === s).length})</button>`).join("")}
+    </div>
+    ${list.length ? list.map((c, i) => {
+      const a = bestAns(c.ids);
+      return `<div class="scard" data-cluster="${c.id}">
+        <div class="top">
+          <span class="rank">${String(i + 1).padStart(2, "0")}</span>
+          <div style="flex:1;min-width:0">
+            <h3>${esc(c.q)}</h3>
+            <div class="meta2">
+              <span class="sz">${c.count}× asked</span>
+              <span>${SUBJ[c.s]}</span>
+              <span>${c.marks} marks</span>
+              <span>${c.years.length} papers</span>
+              ${a && a.u ? `<span class="mchip">Unit ${a.u}</span>` : ""}
+            </div>
+          </div>
+        </div>
+        <div class="body">
+          ${a ? `<p style="margin:0 0 10px;font-size:13px;color:var(--mut);line-height:1.6"><b style="color:var(--txt)">Why it repeats:</b> ${esc(a.logic)}<br><b style="color:var(--txt)">How to own it:</b> ${esc(a.how)}</p>` : ""}
+          <div class="kithead" style="margin:12px 0 6px"><b>The exact wordings</b></div>
+          <ul class="asklist">${c.ids.map((id) => {
+            const q = window.QBANK.find((x) => x.id === id);
+            return q ? `<li>${q.y} · ${q.marks || 5}m — ${esc(q.q)}</li>` : "";
+          }).join("")}</ul>
+          ${kitHTML(a, "Answer kit · " + c.count + "× question")}
+        </div>
+      </div>`;
+    }).join("") : `<div class="empty">No repeats detected for this subject yet.</div>`}
+    <div class="panel" style="margin-top:18px">
+      <div class="kithead"><b>Paraphrased repeats — where each unit's marks sit</b></div>
+      <p style="margin:0 0 10px;font-size:12.8px;color:var(--mut)">The same topic reworded every year does not cluster by text. These counts are the real signal: questions asked per unit across all papers.</p>
+      ${SUBORDER.map((s) => {
+        const rows = unitHeat(s).filter((r) => r.q).slice(0, 3);
+        if (!rows.length) return "";
+        return `<div class="unitrow"><span class="nm" style="color:var(--txt)">${SUBJ[s]}</span>
+          <span style="flex:2;color:var(--mut);font-size:12.3px">${rows.map((r) => "U" + r.n + " " + r.name + " (" + r.q + ")").join(" · ")}</span></div>`;
+      }).join("")}
+    </div>`;
+
+  view.querySelectorAll("[data-sub]").forEach((b) => b.addEventListener("click", () => { sureSub = b.dataset.sub; sureView(); }));
+  view.querySelectorAll("[data-cluster]").forEach((card) => card.addEventListener("click", (e) => {
+    if (e.target.closest(".kit")) return;
+    card.classList.toggle("open");
+  }));
+  wireKit(view);
+}
+
+/* =========================================================
+   boot
+   ========================================================= */
+function render() {
+  try { if (route.view !== "why" && "speechSynthesis" in window) window.speechSynthesis.cancel(); } catch (e) {}
+  whyPlay.on = false;
+  if (route.view === "topics") topicsView();
+  else if (route.view === "topic") topicView();
+  else if (route.view === "why") whyView();
+  else if (route.view === "sure") sureView();
+  else if (route.view === "labs") labsView();
+  else if (route.view === "drill") drillView();
+  else progressView();
+}
+function routeHash(raw) {
+  const hash = String(raw || "").replace(/^#/, "");
+  const lab = LABS.find((l) => l.id === hash);
+  const tm = /^topic-([a-z]+)-(\d+)$/.exec(hash);
+  const wm = /^why-([a-z]+)(?:-(\d+))?$/.exec(hash);
+  if (lab) lab.run();
+  else if (tm) { topicSub = tm[1]; openTopic(tm[1], Number(tm[2])); }
+  else if (wm) openWhy(wm[1], wm[2] ? Number(wm[2]) : null);
+  else if (hash === "drill" || hash === "progress" || hash === "topics" || hash === "sure" || hash === "labs" || hash === "why") go(hash);
+  else render();
+}
+routeHash(location.hash);
+/* back/forward and any in-page hash link must re-route too; go() uses replaceState, so this cannot loop */
+window.addEventListener("hashchange", () => routeHash(location.hash));
+</script>
+</body>
+</html>

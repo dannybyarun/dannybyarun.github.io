@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CSIT 6th Sem — Command Center</title>
+<script>
+  // set theme before paint so there is no flash
+  (function () {
+    try {
+      var s = localStorage.getItem("csit6.theme");
+      if (!s) s = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", s);
+    } catch (e) {
+      document.documentElement.setAttribute("data-theme", "dark");
+    }
+  })();
+</script>
+<style>
+  :root{
+    --bg:#0a0c10; --panel:#11141a; --panel2:#161a22; --line:#232936;
+    --txt:#e7eaf0; --mut:#8a93a8; --dim:#5d6579;
+    --acc:#6ee7b7; --warn:#fbbf24; --bad:#f87171; --info:#7dd3fc;
+    --on-acc:#06231a; --bar-bg:#1b2029; --line-hover:#31394a;
+    --input-line:#39415280; --strike:#3a4256;
+    --acc-weak:#0f1a17; --acc-line:#1f4a3d;
+    --r:14px;
+    --glow1:rgba(110,231,183,.10); --glow2:rgba(125,211,252,.08);
+    --card-shadow:none;
+  }
+
+  html[data-theme="light"]{
+    --bg:#f6f7f4; --panel:#ffffff; --panel2:#f1f4ec; --line:#e0e5da;
+    --txt:#141a17; --mut:#59657a; --dim:#8a93a1;
+    --acc:#0e9f6e; --warn:#b45309; --bad:#c0392b; --info:#0b6fa4;
+    --on-acc:#ffffff; --bar-bg:#e6eae0; --line-hover:#c9d2c2;
+    --input-line:#c6cfc0; --strike:#b3bcae;
+    --acc-weak:#eafaf2; --acc-line:#b7e6d2;
+    --glow1:rgba(14,159,110,.10); --glow2:rgba(11,111,164,.06);
+    --card-shadow:0 1px 2px rgba(20,30,22,.05), 0 6px 20px -12px rgba(20,30,22,.15);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(900px 500px at 15% -10%, var(--glow1), transparent 60%),
+      radial-gradient(800px 500px at 95% 0%, var(--glow2), transparent 55%),
+      var(--bg);
+    color:var(--txt);
+    font:15px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding:28px 20px 80px;
+    transition:background-color .25s ease, color .25s ease;
+  }
+  .wrap{max-width:1180px;margin:0 auto}
+
+  /* ---------- header ---------- */
+  header{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;justify-content:space-between;margin-bottom:22px}
+  .eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin:0 0 6px}
+  h1{margin:0;font-size:clamp(24px,4vw,34px);letter-spacing:-.02em;font-weight:650}
+  h1 span{color:var(--acc)}
+  .clock{font-variant-numeric:tabular-nums;font-size:13px;color:var(--mut);white-space:nowrap}
+  .head-right{display:flex;align-items:center;gap:10px}
+  .theme{
+    width:36px;height:36px;display:grid;place-items:center;flex:0 0 36px;
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    color:var(--mut);cursor:pointer;transition:color .15s,border-color .15s,background .15s;
+  }
+  .theme:hover{color:var(--txt);border-color:var(--acc);background:var(--acc-weak)}
+  .reader-btn{font-size:12.5px;text-decoration:none;width:auto;padding:0 14px}
+  .theme svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  html[data-theme="dark"] .i-sun{display:none}
+  html[data-theme="light"] .i-moon{display:none}
+
+  /* ---------- top strip ---------- */
+  .strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:24px}
+  .stat{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;position:relative;overflow:hidden}
+  .stat::after{content:"";position:absolute;inset:0 auto 0 0;width:2px;background:var(--acc);opacity:.55}
+  .stat .k{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--dim)}
+  .stat .v{font-size:24px;font-weight:650;margin-top:4px;font-variant-numeric:tabular-nums}
+  .stat .s{font-size:12px;color:var(--mut);margin-top:2px}
+  .stat.warn::after{background:var(--warn)}
+  .stat.bad::after{background:var(--bad)}
+
+  /* ---------- grid ---------- */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;transition:border-color .2s,transform .15s;box-shadow:var(--card-shadow)}
+  .card:hover{border-color:var(--line-hover)}
+  .card.p0{border-left:3px solid var(--acc)}
+  .card.p1{border-left:3px solid var(--warn)}
+  .card.p2{border-left:3px solid var(--bad)}
+
+  .card-top{padding:16px 16px 12px;cursor:pointer;user-select:none}
+  .row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .code{font:600 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em;color:var(--dim);background:var(--panel2);border:1px solid var(--line);padding:4px 6px;border-radius:6px}
+  .card h2{margin:8px 0 2px;font-size:17px;font-weight:600;letter-spacing:-.01em;line-height:1.25}
+  .meta{font-size:12px;color:var(--mut)}
+  .days{font-variant-numeric:tabular-nums;font-weight:650;font-size:15px;white-space:nowrap}
+  .days.ok{color:var(--acc)} .days.mid{color:var(--warn)} .days.now{color:var(--bad)}
+
+  .bar{height:6px;background:var(--bar-bg);border-radius:99px;overflow:hidden;margin:14px 0 6px}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--acc),var(--acc));border-radius:99px;transition:width .35s ease}
+  .pctline{display:flex;justify-content:space-between;font-size:11.5px;color:var(--dim);font-variant-numeric:tabular-nums}
+
+  /* ---------- units ---------- */
+  .units{max-height:0;overflow:hidden;transition:max-height .3s ease;border-top:0 solid transparent}
+  .card.open .units{max-height:1400px;border-top:1px solid var(--line)}
+  .unit{display:flex;gap:10px;align-items:flex-start;padding:9px 16px;border-bottom:1px solid rgba(35,41,54,.55);cursor:pointer}
+  .unit:last-child{border-bottom:0}
+  .unit:hover{background:var(--panel2)}
+  .unit input{appearance:none;width:16px;height:16px;flex:0 0 16px;margin-top:2px;border:1.5px solid var(--input-line);border-radius:5px;cursor:pointer;display:grid;place-content:center;transition:.15s}
+  .unit input:checked{background:var(--acc);border-color:var(--acc)}
+  .unit input:checked::after{content:"";width:8px;height:4px;border-left:2px solid var(--on-acc);border-bottom:2px solid var(--on-acc);transform:rotate(-45deg) translate(1px,-1px)}
+  .unit span{font-size:13.2px;color:var(--mut);line-height:1.4}
+  .unit input:checked + span{color:var(--dim);text-decoration:line-through;text-decoration-color:var(--strike)}
+  .unit em{font-style:normal;color:var(--dim);font-size:11px;margin-left:6px}
+
+  .links{display:flex;flex-wrap:wrap;gap:6px;padding:12px 16px;background:var(--panel2);border-top:1px solid var(--line)}
+  .links a{font-size:11.5px;color:var(--mut);text-decoration:none;border:1px solid var(--line);padding:4px 8px;border-radius:7px;transition:.15s}
+  .links a:hover{color:var(--txt);border-color:var(--acc);background:var(--acc-weak)}
+  .links a.primary{color:var(--acc);border-color:var(--acc-line)}
+  .links a.lab{color:var(--acc);border-color:var(--acc-line);font-weight:600}
+  .links a.lab::before{content:"▸ "}
+
+  /* ---------- today ---------- */
+  .today{margin-top:26px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px}
+  .today h3{margin:0 0 12px;font-size:13px;text-transform:uppercase;letter-spacing:.14em;color:var(--dim);font-weight:600}
+  .task{display:flex;gap:12px;padding:10px 0;border-bottom:1px dashed var(--line)}
+  .task:last-child{border-bottom:0}
+  .task b{font-weight:600;color:var(--txt)}
+  .task .t{font-size:13px;color:var(--mut)}
+  .task .n{font:600 12px/1 ui-monospace,monospace;color:var(--dim);padding-top:2px;min-width:22px}
+
+  /* ---------- dynamic schedule ---------- */
+  .prep{font-size:11px;color:var(--dim);margin-top:5px;font-variant-numeric:tabular-nums}
+  .prep b{color:var(--txt);font-weight:600}
+  .schedhead{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:8px}
+  .schedhead b{display:block;color:var(--txt);font-size:13.5px}
+  .sd-note{display:block;font-size:11.5px;color:var(--dim);margin-top:3px;max-width:52ch}
+  .perday{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--dim);
+    text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
+  .perday input{width:110px;accent-color:var(--acc)}
+  .perday b{font:600 12px ui-monospace,monospace;color:var(--txt);min-width:24px}
+  .verdict{font-size:12.5px;padding:8px 11px;border-radius:8px;margin:0 0 10px;
+    background:var(--acc-weak);color:var(--txt);border:1px solid var(--acc-line)}
+  .verdict.bad{background:color-mix(in srgb,var(--bad) 10%,transparent);border-color:color-mix(in srgb,var(--bad) 40%,transparent)}
+  .schedlabel{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:14px 0 2px}
+  .schedrow{display:flex;gap:12px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:12.5px}
+  .schedrow:last-child{border-bottom:0}
+  .schedrow .sd{color:var(--dim);min-width:74px;font-variant-numeric:tabular-nums}
+  .schedrow .sb{color:var(--mut)}
+
+  footer{margin-top:30px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--dim)}
+  button.reset{background:transparent;border:1px solid var(--line);color:var(--dim);padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer}
+  button.reset:hover{color:var(--bad);border-color:var(--bad)}
+
+  @media(max-width:560px){ body{padding:18px 12px 60px} .grid{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <p class="eyebrow">B.Sc. CSIT · Semester VI · Tribhuvan University</p>
+      <h1>Command <span>Center</span></h1>
+    </div>
+    <div class="head-right">
+      <div class="clock" id="clock"></div>
+      <a class="theme reader-btn" href="learn.html#topics" title="Topics, interactive labs and question drill">Learn</a>
+      <a class="theme reader-btn" href="reader.html" title="Open the offline reader">Reader</a>
+      <button class="theme" id="theme" aria-label="Toggle light and dark mode" title="Toggle light / dark">
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2M12 19.5v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2.5 12h2M19.5 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="strip" id="strip"></div>
+
+  <div class="grid" id="grid"></div>
+
+  <section class="today">
+    <h3>Study schedule — recalculated from your ticks</h3>
+    <div id="missions"></div>
+  </section>
+
+  <footer>
+    <span>Progress saves in this browser (localStorage). Notes &amp; plan live in this folder.</span>
+    <button class="reset" id="reset">Reset all progress</button>
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   1. CONFIG — edit exam dates here (YYYY-MM-DD, 12:00 noon start)
+   ============================================================ */
+const EXAMS = {
+  se:   "2026-12-10",   // Software Engineering   CSC375  (2083-08-24)
+  cdc:  "2026-12-13",   // Compiler Design        CSC376  (2083-08-27)
+  egov: "2026-12-16",   // E-Governance           CSC377  (2083-09-01)
+  ncc:  "2026-12-20",   // NET Centric Computing  CSC378  (2083-09-05)
+  tw:   "2026-12-23",   // Technical Writing      CSC379  (2083-09-08)
+  ecom: "2026-12-27"    // E-Commerce (Elective)  CSC381  (2083-09-12)
+};
+
+/* ============================================================
+   2. SUBJECTS — units straight from the TU syllabus
+   ============================================================ */
+// which interactive lab answers which subject (learn.html#id)
+const LABS = { cdc: "regex", se: "cocomo", ncc: "pipe" };
+
+const SUBJECTS = [
+  {
+    id:"tw", name:"Technical Writing", code:"CSC379", slug:"tw",
+    marks:"60 + 40", note:"theory only · no lab", weight:1.0,
+    units:[
+      ["1","What Is Technical Writing",3],
+      ["2","Audience and Purpose",3],
+      ["3","The Writing Process",4],
+      ["4","Brief Correspondence (email, memo, letter)",4],
+      ["5","Document Design and Graphics",4],
+      ["6","Writing for the Web",4],
+      ["7","Information Reports (abstract, progress, news release)",5],
+      ["8","Employment Communication (resume, cover letter)",5],
+      ["9","Presentations",5],
+      ["10","Recommendation Reports",3],
+      ["11","Proposals",3],
+      ["12","Ethics in the Workplace",2]
+    ]
+  },
+  {
+    id:"cdc", name:"Compiler Design & Construction", code:"CSC376", slug:"cdc",
+    marks:"60 + 20 + 20", note:"hardest · do the numeric parts", weight:1.6,
+    units:[
+      ["1","Introduction to Compiler (phases, analysis/synthesis)",3],
+      ["2","Lexical Analysis (RE → NFA → DFA, LEX)",5],
+      ["3","Syntax Analysis (CFG, LL(1), LR, SLR, operator precedence)",5],
+      ["4","Syntax Directed Translation (SDD, S/L-attributed)",3],
+      ["5","Type Checking (type systems, conversions)",3],
+      ["6","Symbol Table & Runtime Storage",4],
+      ["7","Intermediate Code Generation (3-address, quadruples, backpatching)",5],
+      ["8","Code Generation (basic blocks, flow graphs, DAG)",5],
+      ["9","Code Optimization (peephole, loop, strength reduction)",3],
+      ["10","Case Studies (C / C++ compilers)",2]
+    ]
+  },
+  {
+    id:"se", name:"Software Engineering", code:"CSC375", slug:"se",
+    marks:"60 + 20 + 20", note:"most predictable paper", weight:1.3,
+    units:[
+      ["1","Introduction (software types, attributes, ethics)",2],
+      ["2","Software Processes (Waterfall, Incremental, Integration & Config)",5],
+      ["3","Agile Development (XP, Scrum, plan-driven vs agile)",3],
+      ["4","Requirements Engineering (functional / non-functional)",3],
+      ["5","System Modeling (context, interaction, structural, behavioural UML)",6],
+      ["6","Architectural Design (patterns, views, decisions)",6],
+      ["7","Design & Implementation (OOD, design patterns, open source)",5],
+      ["8","Software Testing (V&V, TDD, release, user testing)",5],
+      ["9","Software Evolution (legacy, maintenance)",3],
+      ["10","Software Management (planning, COCOMO, risk, quality, config mgmt)",7]
+    ]
+  },
+  {
+    id:"ncc", name:"NET Centric Computing", code:"CSC378", slug:"ncc",
+    marks:"60 + 20 + 20", note:"C# + ASP.NET Core MVC · code patterns", weight:1.4,
+    units:[
+      ["1","Language Preliminaries (C#: OOP, delegates, events, LINQ, async)",8],
+      ["2","Introduction to ASP.NET (.NET, CLI, MSIL, CLR, .NET Core)",3],
+      ["3","HTTP and ASP.NET Core (MVC pattern, architecture)",3],
+      ["4","Creating MVC Apps (controllers, Razor, tag helpers, routing, DI)",10],
+      ["5","Working with Database (ADO.NET, EF Core, CRUD)",6],
+      ["6","State Management (session, cookies, TempData, cache)",4],
+      ["7","Client-side Development (jQuery, validation, Angular/React)",4],
+      ["8","Security (Identity, roles/claims, XSS, SQLi, CSRF)",5],
+      ["9","Hosting & Deployment (IIS, Kestrel, Nginx, Docker, Azure)",2]
+    ]
+  },
+  {
+    id:"egov", name:"E-Governance", code:"CSC377", slug:"e-governance",
+    marks:"60 + 20 + 20", note:"pure memory · fastest marks", weight:0.9,
+    units:[
+      ["1","Intro to E-Government & E-Governance",5],
+      ["2","Models of E-Governance (5 models, maturity levels)",10],
+      ["3","E-Government Infrastructure Development",10],
+      ["4","Security for E-Government",5],
+      ["5","Data Warehousing & Data Mining in Government",5],
+      ["6","Case Studies (Nepal, India, USA, China, Brazil, Sri Lanka)",10]
+    ]
+  },
+  {
+    id:"ecom", name:"E-Commerce", code:"CSC381", slug:"e-commerce",
+    marks:"60 + 20 + 20", note:"elective · easy 60s", weight:0.9,
+    units:[
+      ["1","Introduction (types, framework, ETA Nepal)",4],
+      ["2","E-commerce Business Models (revenue models, B2C/B2B, EDI)",8],
+      ["3","Electronic Payment Systems (SET, wallets, e-cash)",9],
+      ["4","Building E-commerce Systems (catalog, cart, gateway)",5],
+      ["5","Security in E-Commerce (threats, crypto, SSL)",7],
+      ["6","Digital Marketing (SEM, SEO, ads, metrics)",7],
+      ["7","Optimizing E-commerce (SEO, analytics, recommenders)",5]
+    ]
+  }
+];
+
+/* ============================================================
+   3. STATE
+   ============================================================ */
+const KEY = "csit6.progress.v1";
+let state = {};
+try { state = JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e){ state = {}; }
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){} };
+
+const DAY = 86400000;
+const midnight = d => { const x = new Date(d); x.setHours(0,0,0,0); return x; };
+const today = () => midnight(new Date());
+
+function daysLeft(iso){
+  if(!iso) return null;
+  return Math.round((midnight(iso) - today()) / DAY);
+}
+
+function progressOf(s){
+  const done = state[s.id] || {};
+  const total = s.units.length;
+  const hit = s.units.filter((u,i)=> done[u[0]]).length;
+  return { hit, total, pct: total ? Math.round(hit/total*100) : 0 };
+}
+
+/* ============================================================
+   3b. PREP LOAD + DYNAMIC SCHEDULE
+   ============================================================ */
+const CFG_KEY = "csit6.study.v1";
+const cfg = { perDay: 6 };
+try { Object.assign(cfg, JSON.parse(localStorage.getItem(CFG_KEY)) || {}); } catch(e){}
+const saveCfg = () => { try { localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); } catch(e){} };
+
+const unitHours = (u) => Number(u[2]) || 3;
+const weightOf = (s) => Number(s.weight) || 1;
+const baseHours = (s) => s.units.reduce((a,u)=> a + unitHours(u), 0);
+const estHours  = (s) => baseHours(s) * weightOf(s);
+const doneHours = (s) => {
+  const done = state[s.id] || {};
+  return s.units.filter(u=> done[u[0]]).reduce((a,u)=> a + unitHours(u), 0) * weightOf(s);
+};
+const remHours  = (s) => Math.max(0, estHours(s) - doneHours(s));
+const lastExam  = () => SUBJECTS.map(s=>EXAMS[s.id]).filter(Boolean).sort().slice(-1)[0];
+
+// unchecked units per subject, each carrying the weighted hours it still owes.
+// Cost is rounded to the nearest half hour so a day's blocks add up exactly.
+function queueFor(s){
+  const w = weightOf(s);
+  const done = state[s.id] || {};
+  return s.units.filter(u=> !done[u[0]])
+    .map(u=>{ const need = Math.round(unitHours(u)*w*2)/2;
+      return { u, need, left: need, touched: false }; });
+}
+const h1 = (n) => Math.round(n*10)/10;
+const shortName = (u) => u[1].split("(")[0].trim();
+
+// greedy, unit-level plan. Urgency = hours left ÷ days to that paper, so the nearest
+// paper and the heaviest subject take the hours first — but each block finishes whole
+// units, so a day does not devolve into four unfinished starts.
+function planFor(nDays){
+  const q = {}, rem = {};
+  SUBJECTS.forEach(s=>{ q[s.id] = queueFor(s); rem[s.id] = remHours(s); });
+  const days = [];
+  for(let i=0;i<nDays;i++){
+    let budget = cfg.perDay;
+    const recs = new Map();
+    while(budget >= 0.5){
+      const cands = [];
+      for(const s of SUBJECTS){
+        const head = q[s.id][0];
+        if(!head) continue;
+        const d = daysLeft(EXAMS[s.id]);
+        if(d === null || d < i) continue;
+        const urgency = rem[s.id] / Math.max(0.5, d - i - 1);
+        cands.push({ s, head, fits: head.left <= budget + 1e-6, urgency });
+      }
+      if(!cands.length) break;
+      cands.sort((a,b)=>{
+        if(a.fits !== b.fits) return a.fits ? -1 : 1;          // finish units before starting others
+        if(a.head.touched !== b.head.touched) return a.head.touched ? -1 : 1; // close what you opened
+        return b.urgency - a.urgency;                          // then the closest, heaviest paper
+      });
+      const pick = cands[0];
+      const rec = recs.get(pick.s.id) || { s: pick.s, h: 0, units: [] };
+      const label = shortName(pick.head.u) + (pick.head.touched ? " (continue)" : " (start)");
+      if(pick.fits){
+        rec.h += pick.head.left;
+        budget -= pick.head.left;
+        rem[pick.s.id] = Math.max(0, rem[pick.s.id] - pick.head.left);
+        rec.units.push(shortName(pick.head.u));
+        q[pick.s.id].shift();
+      } else {
+        const take = Math.max(0.5, Math.floor(budget*2)/2);
+        rec.h += take;
+        budget -= take;
+        rem[pick.s.id] = Math.max(0, rem[pick.s.id] - take);
+        pick.head.left -= take;
+        pick.head.touched = true;
+        rec.units.push(label);
+      }
+      recs.set(pick.s.id, rec);
+    }
+    days.push({ i, blocks: [...recs.values()] });
+  }
+  return days;
+}
+
+/* ============================================================
+   4. RENDER
+   ============================================================ */
+function renderStrip(){
+  const all = SUBJECTS.reduce((a,s)=>{ const p=progressOf(s); a.hit+=p.hit; a.total+=p.total; return a; },{hit:0,total:0});
+  const overall = Math.round(all.hit/all.total*100);
+
+  const dated = SUBJECTS.map(s=>daysLeft(EXAMS[s.id])).filter(d=>d!==null).sort((a,b)=>a-b);
+  const first = dated[0];
+  const last  = dated[dated.length-1];
+
+  // hours available: productive hours/day until the last paper
+  const hrs = Math.max(0, last) * cfg.perDay;
+  const load = SUBJECTS.reduce((a,s)=> a + remHours(s), 0);
+  const estAll = SUBJECTS.reduce((a,s)=> a + estHours(s), 0);
+
+  const bits = [
+    {k:"Overall coverage", v: overall+"%", s:`${all.hit} / ${all.total} units touched`, cls: overall>60?"":overall>25?"warn":"bad"},
+    {k:"First paper in", v: first===null?"—":(first<0?"done":first+" days"), s: first!==null&&first<0?"already over":"countdown running", cls: first!==null&&first<7?"bad":first!==null&&first<15?"warn":""},
+    {k:"Last paper in", v: last===null?"—":last+" days", s:"end line", cls:""},
+    {k:"Prep load left", v: Math.round(load)+"h", s:`of ${Math.round(estAll)}h estimated · ${hrs}h available at ${cfg.perDay}h/day`,
+      cls: load>hrs? "bad" : load>hrs*0.8? "warn" : ""}
+  ];
+
+  document.getElementById("strip").innerHTML = bits.map(b=>
+    `<div class="stat ${b.cls||""}"><div class="k">${b.k}</div><div class="v">${b.v}</div><div class="s">${b.s}</div></div>`
+  ).join("");
+}
+
+function renderCards(){  const grid = document.getElementById("grid");
+  grid.innerHTML = SUBJECTS.map(s=>{
+    const p = progressOf(s);
+    const d = daysLeft(EXAMS[s.id]);
+    const cls = d===null?"":d<=7?"p2":d<=16?"p1":"p0";
+    const dTxt = d===null?"no date":d<0?"over":d===0?"TODAY":d+"d";
+    const dCls = d===null?"":d<=7?"now":d<=16?"mid":"ok";
+
+    const units = s.units.map(u=>{
+      const on = (state[s.id]||{})[u[0]] ? "checked" : "";
+      return `<label class="unit"><input type="checkbox" data-s="${s.id}" data-u="${u[0]}" ${on} />
+        <span>${u[1]}<em>${u[2]}h</em></span></label>`;
+    }).join("");
+
+    return `
+    <article class="card ${cls}" data-card="${s.id}">
+      <div class="card-top" data-toggle="${s.id}">
+        <div class="row">
+          <div>
+            <span class="code">${s.code}</span>
+            <h2>${s.name}</h2>
+            <div class="meta">${s.marks} · ${s.note} · ${weightOf(s)}× complexity</div>
+          </div>
+          <div class="days ${dCls}">${dTxt}</div>
+        </div>
+        <div class="bar"><i style="width:${p.pct}%"></i></div>
+        <div class="pctline"><span>${p.hit}/${p.total} units</span><span>${p.pct}%</span></div>
+        <div class="prep">~${Math.round(estHours(s))}h prep · ${Math.round(doneHours(s))}h done · <b>${Math.round(remHours(s))}h left</b></div>
+      </div>
+      <div class="units">${units}</div>
+      <div class="links">
+        <a class="primary" href="learn.html#topics">Topics</a>
+        <a href="learn.html#why-${s.id}">Why</a>
+        ${LABS[s.id] ? `<a class="lab" href="learn.html#${LABS[s.id]}">Lab</a>` : ""}
+        <a href="reader.html#${s.id}">Notes</a>
+        <a href="reader.html#q-${s.id}">Past papers</a>
+      </div>
+    </article>`;
+  }).join("");
+
+  grid.querySelectorAll("[data-toggle]").forEach(el=>{
+    el.addEventListener("click", ()=> el.closest(".card").classList.toggle("open"));
+  });
+
+  grid.querySelectorAll("input[type=checkbox]").forEach(cb=>{
+    cb.addEventListener("change", e=>{
+      const s = e.target.dataset.s, u = e.target.dataset.u;
+      state[s] = state[s] || {};
+      if(e.target.checked) state[s][u] = true; else delete state[s][u];
+      save(); refresh();
+    });
+  });
+}
+
+function renderMissions(){
+  const week = planFor(7);
+  const todayPlan = week[0] || { blocks: [] };
+  const load = SUBJECTS.reduce((a,s)=> a + remHours(s), 0);
+  const avail = Math.max(0, daysLeft(lastExam())) * cfg.perDay;
+  const gap = avail - load;
+  const unitsLeft = SUBJECTS.reduce((a,s)=>
+    a + s.units.filter(u=> !((state[s.id]||{})[u[0]])).length, 0);
+
+  const WD = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const dayName = (offset) => {
+    const d = new Date(Date.now() + offset*DAY);
+    return WD[d.getDay()] + " " + d.getDate();
+  };
+
+  const todayBlocks = todayPlan.blocks.length ? todayPlan.blocks.map(b=>
+    `<div class="task"><span class="n">${h1(b.h)}h</span>
+      <div><b>${b.s.name}</b> <span class="t">— ${b.units.join(" · ") || "next unit"}</span></div></div>`
+  ).join("") : `<div class="task"><span class="n">✓</span>
+      <div><b>Every unit is ticked</b> <span class="t">— switch to past papers and blank-page recall.</span></div></div>`;
+
+  const weekRows = week.slice(1).map(d=>{
+    const txt = d.blocks.length
+      ? d.blocks.map(b=> `${b.s.code} ${h1(b.h)}h`).join("  ·  ")
+      : "—";
+    return `<div class="schedrow"><span class="sd">${dayName(d.i)}</span><span class="sb">${txt}</span></div>`;
+  }).join("");
+
+  document.getElementById("missions").innerHTML = `
+    <div class="schedhead">
+      <div>
+        <b>${unitsLeft} units left · ${Math.round(load)}h weighted work</b>
+        <span class="sd-note">Urgency = hours left ÷ days to that paper, so the nearest paper and the heaviest subject take the hours first. Ticking a unit re-plans the week immediately. Complexity × is how much longer a paper runs per syllabus hour — 1.0 theory, 1.3 code-heavy, 1.6 hardest.</span>
+      </div>
+      <label class="perday">Hours/day
+        <input id="perDay" type="range" min="2" max="12" step="1" value="${cfg.perDay}" />
+        <b>${cfg.perDay}h</b>
+      </label>
+    </div>
+    <div class="verdict ${gap < 0 ? "bad" : ""}">${gap < 0
+      ? `Short by ${Math.round(-gap)}h before the last paper at ${cfg.perDay}h/day. Raise the slider, or leave the lowest-weight units and protect the nearest paper.`
+      : `${Math.round(gap)}h spare before the last paper at ${cfg.perDay}h/day.`}</div>
+    <div class="schedlabel">Today</div>
+    ${todayBlocks}
+    <div class="schedlabel">Next six days</div>
+    ${weekRows}`;
+
+  const slider = document.getElementById("perDay");
+  slider.addEventListener("input", ()=>{
+    cfg.perDay = Number(slider.value);
+    slider.nextElementSibling.textContent = cfg.perDay + "h";
+  });
+  slider.addEventListener("change", ()=>{ saveCfg(); refresh(); });
+}
+
+function renderClock(){
+  const now = new Date();
+  const first = SUBJECTS.map(s=>EXAMS[s.id]).filter(Boolean).sort()[0];
+  const t = new Date(first); t.setHours(12,0,0,0);   // TU papers start at 12 noon
+  const ms = t - now;
+  const dd = Math.floor(ms/DAY), hh = Math.floor(ms%DAY/3600000), mm = Math.floor(ms%3600000/60000);
+  document.getElementById("clock").textContent =
+    ms > 0 ? `${dd}d ${hh}h ${mm}m to first paper` : `first paper has started`;
+}
+
+function refresh(){ renderStrip(); renderCards(); renderMissions(); renderClock(); }
+
+document.getElementById("reset").addEventListener("click", ()=>{
+  if(confirm("Clear all checked units?")){ state = {}; save(); refresh(); }
+});
+
+/* ---- theme toggle (persisted) ---- */
+const themeBtn = document.getElementById("theme");
+if (themeBtn) {
+  const markPressed = () => themeBtn.setAttribute("aria-pressed", document.documentElement.getAttribute("data-theme") === "light");
+  markPressed();
+  themeBtn.addEventListener("click", () => {
+    const next = document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", next);
+    markPressed();
+    try { localStorage.setItem("csit6.theme", next); } catch (e) {}
+  });
+}
+
+refresh();
+setInterval(renderClock, 30000);
+</script>
+</body>
+</html>
