@@ -153,6 +153,44 @@
     width:20px;height:20px;display:grid;place-items:center;flex:none;margin-top:2px}
   .wsteps b{display:block;font-size:13.5px;color:var(--txt);font-weight:600}
   .wsteps span{font-size:13px;color:var(--mut);line-height:1.55}
+  .wstory{margin:12px 0 0;padding:10px 13px;background:var(--panel2);
+    border-left:2px solid color-mix(in srgb,var(--acc) 60%,var(--line));border-radius:0 9px 9px 0}
+  .wstory b,.wtrap b,.wguide b{display:block;font:600 9.5px/1 ui-monospace,monospace;
+    letter-spacing:.13em;text-transform:uppercase;margin-bottom:4px}
+  .wstory b{color:var(--acc)}
+  .wstory p{margin:0;font-size:13px;line-height:1.65;color:var(--mut)}
+  .wtrap{margin:12px 0 0;padding:9px 13px;font-size:12.8px;line-height:1.6;color:var(--mut);
+    background:color-mix(in srgb,var(--warn) 9%,transparent);
+    border:1px solid color-mix(in srgb,var(--warn) 30%,var(--line));border-radius:9px}
+  .wtrap b{color:var(--warn)}
+  .wtrap ol{margin:2px 0 0;padding-left:17px}
+  .wtrap li{margin:3px 0}
+  .wtrap li::marker{color:color-mix(in srgb,var(--warn) 70%,var(--dim))}
+  .wkeys{margin:12px 0 0;padding:10px 13px;background:var(--panel2);border:1px solid var(--line);border-radius:9px}
+  .wkeys > b{display:block;font:600 9.5px/1 ui-monospace,monospace;letter-spacing:.13em;
+    text-transform:uppercase;color:var(--acc);margin-bottom:6px}
+  .wkeys dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:baseline}
+  .wkeys dt{font-size:12.2px;font-weight:600;color:var(--txt);line-height:1.45}
+  .wkeys dd{margin:0;font-size:12.2px;color:var(--mut);line-height:1.5}
+  @media (max-width:560px){.wkeys dl{grid-template-columns:1fr;gap:1px 0}
+    .wkeys dd{margin:0 0 5px}}
+  .wguide{margin:12px 0 0;padding-top:10px;border-top:1px dashed var(--line);
+    font-size:12.8px;line-height:1.65;color:var(--mut)}
+  .wguide b{color:var(--dim)}
+  .wpress{margin:11px 0 4px;font-size:13px;line-height:1.65;color:var(--mut);
+    padding:0 0 0 11px;border-left:2px solid color-mix(in srgb,var(--bad) 45%,var(--line))}
+  .wpress b{display:block;font:600 9.5px/1 ui-monospace,monospace;letter-spacing:.13em;
+    text-transform:uppercase;color:color-mix(in srgb,var(--bad) 80%,var(--txt));margin-bottom:3px}
+  .wunlock{display:block;margin:9px 0 0;font-size:11.5px;line-height:1.55;color:var(--dim);
+    padding-left:10px;border-left:2px solid var(--line)}
+  .wlab-link{display:block;margin:10px 0 2px;padding:9px 12px;border-radius:9px;text-decoration:none;
+    background:color-mix(in srgb,var(--acc) 7%,transparent);border:1px dashed var(--acc-line)}
+  .wlab-link b{display:block;font:600 9.5px/1 ui-monospace,monospace;letter-spacing:.13em;
+    text-transform:uppercase;color:var(--acc);margin-bottom:4px}
+  .wlab-link span{font-size:12.5px;line-height:1.55;color:var(--mut)}
+  .wlab-link:hover span{color:var(--txt)}
+  .shotask.aftergate{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+  .gate [data-ga]:disabled{opacity:.45;cursor:not-allowed}
   .wexam{background:color-mix(in srgb,var(--acc) 8%,transparent);border:1px solid var(--acc-line);
     border-radius:10px;padding:11px 13px}
   .wexam p{margin:0;font-size:13.5px;color:var(--txt);line-height:1.6}
@@ -200,6 +238,8 @@
   .shotask ul{margin:5px 0 9px;padding-left:17px}
   .shotask li{font-size:13px;line-height:1.55;color:var(--mut);margin-bottom:5px}
   .shotask li b{color:var(--acc);font:600 10.5px/1 ui-monospace,monospace;margin-right:5px}
+  .shotask li em{display:inline-block;margin-left:7px;font-style:normal;font-size:10.5px;
+    color:var(--dim);white-space:nowrap}
   .gate{margin:15px 0 0;padding:14px;border-radius:11px;background:color-mix(in srgb,var(--acc) 5%,var(--panel2));
     border:1px solid var(--line)}
   .gate .gatehead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
@@ -238,6 +278,41 @@
   .warm .gateq{margin:9px 0 0;font-size:14px}
   .warm .gatea{margin:8px 0 0;font-size:13px}
   .warm .gatebtns{margin-top:9px}
+  .keepin{width:100%;margin:0 0 4px;background:var(--panel);border:1px solid var(--line);
+    border-radius:9px;padding:9px 11px;color:var(--txt);font:inherit;font-size:13.5px}
+  .keepin:focus{outline:0;border-color:var(--acc)}
+  .keepmsg{font-size:11.5px;color:var(--acc)}
+  .lines .linesub{margin-bottom:12px}
+  .lines ol{margin:0;padding:0;list-style:none}
+  .lines li{display:flex;gap:9px;padding:5px 0;border-bottom:1px dashed var(--line);font-size:12.8px;line-height:1.55}
+  .lines li:last-child{border-bottom:0}
+  .lines .ln{font:600 10.5px/1.7 ui-monospace,monospace;color:var(--dim);flex:none;width:16px}
+  .lines .lbody{flex:1;min-width:0}
+  .lines .lt{display:block;color:var(--txt)}
+  .lines .lp{display:block;margin-top:1px;font-size:11.5px;line-height:1.5;color:var(--dim)}
+  .lines li.empty .lt{color:var(--dim);font-style:italic}
+  .lines li.empty .lp{display:none}
+  .lines #copyLines{margin-top:4px}
+  .protocol{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;margin:0 0 16px;padding:11px 14px;
+    background:var(--panel2);border:1px solid var(--line);border-radius:11px}
+  .protocol .pk{font:600 9.5px/1.6 ui-monospace,monospace;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--acc);flex:none;max-width:86px}
+  .protocol ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;flex:1;min-width:0}
+  .protocol li{font-size:12px;line-height:1.5;color:var(--mut);counter-increment:pr}
+  .protocol li::before{content:counter(pr);display:inline-grid;place-items:center;width:15px;height:15px;
+    margin-right:5px;border:1px solid var(--line);border-radius:50%;font:600 9.5px/1 ui-monospace,monospace;
+    color:var(--acc);vertical-align:1px}
+  .protocol b{color:var(--txt);font-weight:600}
+  .protocol .pcost{flex-basis:100%;font-size:11.5px;color:var(--dim);margin-top:-2px}
+  .firstrun{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:space-between;
+    margin:0 0 16px;padding:13px 15px;border-radius:11px;
+    background:color-mix(in srgb,var(--acc) 9%,transparent);border:1px solid var(--acc-line)}
+  .firstrun b{display:block;font-size:13.5px;color:var(--txt);margin-bottom:3px}
+  .firstrun span{font-size:12.5px;line-height:1.55;color:var(--mut);max-width:72ch;display:block}
+  .firstrun button{flex:none}
+  @media (max-width:560px){.firstrun{gap:10px}.firstrun button{width:100%}}
+  @media (max-width:820px){.protocol ol{grid-template-columns:1fr 1fr}}
+  @media (max-width:560px){.protocol ol{grid-template-columns:1fr}}
   @media (max-width:720px){
     .shotstats{grid-template-columns:1fr 1fr}
     .shot{padding:15px 15px;scroll-margin-top:104px}
@@ -1033,7 +1108,7 @@ function pipelineLab() {
    ========================================================= */
 const LABS = [
   { id: "regex", tag: "CSC376 · CDC U2", title: "Regex → NFA → DFA", desc: "Type a regex, watch Thompson construction build the NFA, then subset construction merge it into a DFA with a live transition table.", run: regexLab },
-  { id: "tac", tag: "CSC376 · CDC U4", title: "Three-address code", desc: "Any expression becomes TAC, quadruples and triples — with CSE on or off, so you see why common subexpressions get one temporary.", run: tacLab },
+  { id: "tac", tag: "CSC376 · CDC U7", title: "Three-address code", desc: "Any expression becomes TAC, quadruples and triples — with CSE on or off, so you see why common subexpressions get one temporary.", run: tacLab },
   { id: "cocomo", tag: "CSC375 · SE U10", title: "COCOMO calculator", desc: "Move KLOC and mode, watch effort, schedule and staff size change — and see the exact substitution line to write in the exam.", run: cocomoLab },
   { id: "pipe", tag: "CSC378 · NCC U3", title: "Request pipeline", desc: "Run five different requests through the middleware and see exactly which layer short-circuits and why.", run: pipelineLab },
 ];
@@ -1734,6 +1809,15 @@ function loadShot() {
   } catch (e) { return { closed: {}, requeue: {}, warm: {}, days: {} }; }
 }
 const SHOT = loadShot();
+
+/* The reader's own compression of each unit. This is the only thing that ever
+   needs re-reading: 54 sentences in their words, not 54 units of notes. */
+const LINES_KEY = "csit6.lines.v1";
+function loadLines() {
+  try { return JSON.parse(localStorage.getItem(LINES_KEY)) || {}; } catch (e) { return {}; }
+}
+let LINES = loadLines();
+const saveLines = () => { try { localStorage.setItem(LINES_KEY, JSON.stringify(LINES)); } catch (e) {} };
 const saveShot = () => { try { localStorage.setItem(SHOT_KEY, JSON.stringify(SHOT)); } catch (e) {} };
 
 let SHOT_RUN = null;
@@ -1757,22 +1841,62 @@ const fmtDay = (d) => d.toLocaleDateString(undefined, { day: "numeric", month: "
    Retiring a unit is a claim about tomorrow, not just about now. Each day the
    run puts three of them back on the spot; if one has slipped, it returns to
    today's queue instead of waiting for the exam to reveal it. */
+/* How many units come back cold each day. During the run it is 3, on top of the
+   new cards; once every unit is retired there is nothing else to do, so it rises
+   to 6 and the whole syllabus keeps turning over before the papers start. */
+function warmCount(run) {
+  return run.some((x) => !SHOT.closed[x.key]) ? 3 : 6;
+}
+
 function warmPicks(run) {
   const date = new Date().toISOString().slice(0, 10);
   const t0 = startOfDay().getTime();
   SHOT.warm = SHOT.warm || {};
   const rec = SHOT.warm[date] || { list: [], done: [] };
-  const cand = run.filter((x) => SHOT.closed[x.key] && SHOT.closed[x.key] < t0);
-  if (!cand.length) return [];
-  let list = (rec.list || []).filter((k) => cand.some((x) => x.key === k));
+  const closedBefore = run.filter((x) => SHOT.closed[x.key] && SHOT.closed[x.key] < t0);
+  if (!closedBefore.length) return [];
+
+  /* A paper already sat needs no rehearsal: drop its units from the pool. */
+  const live = closedBefore.filter((x) => {
+    const e = EXAMS.find(([s]) => s === x.s);
+    return !e || daysTo(e[1]) >= 0;
+  });
+  const pool = live.length ? live : closedBefore;
+  const papers = EXAMS.filter(([, d]) => daysTo(d) >= 0);
+  const orderOf = (s) => EXAMS.findIndex((e) => e[0] === s);
+  pool.sort((a, b) => (orderOf(a.s) - orderOf(b.s)) || (a.n - b.n));
+
+  const n = warmCount(run);
+  const takeFrom = (list, k, offset) => {
+    if (!list.length || k <= 0) return [];
+    const seed = ((Math.floor(t0 / DAYMS) * k + offset) % list.length + list.length) % list.length;
+    const out = [];
+    for (let i = 0; i < list.length && out.length < k; i++) out.push(list[(seed + i) % list.length]);
+    return out;
+  };
+
+  let list = (rec.list || []).filter((k) => pool.some((x) => x.key === k));
   if (!list.length) {
-    const seed = Math.floor(t0 / DAYMS) % cand.length;
-    list = [0, 1, 2].map((i) => cand[(seed + i) % cand.length]).filter(Boolean).map((x) => x.key);
+    /* Two thirds of the slots rehearse the very next paper; the remaining slot
+       keeps the paper after it from going cold during the three weeks before it. */
+    const nextSub = papers[0] ? papers[0][0] : null;
+    const afterSub = papers[1] ? papers[1][0] : null;
+    const s1 = pool.filter((x) => x.s === nextSub);
+    const s2 = pool.filter((x) => x.s === afterSub);
+    const k1 = Math.min(Math.max(1, Math.ceil((n * 2) / 3)), s1.length);
+    const picks = takeFrom(s1, k1, 0);
+    const k2 = Math.min(n - picks.length, s2.length);
+    picks.push(...takeFrom(s2, k2, k1));
+    for (const x of pool) {
+      if (picks.length >= n) break;
+      if (!picks.some((p) => p.key === x.key)) picks.push(x);
+    }
+    list = picks.map((x) => x.key);
     rec.list = list;
     SHOT.warm[date] = rec;
     saveShot();
   }
-  return list.map((k) => cand.find((x) => x.key === k)).filter((x) => x && !rec.done.includes(x.key));
+  return list.map((k) => pool.find((x) => x.key === k)).filter((x) => x && !rec.done.includes(x.key));
 }
 
 function shotPlan() {
@@ -1818,6 +1942,7 @@ function unmarkLearned(sub, n) {
 }
 
 let shotShowAll = false;
+let shotShowLines = false;
 let shotFocus = null;
 
 /* ---- typed recall scoring -------------------------------------------------
@@ -1843,7 +1968,7 @@ function coverage(said, target) {
   const keys = keyIdeas(target);
   const flat = " " + String(said || "").toLowerCase().replace(/[^a-z0-9]+/g, " ") + " ";
   const hit = [], miss = [];
-  for (const k of keys) (flat.includes(k.stem) ? hit : miss).push(k.word);
+  for (const k of keys) (flat.includes(k.stem) ? hit : miss).push(k);
   const total = keys.length || 1;
   return { hit, miss, total, pct: Math.round((hit.length / total) * 100) };
 }
@@ -1852,10 +1977,26 @@ function coverage(said, target) {
    so a unit with a dense model answer does not demand a transcription. */
 const passNeed = (total) => Math.max(3, Math.min(10, Math.round(total * 0.3)));
 
+/* The four units whose mechanism is procedural: the card links straight to the
+   lab that animates it, so the reader sees the machine move instead of only
+   reading about it. */
+const LAB_FOR = {
+  "se.10": { id: "cocomo", name: "COCOMO calculator" },
+  "cdc.2": { id: "regex", name: "regex \u2192 NFA \u2192 DFA" },
+  "cdc.7": { id: "tac", name: "three-address code" },
+  "ncc.3": { id: "pipe", name: "request pipeline" }
+};
+
 function shotCard(x, pos) {
   const logic = (LOGIC[x.s] || []).find((u) => u.n === x.n) || null;
+  const topic = (TOP[x.s] || []).find((u) => u.n === x.n) || null;
   const heat = unitHeat(x.s).find((r) => r.n === x.n) || { q: 0, m: 0 };
   const qs = unitQuestions(x.s, x.n, 2);
+  const qMeta = (q) => {
+    const yr = (String(q.y || "").match(/\d{4}/) || [""])[0];
+    const sec = String(q.sec || "").replace(/^Section\s*-?\s*/i, "").trim();
+    return [yr, sec ? "Sec " + sec : ""].filter(Boolean).join(" \u00b7 ");
+  };
   const tries = SHOT.requeue[x.key] || 0;
   const steps = logic ? logic.steps : [];
   const gateKeys = keyIdeas(x.gate ? x.gate.a : "").length;
@@ -1869,20 +2010,28 @@ function shotCard(x, pos) {
     </div>
     <div class="chainin"><b>You are here because</b>${esc(x.from)}</div>
     <p class="wone">${esc(logic ? logic.oneLiner : "")}</p>
+    ${logic && logic.why ? `<p class="wpress"><b>What happens without it</b>${esc(logic.why)}</p>` : ""}
     ${steps.length ? `<ol class="wsteps">${steps.map((s) => `<li><div><b>${esc(s.t)}</b><span>${esc(s.d)}</span></div></li>`).join("")}</ol>` : ""}
-    <div class="chainout"><b>This hands forward</b>${esc(x.to)}</div>
+    ${LAB_FOR[x.key] ? `<a class="wlab-link" href="#${LAB_FOR[x.key].id}"><b>Run it, do not just read it</b><span>Open the ${LAB_FOR[x.key].name} lab and watch this unit's mechanism move \u2192</span></a>` : ""}
+    ${logic && logic.story ? `<div class="wstory"><b>The one case to remember</b><p>${esc(logic.story)}</p></div>` : ""}
+    ${topic && topic.traps && topic.traps.length ? `<div class="wtrap"><b>How this answer loses marks</b><ol>${topic.traps.slice(0, 3).map((t) => `<li>${esc(t)}</li>`).join("")}</ol></div>` : ""}
+    ${topic && topic.keys && topic.keys.length ? `<div class="wkeys">
+      <b>The words the examiner expects</b>
+      <dl>${topic.keys.map((k) => `<dt>${esc(k.k)}</dt><dd>${esc(k.v)}</dd>`).join("")}</dl>
+    </div>` : ""}
     <div class="shotfoot">
       <a href="#topic-${x.s}-${x.n}">Read the full unit \u2192</a>
       <a href="#why-${x.s}-${x.n}">Why it works \u2192</a>
+      <a href="#gate-${x.s}-${x.n}" data-togate>Prove it \u2014 open the gate \u2192</a>
       <span>${tries ? `Sent back ${tries}\u00d7` : ""}</span>
     </div>
     ${qs.length ? `<div class="shotask">
-      <span class="wlab">What the paper does with it · ${qs.length} heaviest of ${heat.q}</span>
-      <ul>${qs.map((q) => `<li><b>${q.marks || 5}m</b>${esc(q.q)}</li>`).join("")}</ul>
-      <button class="ghost" data-ans>Show a model answer</button>
-      <div hidden data-ansbody>${kitHTML(ansOf(qs[0].id), "Model answer · " + (qs[0].marks || 5) + " marks")}</div>
+      <span class="wlab">What the paper asks · ${qs.length} heaviest of ${heat.q}</span>
+      <ul>${qs.map((q) => `<li><b>${q.marks || 5}m</b>${esc(q.q)}<em>${esc(qMeta(q))}</em></li>`).join("")}</ul>
+      <span class="wunlock">The model answers stay shut until you have answered the gate. That is the whole point of the gate.</span>
     </div>` : ""}
-    <div class="gate">
+    <div class="chainout"><b>This hands forward</b>${esc(x.to)}</div>
+    <div class="gate" id="gate-${x.s}-${x.n}">
       <div class="gatehead">
         <span class="wlab" style="margin:0">Close it — the 60-second test</span>
         <button class="ghost" data-gate>Show the question</button>
@@ -1897,12 +2046,15 @@ function shotCard(x, pos) {
           <span class="hint" data-wing>Ctrl+Enter</span>
         </div>
         <div class="gateres" data-res hidden></div>
-        <button class="ghost" data-ga style="margin-top:10px">Show the marked answer</button>
+        <button class="ghost" data-ga style="margin-top:10px" disabled>Write your answer to unlock the marked one</button>
         <p class="gatea" hidden>${esc(x.gate ? x.gate.a : "")}</p>
         <div class="ticks">
           <label><input type="checkbox" data-tick="one"><span>I said the one-liner, in my own words.</span></label>
           ${steps.map((s, i) => `<label><input type="checkbox" data-tick="${i}"><span>I could name: <b style="color:var(--txt)">${esc(s.t)}</b></span></label>`).join("")}
         </div>
+        <span class="wlab" style="margin:14px 0 4px">Keep it — one line in your own words</span>
+        <input class="keepin" data-line maxlength="200" value="${esc(LINES[x.key] || "")}" placeholder="The sentence you would want back in three weeks.">
+        <span class="keepmsg" data-lmsg>${LINES[x.key] ? "Kept." : ""}</span>
         <div class="gatebtns">
           <button class="act" data-close disabled>Close — never revisit</button>
           <button class="ghost" data-again>Not yet — bring it back today</button>
@@ -1910,6 +2062,14 @@ function shotCard(x, pos) {
         ${tries >= 2 ? `<p style="margin:9px 0 0;font-size:12px;color:var(--dim)">Third attempt. If it still will not land, read the story once: <a href="#why-${x.s}-${x.n}">Why it works →</a></p>` : ""}
       </div>
     </div>
+    ${qs.length ? `<div class="shotask aftergate">
+      <span class="wlab">After the gate · compare yours with the marker</span>
+      <button class="ghost" data-ans disabled>Answer the gate first to see the model answers</button>
+      <div hidden data-ansbody>${qs.map((q, i) => kitHTML(ansOf(q.id), "Model answer · Q" + (i + 1) + " · " + (q.marks || 5) + " marks")).join("")}${logic && logic.exam ? `<p class="wguide"><b>How the examiner wants it written</b>${esc(logic.exam)}</p>` : ""}</div>
+    </div>` : (logic && logic.exam ? `<div class="shotask aftergate">
+      <span class="wlab">After the gate · how this unit is examined</span>
+      <p class="wguide"><b>How the examiner wants it written</b>${esc(logic.exam)}</p>
+    </div>` : "")}
   </article>`;
 }
 
@@ -1933,14 +2093,48 @@ function shotView() {
     const f = run.find((x) => x.key === shotFocus);
     if (f && !cards.some((c) => c.key === f.key)) cards.unshift(f);
   }
+  const posLabel = (x) => {
+    const i = plan.today.findIndex((c) => c.key === x.key);
+    return i < 0 ? "pulled from the run" : (i + 1) + " of " + plan.today.length + " today";
+  };
+  /* The Today stat counts what is actually on the page. A unit sent back and a
+     deep-linked unit sit on top of the daily target, so the pace stays honest
+     instead of looking like the plan contradicts itself. */
+  const planNew = plan.today.filter((x) => !SHOT.requeue[x.key]).length;
+  const planAgain = plan.today.length - planNew;
+  const pulled = cards.length - plan.today.filter((c) => cards.some((x) => x.key === c.key)).length;
+  const todayNote = [
+    planNew ? planNew + " new" : "",
+    planAgain ? planAgain + " sent back" : "",
+    pulled ? pulled + " pulled from the run" : ""
+  ].filter(Boolean).join(" + ");
 
   view.innerHTML = `
     <h1>One Shot</h1>
-    <p class="sub">One ordered pass over all ${run.length} units, in exam order, each one closed by a 60-second test. A unit you close here never enters the plan again — that is the whole method: understand it once, prove it once, retire it.</p>
+    <p class="sub">One ordered pass over all ${run.length} units, in exam order, each card opening with the exact question the previous one left unanswered. A unit you close here never enters the plan again — understand it once, prove it once, retire it.</p>
+
+    <div class="protocol">
+      <span class="pk">How one card works</span>
+      <ol>
+        <li><b>Read the gap.</b> What the last unit could not answer.</li>
+        <li><b>Say the one-liner</b> out loud before you read the parts.</li>
+        <li><b>Cover the five parts</b> and name them from memory.</li>
+        <li><b>Answer the gate cold.</b> A fail names the one part to re-read — never the whole unit.</li>
+      </ol>
+      <span class="pcost">About 20 minutes a card. Today's ${cards.length} card${cards.length === 1 ? "" : "s"}${todayNote ? " (" + todayNote + ")" : ""} plus the warm-up is roughly ${Math.max(40, cards.length * 20 + 10)} minutes.</span>
+    </div>
+
+    ${closed === 0 && cards[0] ? `<div class="firstrun">
+      <div>
+        <b>Nothing touched yet — start with ${cards[0].code} · ${cards[0].n}. ${esc(cards[0].name)}.</b>
+        <span>Read its gap, say the one-liner, then answer the gate from memory. One card is one unit, and a unit you close never comes back.</span>
+      </div>
+      <button class="act" data-start="shot-${cards[0].s}-${cards[0].n}">Start the first card</button>
+    </div>` : ""}
 
     <div class="shotstats">
       <div class="s"><span>Retired</span><b>${closed} / ${run.length}</b><i>${pct}% of the syllabus closed</i></div>
-      <div class="s"><span>Today</span><b>${plan.today.length} card${plan.today.length === 1 ? "" : "s"}</b><i>${plan.perDay}/day to finish on time</i></div>
+      <div class="s"><span>Today</span><b>${cards.length} card${cards.length === 1 ? "" : "s"}</b><i>${todayNote ? todayNote + " · " : ""}${plan.perDay}/day to finish on time</i></div>
       <div class="s"><span>First paper</span><b>${Math.max(0, daysTo(EXAMS[0][1]))}d</b><i>${EXAMS[0][3]} · ${fmtDay(new Date(EXAMS[0][1] + "T00:00:00"))}</i></div>
       <div class="s"><span>Logic run ends</span><b>${fmtDay(plan.end)}</b><i>then one paper at a time</i></div>
     </div>
@@ -1956,9 +2150,17 @@ function shotView() {
     </div>
     <div class="shotbar"><i style="width:${pct}%"></i></div>
 
-    ${warm.length ? `<div class="panel warm">
-      <div class="kithead" style="margin-bottom:2px"><b>Warm-up — ${warm.length} retired unit${warm.length > 1 ? "s" : ""} back on the spot</b></div>
-      <p style="margin:0 0 10px;font-size:12.5px;color:var(--mut);line-height:1.55">Closed on an earlier day. Answer cold; anything that slipped goes back into today's queue instead of waiting for the exam to expose it.</p>
+    ${warm.length ? (() => {
+      const subs = [...new Set(warm.map((x) => x.s))];
+      const one = subs.length === 1 ? subs[0] : null;
+      const paper = EXAMS.find(([s]) => s === one);
+      const dLeft = paper ? Math.max(0, daysTo(paper[1])) : null;
+      const label = one
+        ? SUBJ[one] + " "
+        : subs.map((s) => `${warm.filter((x) => x.s === s).length} ${SUBJ[s]}`).join(" + ") + " ";
+      return `<div class="panel warm">
+      <div class="kithead" style="margin-bottom:2px"><b>Warm-up — ${warm.length} retired ${label}unit${warm.length > 1 ? "s" : ""} back on the spot${dLeft !== null ? " · paper in " + dLeft + "d" : ""}</b></div>
+      <p style="margin:0 0 10px;font-size:12.5px;color:var(--mut);line-height:1.55">Two thirds from the next paper you sit, the rest from the one after, so nothing goes cold before its day. Answer cold; anything that slipped goes back into today's queue instead of waiting for the exam to expose it.</p>
       ${warm.map((x) => `<div class="warmrow" data-wkey="${x.key}">
         <div class="warmtop">
           <span class="schip">${x.code}</span>
@@ -1975,10 +2177,12 @@ function shotView() {
           </div>
         </div>
       </div>`).join("")}
-    </div>` : ""}
+    </div>`;
+    })() : ""}
 
     <div class="whytools" style="margin-bottom:14px">
       <button class="ghost" id="shotAll">${shotShowAll ? "Hide the full run" : "Show all " + run.length + " in order"}</button>
+      <button class="ghost" id="shotLines">${shotShowLines ? "Hide your lines" : "Your " + Object.keys(LINES).filter((k) => run.some((x) => x.key === k)).length + " of " + run.length + " lines"}</button>
       <span class="hint">${closedToday} closed today${targetDone ? " \u2014 daily target met, the rest can wait" : ""} · ${plan.open.length} left · ${plan.daysLeft} day${plan.daysLeft === 1 ? "" : "s"} to the end of the logic run · next: ${SUBJ[nextExam[0]]}</span>
     </div>
 
@@ -1999,7 +2203,29 @@ function shotView() {
       }).join("")}
     </div>` : ""}
 
-    ${cards.length ? cards.map((x, i) => shotCard(x, (i + 1) + " of " + cards.length + " today")).join("") : `<div class="panel" style="text-align:center;padding:26px 18px">
+    ${shotShowLines ? `<div class="panel lines" style="margin-bottom:16px">
+      <div class="kithead" style="margin-bottom:8px"><b>Your lines</b><span style="font:11px ui-monospace,monospace;color:var(--dim)">the only thing to re-read before a paper</span></div>
+      <p style="margin:0 0 10px;font-size:12.5px;color:var(--mut);line-height:1.6">Every card asks for one sentence in your own words. Together they are the syllabus at a glance &mdash; if a line is missing, that unit was closed without being compressed, and it is the one to redo.</p>
+      ${EXAMS.map(([s]) => {
+        const all = run.filter((x) => x.s === s);
+        const kept = all.filter((x) => LINES[x.key]).length;
+        const partsOf = (x) => (((LOGIC[x.s] || []).find((u) => u.n === x.n) || {}).steps || []).map((p) => p.t);
+        return `<div class="linesub">
+          <div class="wlab" style="margin-bottom:4px">${SUBJ[s]} · ${kept}/${all.length} kept</div>
+          <ol>${all.map((x) => {
+            const parts = partsOf(x);
+            return `<li class="${LINES[x.key] ? "" : "empty"}"><span class="ln">${x.n}</span><div class="lbody">
+              <span class="lt">${LINES[x.key] ? esc(LINES[x.key]) : "not kept yet"}</span>
+              ${parts.length ? `<span class="lp">${parts.map(esc).join(" \u00b7 ")}</span>` : ""}
+            </div></li>`;
+          }).join("")}</ol>
+        </div>`;
+      }).join("")}
+      <button class="ghost" id="copyLines">Copy the whole sheet</button>
+      <span class="keepmsg" id="copyMsg"></span>
+    </div>` : ""}
+
+    ${cards.length ? cards.map((x) => shotCard(x, posLabel(x))).join("") : `<div class="panel" style="text-align:center;padding:26px 18px">
       <p style="margin:0 0 6px;font-size:16px;color:var(--txt);font-weight:600">Today's queue is empty — the whole run is retired.</p>
       <p style="margin:0;font-size:13px;color:var(--mut)">Nothing left to understand for the first time. From here it is recall only: <a href="#sure">Sure Shot</a> for this paper, then <a href="#drill">Drill</a>.</p>
     </div>`}
@@ -2015,6 +2241,33 @@ function shotView() {
 
   const allBtn = document.getElementById("shotAll");
   if (allBtn) allBtn.addEventListener("click", () => { shotShowAll = !shotShowAll; shotView(); });
+
+  view.querySelectorAll("[data-start]").forEach((b) => b.addEventListener("click", () => {
+    const t = document.getElementById(b.dataset.start);
+    if (t) t.scrollIntoView({ block: "start", behavior: "smooth" });
+  }));
+
+  const linesBtn = document.getElementById("shotLines");
+  if (linesBtn) linesBtn.addEventListener("click", () => { shotShowLines = !shotShowLines; shotView(); });
+
+  const copyBtn = document.getElementById("copyLines");
+  if (copyBtn) copyBtn.addEventListener("click", async () => {
+    const run = shotRun();
+    const text = EXAMS.map(([s]) => {
+      const all = run.filter((x) => x.s === s);
+      return SUBJ[s] + "\n" + all.map((x) => {
+        const parts = (((LOGIC[x.s] || []).find((u) => u.n === x.n) || {}).steps || []).map((p) => p.t);
+        return `${x.n}. ${x.name}\n   ${LINES[x.key] || "-"}` + (parts.length ? `\n   Parts: ${parts.join(" | ")}` : "");
+      }).join("\n");
+    }).join("\n\n");
+    const msg = document.getElementById("copyMsg");
+    try {
+      await navigator.clipboard.writeText(text);
+      if (msg) msg.textContent = "Copied — paste it anywhere before the paper.";
+    } catch (e) {
+      if (msg) msg.textContent = "Copy blocked here — open the page over http, or select the lines by hand.";
+    }
+  });
 
   view.querySelectorAll("[data-jump]").forEach((b) => b.addEventListener("click", () => {
     const key = b.dataset.jump;
@@ -2092,6 +2345,17 @@ function shotView() {
     const runCheck = () => {
       const said = say.value.trim();
       const words = said.split(/\s+/).filter(Boolean).length;
+      /* Committing is what unlocks the marking scheme. A reader who has typed a
+         real attempt gets the answer; one who has not stays locked out, so the
+         test cannot be passed by reading first and writing second. */
+      if (said && gaBtn && gaBtn.disabled) {
+        gaBtn.disabled = false;
+        gaBtn.textContent = "Show the marked answer";
+      }
+      if (said && ansBtn && ansBtn.disabled) {
+        ansBtn.disabled = false;
+        ansBtn.textContent = "Show the two model answers";
+      }
       if (words < 12) {
         res.hidden = false;
         res.className = "gateres";
@@ -2112,7 +2376,18 @@ function shotView() {
           oneTick.dispatchEvent(new Event("change"));
         }
       } else {
-        res.innerHTML = `<b>${c.hit.length} of ${c.total}</b> marked ideas \u2014 ${need} needed. Still missing: ${c.miss.slice(0, 6).map((w) => `<span class="miss">${esc(w)}</span>`).join(" ")}${c.miss.length > 6 ? " \u2026" : ""}<br>Say the whole answer out loud once, then write it again. Do not copy the model answer.`;
+        /* Point at the mechanism step that was missing, not just the word.
+           The repair is one part of the card, so the unit never has to be re-read whole. */
+        const lg = (LOGIC[key.split(".")[0]] || []).find((u) => u.n === Number(key.split(".")[1])) || null;
+        const missed = new Set(c.miss.map((m) => m.stem));
+        const repair = ((lg && lg.steps) || []).filter((s) => {
+          const flat = (" " + s.t + " " + s.d + " ").toLowerCase().replace(/[^a-z0-9]+/g, " ");
+          return [...missed].some((st) => flat.includes(st));
+        }).map((s) => s.t);
+        const missChips = c.miss.slice(0, 6).map((m) => `<span class="miss">${esc(m.word)}</span>`).join(" ");
+        res.innerHTML = `<b>${c.hit.length} of ${c.total}</b> marked ideas \u2014 ${need} needed. Still missing: ${missChips}${c.miss.length > 6 ? " \u2026" : ""}`
+          + (repair.length ? `<br>Re-read only: <b>${repair.map(esc).join(", ")}</b>.` : "")
+          + `<br>Say the whole answer out loud once, then write it again. Do not copy the marked answer.`;
       }
     };
     if (checkBtn) checkBtn.addEventListener("click", runCheck);
@@ -2120,12 +2395,47 @@ function shotView() {
       if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); runCheck(); }
     });
 
+    /* A unit may only be retired when the reader can name its parts AND has
+       compressed it into their own sentence. The line is what replaces re-reading
+       before a paper, so a missing line is not a warning: it blocks the close. */
+    const sync = () => {
+      const hit = ticks.filter((t) => t.checked).length;
+      const kept = !!(lineIn && lineIn.value.trim()) || !!LINES[key];
+      closeBtn.disabled = hit < ticks.length || !kept;
+      closeBtn.textContent = hit < ticks.length
+        ? `Close — never revisit (${hit}/${ticks.length})`
+        : kept ? "Close — never revisit" : "Write your one line, then close";
+    };
+
     if (ansBtn) ansBtn.addEventListener("click", () => {
+      if (ansBtn.disabled) return;
       const box = card.querySelector("[data-ansbody]");
       box.hidden = !box.hidden;
-      ansBtn.textContent = box.hidden ? "Show a model answer" : "Hide the model answer";
+      ansBtn.textContent = box.hidden ? "Show the two model answers" : "Hide the two model answers";
       if (!box.hidden) wireKit(box);
     });
+
+    /* The unit's own line, kept by the reader. Saved as they type, so a closed
+       card still gives them something to revisit that is not the notes. */
+    const lineIn = card.querySelector("[data-line]");
+    const lineMsg = card.querySelector("[data-lmsg]");
+    if (lineIn) {
+      const keep = () => {
+        const v = lineIn.value.trim();
+        if (v) LINES[key] = v; else delete LINES[key];
+        saveLines();
+        const run = shotRun();
+        const total = Object.keys(LINES).filter((k) => run.some((u) => u.key === k)).length;
+        if (lineMsg) lineMsg.textContent = v ? `Kept \u2014 ${total} of ${run.length} lines.` : "";
+        const btn = document.getElementById("shotLines");
+        if (btn) btn.textContent = shotShowLines ? "Hide your lines" : `Your ${total} of ${run.length} lines`;
+        sync();
+      };
+      lineIn.addEventListener("blur", keep);
+      lineIn.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") { e.preventDefault(); keep(); lineIn.blur(); }
+      });
+    }
 
     if (gateBtn) gateBtn.addEventListener("click", () => {
       gq.hidden = false;
@@ -2133,18 +2443,19 @@ function shotView() {
       gateBtn.style.display = "none";
     });
 
+    /* One visible next action after the reading: open the gate and answer it. */
+    card.querySelectorAll("[data-togate]").forEach((a) => a.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (gateBtn && gateBtn.style.display !== "none") gateBtn.click();
+      card.querySelector(".gate")?.scrollIntoView({ block: "start", behavior: "smooth" });
+    }));
+
     if (gaBtn) gaBtn.addEventListener("click", () => {
+      if (gaBtn.disabled) return;
       ga.hidden = false;
       gaBtn.style.display = "none";
     });
 
-    const sync = () => {
-      const hit = ticks.filter((t) => t.checked).length;
-      closeBtn.disabled = hit < ticks.length;
-      closeBtn.textContent = hit < ticks.length
-        ? `Close — never revisit (${hit}/${ticks.length})`
-        : "Close — never revisit";
-    };
     ticks.forEach((t) => t.addEventListener("change", sync));
     sync();
 
