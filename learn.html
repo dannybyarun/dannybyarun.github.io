@@ -1730,8 +1730,8 @@ const EXAMS = [
 function loadShot() {
   try {
     const s = JSON.parse(localStorage.getItem(SHOT_KEY)) || {};
-    return { closed: s.closed || {}, requeue: s.requeue || {}, warm: s.warm || {} };
-  } catch (e) { return { closed: {}, requeue: {}, warm: {} }; }
+    return { closed: s.closed || {}, requeue: s.requeue || {}, warm: s.warm || {}, days: s.days || {} };
+  } catch (e) { return { closed: {}, requeue: {}, warm: {}, days: {} }; }
 }
 const SHOT = loadShot();
 const saveShot = () => { try { localStorage.setItem(SHOT_KEY, JSON.stringify(SHOT)); } catch (e) {} };
@@ -1924,6 +1924,9 @@ function shotView() {
   const closed = run.length - plan.open.length;
   const pct = Math.round((closed / run.length) * 100);
   const warm = warmPicks(run);
+  const todayISO = new Date().toISOString().slice(0, 10);
+  const closedToday = (SHOT.days || {})[todayISO] || 0;
+  const targetDone = closedToday >= plan.perDay;
   const nextExam = plan.today[0] ? [plan.today[0].s] : [EXAMS[0][0]];
   const cards = plan.today.slice();
   if (shotFocus) {
@@ -1976,7 +1979,7 @@ function shotView() {
 
     <div class="whytools" style="margin-bottom:14px">
       <button class="ghost" id="shotAll">${shotShowAll ? "Hide the full run" : "Show all " + run.length + " in order"}</button>
-      <span class="hint">${plan.open.length} left · ${plan.daysLeft} day${plan.daysLeft === 1 ? "" : "s"} to the end of the logic run · next: ${SUBJ[nextExam[0]]}</span>
+      <span class="hint">${closedToday} closed today${targetDone ? " \u2014 daily target met, the rest can wait" : ""} · ${plan.open.length} left · ${plan.daysLeft} day${plan.daysLeft === 1 ? "" : "s"} to the end of the logic run · next: ${SUBJ[nextExam[0]]}</span>
     </div>
 
     ${shotShowAll ? `<div class="panel" style="margin-bottom:16px">
@@ -2149,6 +2152,11 @@ function shotView() {
       if (closeBtn.disabled) return;
       SHOT.closed[key] = Date.now();
       delete SHOT.requeue[key];
+      {
+        const d = new Date().toISOString().slice(0, 10);
+        SHOT.days = SHOT.days || {};
+        SHOT.days[d] = (SHOT.days[d] || 0) + 1;
+      }
       saveShot();
       markLearned(key.split(".")[0], Number(key.split(".")[1]));
       if (shotFocus === key) shotFocus = null;
