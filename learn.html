@@ -150,6 +150,11 @@
   .wsec p{margin:0;font-size:14px;line-height:1.65;color:var(--mut)}
   .wstory{border-left:3px solid var(--acc);background:var(--panel2);border-radius:0 10px 10px 0;
     padding:12px 15px;margin:0 0 14px;font-size:14.5px;line-height:1.7;color:var(--txt)}
+  .widea{margin:11px 0 0;padding:11px 14px;border-radius:9px;background:var(--panel2);
+    border:1px solid var(--line)}
+  .widea > b{display:block;font:600 9.5px/1 ui-monospace,monospace;letter-spacing:.13em;
+    text-transform:uppercase;color:var(--acc);margin-bottom:5px}
+  .widea p{margin:0;font-size:14px;line-height:1.68;color:var(--txt)}
   .wsteps{margin:0 0 14px;padding:0;list-style:none;counter-reset:ws}
   .wsteps li{counter-increment:ws;display:flex;gap:11px;padding:7px 0;border-bottom:1px dashed var(--line)}
   .wsteps li:last-child{border-bottom:0}
@@ -2168,6 +2173,7 @@ function shotCard(x, pos) {
     <div class="chainin"><b>You are here because</b>${esc(x.from)}</div>
     <p class="wone">${esc(logic ? logic.oneLiner : "")}</p>
     ${steps.length ? `<div class="wflow" aria-label="The mechanism at a glance">${steps.map((s) => `<span>${esc(s.t)}</span>`).join("<i>\u2192</i>")}</div>` : ""}
+    ${logic && logic.idea ? `<div class="widea"><b>The whole argument in one paragraph</b><p>${esc(logic.idea)}</p></div>` : ""}
     ${logic && logic.why ? `<p class="wpress"><b>What happens without it</b>${esc(logic.why)}</p>` : ""}
     ${steps.length ? `<ol class="wsteps">${steps.map((s) => `<li><div><b>${esc(s.t)}</b><span>${esc(s.d)}</span></div></li>`).join("")}</ol>` : ""}
     ${LAB_FOR[x.key] ? `<a class="wlab-link" href="#${LAB_FOR[x.key].id}"><b>Run it, do not just read it</b><span>Open the ${LAB_FOR[x.key].name} lab and watch this unit's mechanism move \u2192</span></a>` : ""}
