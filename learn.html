@@ -1867,8 +1867,9 @@ const EXAMS = [
 function loadShot() {
   try {
     const s = JSON.parse(localStorage.getItem(SHOT_KEY)) || {};
-    return { closed: s.closed || {}, requeue: s.requeue || {}, warm: s.warm || {}, days: s.days || {} };
-  } catch (e) { return { closed: {}, requeue: {}, warm: {}, days: {} }; }
+    return { closed: s.closed || {}, requeue: s.requeue || {}, warm: s.warm || {},
+      warmSeen: s.warmSeen || {}, days: s.days || {} };
+  } catch (e) { return { closed: {}, requeue: {}, warm: {}, warmSeen: {}, days: {} }; }
 }
 const SHOT = loadShot();
 
@@ -1914,6 +1915,7 @@ function warmPicks(run) {
   const date = new Date().toISOString().slice(0, 10);
   const t0 = startOfDay().getTime();
   SHOT.warm = SHOT.warm || {};
+  SHOT.warmSeen = SHOT.warmSeen || {};
   const rec = SHOT.warm[date] || { list: [], done: [] };
   const closedBefore = run.filter((x) => SHOT.closed[x.key] && SHOT.closed[x.key] < t0);
   if (!closedBefore.length) return [];
@@ -1926,36 +1928,46 @@ function warmPicks(run) {
   const pool = live.length ? live : closedBefore;
   const papers = EXAMS.filter(([, d]) => daysTo(d) >= 0);
   const orderOf = (s) => EXAMS.findIndex((e) => e[0] === s);
-  pool.sort((a, b) => (orderOf(a.s) - orderOf(b.s)) || (a.n - b.n));
+
+  /* Staleness, not a rotation: a unit never rehearsed since it was retired goes
+     first, then the one seen longest ago. Retirement counts as the last sighting,
+     so a unit closed yesterday cannot jump ahead of one closed a week ago. */
+  const lastOf = (x) => SHOT.warmSeen[x.key] || SHOT.closed[x.key] || 0;
+  const byStale = (a, b) => (lastOf(a) - lastOf(b)) || (orderOf(a.s) - orderOf(b.s)) || (a.n - b.n);
 
   const n = warmCount(run);
-  const takeFrom = (list, k, offset) => {
-    if (!list.length || k <= 0) return [];
-    const seed = ((Math.floor(t0 / DAYMS) * k + offset) % list.length + list.length) % list.length;
-    const out = [];
-    for (let i = 0; i < list.length && out.length < k; i++) out.push(list[(seed + i) % list.length]);
-    return out;
-  };
 
   let list = (rec.list || []).filter((k) => pool.some((x) => x.key === k));
   if (!list.length) {
-    /* Two thirds of the slots rehearse the very next paper; the remaining slot
-       keeps the paper after it from going cold during the three weeks before it. */
     const nextSub = papers[0] ? papers[0][0] : null;
     const afterSub = papers[1] ? papers[1][0] : null;
-    const s1 = pool.filter((x) => x.s === nextSub);
-    const s2 = pool.filter((x) => x.s === afterSub);
-    const k1 = Math.min(Math.max(1, Math.ceil((n * 2) / 3)), s1.length);
-    const picks = takeFrom(s1, k1, 0);
+    const dNext = papers[0] ? Math.max(1, daysTo(papers[0][1])) : 99;
+    const s1 = pool.filter((x) => x.s === nextSub).sort(byStale);
+    const s2 = pool.filter((x) => x.s === afterSub).sort(byStale);
+
+    /* Two thirds of the slots go to the next paper, but never fewer than the
+       pace that sees every still-unrehearsed unit of that paper once before it.
+       When the exam is close the next paper takes the whole day rather than
+       leave a unit unseen; once they are all seen, the normal count returns. */
+    const unseen1 = s1.filter((x) => !SHOT.warmSeen[x.key] || SHOT.warmSeen[x.key] < SHOT.closed[x.key]).length;
+    const pace = unseen1 ? Math.ceil(unseen1 / dNext) : 0;
+    const k1 = Math.min(s1.length, Math.max(Math.ceil((n * 2) / 3), pace));
+    const picks = s1.slice(0, k1);
     const k2 = Math.min(n - picks.length, s2.length);
-    picks.push(...takeFrom(s2, k2, k1));
-    for (const x of pool) {
-      if (picks.length >= n) break;
-      if (!picks.some((p) => p.key === x.key)) picks.push(x);
+    picks.push(...s2.filter((x) => !picks.some((p) => p.key === x.key)).slice(0, k2));
+    if (picks.length < n) {
+      for (const x of pool.slice().sort(byStale)) {
+        if (picks.length >= n) break;
+        if (!picks.some((p) => p.key === x.key)) picks.push(x);
+      }
     }
     list = picks.map((x) => x.key);
     rec.list = list;
     SHOT.warm[date] = rec;
+    /* Stamp what was put on the spot, so tomorrow prefers the units that did
+       not come up. That is what stops a retired unit being starved before its
+       paper while others are rehearsed twice. */
+    for (const k of list) SHOT.warmSeen[k] = t0;
     saveShot();
   }
   return list.map((k) => pool.find((x) => x.key === k)).filter((x) => x && !rec.done.includes(x.key));
@@ -2335,7 +2347,7 @@ function shotView() {
         : subs.map((s) => `${warm.filter((x) => x.s === s).length} ${SUBJ[s]}`).join(" + ") + " ";
       return `<div class="panel warm">
       <div class="kithead" style="margin-bottom:2px"><b>Warm-up — ${warm.length} retired ${label}unit${warm.length > 1 ? "s" : ""} back on the spot${dLeft !== null ? " · paper in " + dLeft + "d" : ""}</b></div>
-      <p style="margin:0 0 10px;font-size:12.5px;color:var(--mut);line-height:1.55">Two thirds from the next paper you sit, the rest from the one after, so nothing goes cold before its day. Answer cold; anything that slipped goes back into today's queue instead of waiting for the exam to expose it.</p>
+      <p style="margin:0 0 10px;font-size:12.5px;color:var(--mut);line-height:1.55">The stalest retired unit comes first, two thirds from the next paper you sit and the rest from the one after — and if the paper is close, enough slots that every unit in it is asked once before its day. Answer cold; anything that slipped goes back into today's queue instead of waiting for the exam to expose it.</p>
       ${warm.map((x) => `<div class="warmrow" data-wkey="${x.key}">
         <div class="warmtop">
           <span class="schip">${x.code}</span>
