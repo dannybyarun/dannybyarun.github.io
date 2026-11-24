@@ -2557,6 +2557,31 @@ function shotView() {
           : "Too thin. The marker wants the claim, the mechanism and the consequence \u2014 write the whole answer before you check it.";
         return;
       }
+      /* Vocabulary alone cannot tell a correct mechanism from its reverse, so
+         each unit carries the fluent inversion a reader is most likely to
+         write. If the answer states it, the words all score but the reasoning
+         is backwards: fail on the direction, not on the word count. */
+      const [gsub, gnum] = key.split(".");
+      const unit = ((window.CHAIN || {})[gsub] || []).find((u) => u.n === Number(gnum));
+      const flatSaid = " " + said.toLowerCase().replace(/[^a-z0-9]+/g, " ") + " ";
+      const anti = (unit && unit.gate && unit.gate.anti) || [];
+      const reversed = anti.find((p) =>
+        flatSaid.includes(" " + String(p).toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim() + " ")
+      ) || "";
+      if (reversed) {
+        const unitLogic = ((window.LOGIC || {})[gsub] || []).find((u) => u.n === Number(gnum)) || null;
+        const stems = keyIdeas(reversed).map((k) => k.stem);
+        const best = (((unitLogic && unitLogic.steps) || []).map((s) => {
+          const f = " " + (s.t + " " + s.d).toLowerCase().replace(/[^a-z0-9]+/g, " ") + " ";
+          return { t: s.t, n: stems.filter((st) => f.includes(st)).length };
+        }).sort((a, b) => b.n - a.n)[0]) || null;
+        res.hidden = false;
+        res.className = "gateres";
+        res.innerHTML = `<b>Reversed mechanism.</b> Those are the card's words, but the cause and the effect are the wrong way round, so every sentence still scores and the argument is backwards.`
+          + (best && best.n ? `<br>Re-read only: <b>${esc(best.t)}</b>.` : "")
+          + `<br>Say the card's direction out loud once, then write the answer again.`;
+        return;
+      }
       const c = coverage(said, target);
       const need = passNeed(c.total);
       const pass = c.hit.length >= need;
