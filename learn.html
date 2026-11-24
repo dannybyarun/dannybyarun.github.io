@@ -240,6 +240,21 @@
   .shotask li b{color:var(--acc);font:600 10.5px/1 ui-monospace,monospace;margin-right:5px}
   .shotask li em{display:inline-block;margin-left:7px;font-style:normal;font-size:10.5px;
     color:var(--dim);white-space:nowrap}
+  .qcover{margin:0 0 10px;font-size:12.5px;line-height:1.55;color:var(--dim)}
+  .qcover b{color:var(--txt)}
+  .qskel{margin:0 0 7px;border:1px solid var(--line);border-radius:8px;background:var(--panel2)}
+  .qskel > summary{display:flex;gap:8px;align-items:baseline;cursor:pointer;padding:8px 11px;
+    font-size:12.8px;line-height:1.5;color:var(--mut);list-style:none}
+  .qskel > summary::-webkit-details-marker{display:none}
+  .qskel > summary b{flex:none;color:var(--acc);font:600 10.5px/1.5 ui-monospace,monospace}
+  .qskel > summary span{flex:1;min-width:0}
+  .qskel > summary em{flex:none;font-style:normal;font-size:10.5px;color:var(--dim);white-space:nowrap}
+  .qskel[open] > summary{color:var(--txt);border-bottom:1px solid var(--line)}
+  .qskel ol{margin:7px 0 8px;padding-left:28px}
+  .qskel li{font-size:12.5px;line-height:1.55;color:var(--mut);margin-bottom:3px}
+  .qfull{display:inline-block;margin:0 11px 9px;font-size:11.5px;color:var(--acc);text-decoration:none}
+  @media (max-width:560px){.qskel > summary{flex-wrap:wrap}
+    .qskel > summary em{width:100%;margin-left:0}}
   .gate{margin:15px 0 0;padding:14px;border-radius:11px;background:color-mix(in srgb,var(--acc) 5%,var(--panel2));
     border:1px solid var(--line)}
   .gate .gatehead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
@@ -1991,7 +2006,11 @@ function shotCard(x, pos) {
   const logic = (LOGIC[x.s] || []).find((u) => u.n === x.n) || null;
   const topic = (TOP[x.s] || []).find((u) => u.n === x.n) || null;
   const heat = unitHeat(x.s).find((r) => r.n === x.n) || { q: 0, m: 0 };
-  const qs = unitQuestions(x.s, x.n, 2);
+  /* The card has to cover the unit's whole question surface, not a sample: a
+     reader who meets an unseen variant is a reader who has to go back. Two get
+     full model answers, every other one gets the marking skeleton. */
+  const allQs = unitQuestions(x.s, x.n, 99);
+  const qs = allQs.slice(0, 2);
   const qMeta = (q) => {
     const yr = (String(q.y || "").match(/\d{4}/) || [""])[0];
     const sec = String(q.sec || "").replace(/^Section\s*-?\s*/i, "").trim();
@@ -2000,7 +2019,7 @@ function shotCard(x, pos) {
   const tries = SHOT.requeue[x.key] || 0;
   const steps = logic ? logic.steps : [];
   const gateKeys = keyIdeas(x.gate ? x.gate.a : "").length;
-  return `<article class="shot" data-key="${x.key}" id="shot-${x.s}-${x.n}">
+  return `<article class="shot" data-key="${x.key}" data-qcount="${allQs.length}" id="shot-${x.s}-${x.n}">
     <div class="shothead">
       <span class="schip">${x.code}</span>
       <span class="wtag">UNIT ${x.n}</span>
@@ -2025,10 +2044,12 @@ function shotCard(x, pos) {
       <a href="#gate-${x.s}-${x.n}" data-togate>Prove it \u2014 open the gate \u2192</a>
       <span>${tries ? `Sent back ${tries}\u00d7` : ""}</span>
     </div>
-    ${qs.length ? `<div class="shotask">
-      <span class="wlab">What the paper asks · ${qs.length} heaviest of ${heat.q}</span>
+    ${allQs.length ? `<div class="shotask">
+      <span class="wlab">What the paper asks · ${allQs.length} past question${allQs.length === 1 ? "" : "s"} on this unit</span>
       <ul>${qs.map((q) => `<li><b>${q.marks || 5}m</b>${esc(q.q)}<em>${esc(qMeta(q))}</em></li>`).join("")}</ul>
-      <span class="wunlock">The model answers stay shut until you have answered the gate. That is the whole point of the gate.</span>
+      <span class="wunlock">${allQs.length > 2
+        ? `These two carry the most marks. All ${allQs.length} unlock after the gate, each with the skeleton the marker gives marks for.`
+        : "The model answers stay shut until you have answered the gate. That is the whole point of the gate."}</span>
     </div>` : ""}
     <div class="chainout"><b>This hands forward</b>${esc(x.to)}</div>
     <div class="gate" id="gate-${x.s}-${x.n}">
@@ -2062,10 +2083,25 @@ function shotCard(x, pos) {
         ${tries >= 2 ? `<p style="margin:9px 0 0;font-size:12px;color:var(--dim)">Third attempt. If it still will not land, read the story once: <a href="#why-${x.s}-${x.n}">Why it works →</a></p>` : ""}
       </div>
     </div>
-    ${qs.length ? `<div class="shotask aftergate">
-      <span class="wlab">After the gate · compare yours with the marker</span>
-      <button class="ghost" data-ans disabled>Answer the gate first to see the model answers</button>
-      <div hidden data-ansbody>${qs.map((q, i) => kitHTML(ansOf(q.id), "Model answer · Q" + (i + 1) + " · " + (q.marks || 5) + " marks")).join("")}${logic && logic.exam ? `<p class="wguide"><b>How the examiner wants it written</b>${esc(logic.exam)}</p>` : ""}</div>
+    ${allQs.length ? `<div class="shotask aftergate">
+      <span class="wlab">After the gate · every past question on this unit</span>
+      <button class="ghost" data-ans disabled>Answer the gate first to see all ${allQs.length}</button>
+      <div hidden data-ansbody>
+        <p class="qcover"><b>${allQs.length}</b> question${allQs.length === 1 ? "" : "s"} · ${heat.m} marks in the bank. Two are answered in full; the rest carry the skeleton the marker gives marks for.</p>
+        ${qs.map((q, i) => kitHTML(ansOf(q.id), "Model answer · Q" + (i + 1) + " · " + (q.marks || 5) + " marks")).join("")}
+        ${allQs.slice(2).length ? `<div class="qrest">
+          <span class="wlab" style="margin:14px 0 6px">The other ${allQs.length - 2} · could you write each in 20 seconds?</span>
+          ${allQs.slice(2).map((q) => {
+            const a = ansOf(q.id) || {};
+            const skel = Array.isArray(a.skel) ? a.skel : [];
+            return `<details class="qskel"><summary><b>${q.marks || 5}m</b><span>${esc(q.q)}</span><em>${esc(qMeta(q))}</em></summary>
+              <ol>${skel.map((s) => `<li>${esc(s)}</li>`).join("")}</ol>
+              <a class="qfull" href="#topic-${x.s}-${x.n}">Full answer on the unit page \u2192</a>
+            </details>`;
+          }).join("")}
+        </div>` : ""}
+        ${logic && logic.exam ? `<p class="wguide"><b>How the examiner wants it written</b>${esc(logic.exam)}</p>` : ""}
+      </div>
     </div>` : (logic && logic.exam ? `<div class="shotask aftergate">
       <span class="wlab">After the gate · how this unit is examined</span>
       <p class="wguide"><b>How the examiner wants it written</b>${esc(logic.exam)}</p>
@@ -2354,7 +2390,7 @@ function shotView() {
       }
       if (said && ansBtn && ansBtn.disabled) {
         ansBtn.disabled = false;
-        ansBtn.textContent = "Show the two model answers";
+        ansBtn.textContent = "Show all " + (card.dataset.qcount || "") + " questions";
       }
       if (words < 12) {
         res.hidden = false;
@@ -2411,7 +2447,9 @@ function shotView() {
       if (ansBtn.disabled) return;
       const box = card.querySelector("[data-ansbody]");
       box.hidden = !box.hidden;
-      ansBtn.textContent = box.hidden ? "Show the two model answers" : "Hide the two model answers";
+      ansBtn.textContent = box.hidden
+        ? "Show all " + (card.dataset.qcount || "") + " questions"
+        : "Hide the question set";
       if (!box.hidden) wireKit(box);
     });
 
