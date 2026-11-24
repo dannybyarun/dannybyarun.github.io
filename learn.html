@@ -174,6 +174,16 @@
   .wkeys dd{margin:0;font-size:12.2px;color:var(--mut);line-height:1.5}
   @media (max-width:560px){.wkeys dl{grid-template-columns:1fr;gap:1px 0}
     .wkeys dd{margin:0 0 5px}}
+  .wfacts{margin:12px 0 0;padding:10px 13px;border-radius:9px;
+    background:color-mix(in srgb,var(--acc) 6%,var(--panel2));border:1px solid var(--acc-line)}
+  .wfacts > b{display:block;font:600 9.5px/1 ui-monospace,monospace;letter-spacing:.13em;
+    text-transform:uppercase;color:var(--acc);margin-bottom:6px}
+  .wformula{margin:0 0 7px;font:12.4px/1.5 ui-monospace,monospace;color:var(--txt)}
+  .wfacts table{width:100%;border-collapse:collapse;margin:0 0 7px}
+  .wfacts td{padding:3px 0;font-size:12.4px;line-height:1.45;color:var(--mut);
+    border-top:1px solid var(--line);vertical-align:top}
+  .wfacts td:first-child{width:34%;color:var(--txt);font-weight:600;padding-right:10px}
+  .wworked{margin:0;font-size:12.4px;line-height:1.55;color:var(--mut)}
   .wguide{margin:12px 0 0;padding-top:10px;border-top:1px dashed var(--line);
     font-size:12.8px;line-height:1.65;color:var(--mut)}
   .wguide b{color:var(--dim)}
@@ -2002,6 +2012,22 @@ const LAB_FOR = {
   "ncc.3": { id: "pipe", name: "request pipeline" }
 };
 
+/* Values a paper makes you write exactly. A page that says "use the COCOMO
+   constants" without printing them is a page you have to leave to answer a
+   calculation, so the few units with real numbers carry them here. */
+const FACTS = {
+  "se.10": {
+    title: "The numbers to write exactly",
+    rows: [
+      ["Organic", "a 2.4 \u00b7 b 1.05 \u00b7 c 2.5 \u00b7 d 0.38"],
+      ["Semi-detached", "a 3.0 \u00b7 b 1.12 \u00b7 c 2.5 \u00b7 d 0.35"],
+      ["Embedded", "a 3.6 \u00b7 b 1.20 \u00b7 c 2.5 \u00b7 d 0.32"]
+    ],
+    formula: "E = a \u00d7 KLOC^b person-months \u00b7 D = c \u00d7 E^d months \u00b7 team = E \u00f7 D",
+    worked: "320 KLOC, organic: E = 2.4 \u00d7 320^1.05 \u2248 1025 PM; D = 2.5 \u00d7 1025^0.38 \u2248 34.8 \u2248 35 months; team \u2248 30. Embedded: E = 3.6 \u00d7 320^1.20 \u2248 3652 PM; D \u2248 34.5 months; team \u2248 106 \u2014 almost 3.6\u00d7 the effort for the same duration."
+  }
+};
+
 function shotCard(x, pos) {
   const logic = (LOGIC[x.s] || []).find((u) => u.n === x.n) || null;
   const topic = (TOP[x.s] || []).find((u) => u.n === x.n) || null;
@@ -2032,6 +2058,12 @@ function shotCard(x, pos) {
     ${logic && logic.why ? `<p class="wpress"><b>What happens without it</b>${esc(logic.why)}</p>` : ""}
     ${steps.length ? `<ol class="wsteps">${steps.map((s) => `<li><div><b>${esc(s.t)}</b><span>${esc(s.d)}</span></div></li>`).join("")}</ol>` : ""}
     ${LAB_FOR[x.key] ? `<a class="wlab-link" href="#${LAB_FOR[x.key].id}"><b>Run it, do not just read it</b><span>Open the ${LAB_FOR[x.key].name} lab and watch this unit's mechanism move \u2192</span></a>` : ""}
+    ${FACTS[x.key] ? `<div class="wfacts">
+      <b>${esc(FACTS[x.key].title)}</b>
+      <p class="wformula">${esc(FACTS[x.key].formula)}</p>
+      <table>${FACTS[x.key].rows.map((r) => `<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td></tr>`).join("")}</table>
+      <p class="wworked">${esc(FACTS[x.key].worked)}</p>
+    </div>` : ""}
     ${logic && logic.story ? `<div class="wstory"><b>The one case to remember</b><p>${esc(logic.story)}</p></div>` : ""}
     ${topic && topic.traps && topic.traps.length ? `<div class="wtrap"><b>How this answer loses marks</b><ol>${topic.traps.slice(0, 3).map((t) => `<li>${esc(t)}</li>`).join("")}</ol></div>` : ""}
     ${topic && topic.keys && topic.keys.length ? `<div class="wkeys">
