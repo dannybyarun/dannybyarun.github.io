@@ -82,6 +82,27 @@
   .stat.warn::after{background:var(--warn)}
   .stat.bad::after{background:var(--bad)}
 
+  /* ---------- one shot banner ---------- */
+  .oneshot{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin:0 0 18px;padding:16px 18px;
+    background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--acc);
+    border-radius:var(--r);box-shadow:var(--card-shadow)}
+  .oneshot .os-main{flex:1 1 280px;min-width:0}
+  .oneshot .os-kick{font:600 10px/1 ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--acc)}
+  .oneshot h2{margin:6px 0 3px;font-size:16.5px;font-weight:600;letter-spacing:-.01em}
+  .oneshot p{margin:0;font-size:12.5px;color:var(--mut);line-height:1.55}
+  .oneshot .os-stats{display:flex;gap:16px;flex-wrap:wrap}
+  .oneshot .os-stat{min-width:66px}
+  .oneshot .os-stat b{display:block;font-size:18px;letter-spacing:-.02em;line-height:1.25}
+  .oneshot .os-stat span{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim)}
+  .oneshot .os-go{display:inline-block;background:var(--acc);color:var(--on-acc);text-decoration:none;
+    font-size:13px;font-weight:650;padding:10px 15px;border-radius:9px;white-space:nowrap}
+  .oneshot .os-go:hover{filter:brightness(1.05)}
+  @media (max-width:640px){
+    .oneshot{padding:14px;gap:12px}
+    .oneshot .os-stats{order:3;width:100%}
+    .oneshot .os-go{order:4;width:100%;text-align:center}
+  }
+
   /* ---------- grid ---------- */
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;transition:border-color .2s,transform .15s;box-shadow:var(--card-shadow)}
@@ -178,6 +199,8 @@
 
   <div class="strip" id="strip"></div>
 
+  <section class="oneshot" id="oneshot" hidden></section>
+
   <div class="grid" id="grid"></div>
 
   <section class="today">
@@ -191,6 +214,7 @@
   </footer>
 </div>
 
+<script src="data/chain.js"></script>
 <script>
 /* ============================================================
    1. CONFIG — edit exam dates here (YYYY-MM-DD, 12:00 noon start)
@@ -410,6 +434,51 @@ function planFor(nDays){
 }
 
 /* ============================================================
+   3c. ONE SHOT — the one ordered pass, mirrored from learn.html
+   ============================================================ */
+const SHOT_KEY = "csit6.oneshot.v1";
+const SHOT_ORDER = ["se", "cdc", "egov", "ncc", "tw", "ecom"];
+
+function renderOneShot(){
+  const el = document.getElementById("oneshot");
+  const chain = window.CHAIN || {};
+  const keys = [];
+  for (const s of SHOT_ORDER) for (const u of chain[s] || []) keys.push(s + "." + u.n);
+  if (!keys.length) { el.hidden = true; return; }
+
+  let st = {};
+  try { st = JSON.parse(localStorage.getItem(SHOT_KEY)) || {}; } catch(e){ st = {}; }
+  const closedMap = st.closed || {};
+  const closed = keys.filter(k => closedMap[k]).length;
+  const open = keys.length - closed;
+
+  // identical rule to learn.html: phase 1 ends two days before the first paper
+  const first = new Date(EXAMS.se + "T00:00:00");
+  const end = new Date(first.getTime() - 2 * DAY);
+  const days = Math.max(1, Math.ceil((end - today()) / DAY));
+  const perDay = Math.min(8, Math.max(1, Math.ceil(open / days)));
+  const cards = Math.min(open, perDay);
+  const dSE = daysLeft(EXAMS.se);
+  const endLabel = end.toLocaleDateString(undefined, { day: "numeric", month: "short" });
+
+  el.hidden = false;
+  el.innerHTML = `
+    <div class="os-main">
+      <div class="os-kick">One Shot &middot; the logic run</div>
+      <h2>${closed ? closed + " of " + keys.length + " units retired" : keys.length + " units, one pass, each closed once"}</h2>
+      <p>${open
+        ? `Understand a unit once, prove it with a typed 60-second recall test, retire it for good. The queue follows the exam calendar and ends on ${endLabel}, two days before the first paper.`
+        : "Every unit is closed. Nothing left to learn for the first time &mdash; from here it is recall only."}</p>
+    </div>
+    <div class="os-stats">
+      <div class="os-stat"><b>${cards}</b><span>today</span></div>
+      <div class="os-stat"><b>${closed}/${keys.length}</b><span>retired</span></div>
+      <div class="os-stat"><b>${dSE}d</b><span>first paper</span></div>
+    </div>
+    <a class="os-go" href="learn.html#shot">${open ? "Start today&rsquo;s " + cards + " &rarr;" : "Open the run &rarr;"}</a>`;
+}
+
+/* ============================================================
    4. RENDER
    ============================================================ */
 function renderStrip(){
@@ -557,7 +626,7 @@ function renderClock(){
     ms > 0 ? `${dd}d ${hh}h ${mm}m to first paper` : `first paper has started`;
 }
 
-function refresh(){ renderStrip(); renderCards(); renderMissions(); renderClock(); }
+function refresh(){ renderStrip(); renderOneShot(); renderCards(); renderMissions(); renderClock(); }
 
 document.getElementById("reset").addEventListener("click", ()=>{
   if(confirm("Clear all checked units?")){ state = {}; save(); refresh(); }

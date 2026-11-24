@@ -162,6 +162,89 @@
     .wheat{margin-left:0;flex-basis:100%}
   }
 
+  /* one shot */
+  .shotstats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:0 0 12px}
+  .shotstats .s{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .shotstats .s b{display:block;font-size:21px;letter-spacing:-.02em;line-height:1.2}
+  .shotstats .s span{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+  .shotstats .s i{display:block;font-size:11.5px;color:var(--mut);font-style:normal;margin-top:3px}
+  .paperstrip{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 14px}
+  .pchip{display:flex;flex-direction:column;gap:1px;background:var(--panel);border:1px solid var(--line);
+    border-radius:9px;padding:7px 10px;font-size:11.5px;color:var(--mut);min-width:104px}
+  .pchip b{font-size:11.5px;color:var(--txt);font-weight:600}
+  .pchip em{font-style:normal;color:var(--dim);font-size:10.5px}
+  .pchip.done{border-color:color-mix(in srgb,var(--acc) 45%,var(--line))}
+  .pchip.near{border-color:color-mix(in srgb,var(--warn) 45%,var(--line))}
+  .shotbar{height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin:0 0 18px}
+  .shotbar i{display:block;height:100%;background:var(--acc);transition:width .35s}
+  .shot{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;
+    margin-bottom:12px;box-shadow:var(--shadow);scroll-margin-top:76px}
+  .shot.leaving{opacity:0;transform:translateX(18px);transition:opacity .3s,transform .3s}
+  .shothead{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+  .shothead h3{margin:0;font-size:15.5px;letter-spacing:-.01em}
+  .schip{font:600 10px/1 ui-monospace,monospace;letter-spacing:.08em;color:var(--acc);
+    background:color-mix(in srgb,var(--acc) 12%,transparent);border:1px solid color-mix(in srgb,var(--acc) 35%,var(--line));
+    border-radius:5px;padding:4px 6px}
+  .chainin,.chainout{margin:11px 0 0;padding:9px 12px;border-radius:9px;background:var(--panel2);
+    border-left:2px solid color-mix(in srgb,var(--acc) 55%,var(--line));font-size:13px;line-height:1.55;color:var(--mut)}
+  .chainout{border-left-color:var(--line);margin-top:12px}
+  .chainin b,.chainout b{color:var(--dim);font:600 9.5px/1 ui-monospace,monospace;letter-spacing:.13em;
+    text-transform:uppercase;display:block;margin-bottom:3px}
+  .shotfoot{display:flex;gap:14px;flex-wrap:wrap;align-items:baseline;margin:11px 0 0;font-size:12px}
+  .shotfoot a{color:var(--acc);text-decoration:none}
+  .shotfoot a:hover{text-decoration:underline}
+  .shotfoot span{margin-left:auto;color:var(--dim);font-size:11px}
+  .shot .wsteps{margin:13px 0 0}
+  .shot .wsteps li{padding:6px 0}
+  .shotask{margin:14px 0 0;padding-top:13px;border-top:1px dashed var(--line)}
+  .shotask ul{margin:5px 0 9px;padding-left:17px}
+  .shotask li{font-size:13px;line-height:1.55;color:var(--mut);margin-bottom:5px}
+  .shotask li b{color:var(--acc);font:600 10.5px/1 ui-monospace,monospace;margin-right:5px}
+  .gate{margin:15px 0 0;padding:14px;border-radius:11px;background:color-mix(in srgb,var(--acc) 5%,var(--panel2));
+    border:1px solid var(--line)}
+  .gate .gatehead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .gateq{margin:11px 0 0;font-size:14.5px;line-height:1.55;color:var(--txt);font-weight:500}
+  .gatea{margin:9px 0 0;font-size:13.5px;line-height:1.65;color:var(--mut);
+    border-left:2px solid var(--acc);padding-left:11px}
+  .ticks{margin:13px 0 0;display:grid;gap:6px}
+  .ticks label{display:flex;gap:9px;align-items:flex-start;font-size:13px;color:var(--mut);cursor:pointer;
+    line-height:1.45;padding:2px 0}
+  .ticks input{accent-color:var(--acc);width:15px;height:15px;margin-top:2px;flex:none;cursor:pointer}
+  .gate textarea{width:100%;margin:9px 0 7px;background:var(--panel);border:1px solid var(--line);
+    border-radius:9px;padding:10px 12px;color:var(--txt);font:inherit;font-size:13.5px;line-height:1.55;
+    resize:vertical;outline:none;min-height:64px}
+  .gate textarea:focus{border-color:var(--acc)}
+  .gateres{margin:9px 0 0;font-size:12.8px;line-height:1.6;color:var(--mut)}
+  .gateres b{color:var(--txt)}
+  .gateres.pass{color:var(--acc)}
+  .gateres .miss{display:inline-block;background:var(--panel);border:1px solid var(--line);border-radius:5px;
+    padding:1px 6px;margin:3px 4px 0 0;font:11px ui-monospace,monospace;color:var(--dim)}
+  .gatebtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .gatebtns .act:disabled{opacity:.42;cursor:not-allowed}
+  .rowlist{margin:0;padding:0;list-style:none}
+  .rowlist li{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:13px}
+  .rowlist li:last-child{border-bottom:0}
+  .rowlist .dot{width:7px;height:7px;border-radius:50%;background:var(--line);flex:none}
+  .rowlist li.closed .dot{background:var(--acc)}
+  .rowlist li.closed span.nm{color:var(--dim);text-decoration:line-through}
+  .rowlist span.nm{flex:1;min-width:0;color:var(--txt)}
+  .rowlist em{font-style:normal;color:var(--dim);font-size:11px;white-space:nowrap}
+  .rowlist button{font-size:11px;padding:2px 7px}
+  .warm{margin:0 0 16px}
+  .warmrow{padding:9px 0;border-top:1px dashed var(--line)}
+  .warmrow:first-of-type{border-top:0;padding-top:2px}
+  .warmtop{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .warmnm{flex:1;min-width:0;font-size:13.5px;color:var(--txt)}
+  .warm .gateq{margin:9px 0 0;font-size:14px}
+  .warm .gatea{margin:8px 0 0;font-size:13px}
+  .warm .gatebtns{margin-top:9px}
+  @media (max-width:720px){
+    .shotstats{grid-template-columns:1fr 1fr}
+    .shot{padding:15px 15px;scroll-margin-top:104px}
+    .gatebtns .hint{display:none}
+    .shotfoot span{margin-left:0}
+  }
+
   /* drill */
   .qcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;box-shadow:var(--shadow)}
   .qmeta{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
@@ -305,11 +388,18 @@
     .unitgrid{grid-template-columns:1fr}
     .flipgrid{grid-template-columns:1fr 1fr}
   }
+  @media(max-width:400px){
+    nav button{font-size:12px;padding:6px 6px}
+    nav{gap:1px}
+  }
   @media(max-width:640px){.rate{grid-template-columns:repeat(2,1fr)}.stage .name{min-width:110px}}
   @media(max-width:720px){
     .top{padding:10px 14px;gap:10px;flex-wrap:wrap}
     .brand{display:none}
-    nav{margin-left:0;order:2;width:100%}
+    nav{margin-left:0;order:2;width:100%;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;
+      -webkit-overflow-scrolling:touch;padding-bottom:2px}
+    nav::-webkit-scrollbar{display:none}
+    nav button{flex:0 0 auto}
     .spacer{display:none}
     .link{margin-left:0}
     .link:first-of-type{margin-left:auto}
@@ -333,6 +423,7 @@
 <header class="top">
   <div class="brand">CSIT 6 · <b>Learn</b></div>
   <nav id="nav">
+    <button data-view="shot">One Shot</button>
     <button data-view="topics" class="on">Topics</button>
     <button data-view="why">Why</button>
     <button data-view="labs">Labs</button>
@@ -352,6 +443,7 @@
 <script src="data/answers.js"></script>
 <script src="data/topics.js"></script>
 <script src="data/logic.js"></script>
+<script src="data/chain.js"></script>
 <script src="data/repeats.js"></script>
 <script>
 /* =========================================================
@@ -1530,7 +1622,8 @@ function setCardOpen(card, open) {
   if (b) b.textContent = open ? "Hide the story" : "Tell me why";
 }
 
-function whyView() {  const units = logicOf(whySub);
+function whyView() {
+  const units = logicOf(whySub);
   const heat = unitHeat(whySub);
   const canSpeak = "speechSynthesis" in window;
 
@@ -1619,6 +1712,470 @@ function whyView() {  const units = logicOf(whySub);
   }));
 }
 
+/* =========================================================
+   ONE SHOT — one ordered pass over all 54 units, each closed by a test
+   ========================================================= */
+const SHOT_KEY = "csit6.oneshot.v1";
+const DAYMS = 86400000;
+/* exam order: the run follows the calendar, not the menu */
+const EXAMS = [
+  ["se", "2026-12-10", "CSC375", "SE"],
+  ["cdc", "2026-12-13", "CSC376", "CDC"],
+  ["egov", "2026-12-16", "CSC377", "EGOV"],
+  ["ncc", "2026-12-20", "CSC378", "NCC"],
+  ["tw", "2026-12-23", "CSC379", "TW"],
+  ["ecom", "2026-12-27", "CSC381", "ECOM"],
+];
+
+function loadShot() {
+  try {
+    const s = JSON.parse(localStorage.getItem(SHOT_KEY)) || {};
+    return { closed: s.closed || {}, requeue: s.requeue || {}, warm: s.warm || {} };
+  } catch (e) { return { closed: {}, requeue: {}, warm: {} }; }
+}
+const SHOT = loadShot();
+const saveShot = () => { try { localStorage.setItem(SHOT_KEY, JSON.stringify(SHOT)); } catch (e) {} };
+
+let SHOT_RUN = null;
+function shotRun() {
+  if (SHOT_RUN) return SHOT_RUN;
+  const chain = window.CHAIN || {};
+  SHOT_RUN = [];
+  for (const [s, date, code] of EXAMS) {
+    for (const u of chain[s] || []) {
+      SHOT_RUN.push({ s, date, code, n: u.n, name: u.name, from: u.from, to: u.to, gate: u.gate, key: s + "." + u.n });
+    }
+  }
+  return SHOT_RUN;
+}
+
+const startOfDay = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; };
+const daysTo = (iso) => Math.round((new Date(iso + "T00:00:00") - startOfDay()) / DAYMS);
+const fmtDay = (d) => d.toLocaleDateString(undefined, { day: "numeric", month: "short" });
+
+/* ---- warm-up: 3 units retired before today, re-asked cold ----
+   Retiring a unit is a claim about tomorrow, not just about now. Each day the
+   run puts three of them back on the spot; if one has slipped, it returns to
+   today's queue instead of waiting for the exam to reveal it. */
+function warmPicks(run) {
+  const date = new Date().toISOString().slice(0, 10);
+  const t0 = startOfDay().getTime();
+  SHOT.warm = SHOT.warm || {};
+  const rec = SHOT.warm[date] || { list: [], done: [] };
+  const cand = run.filter((x) => SHOT.closed[x.key] && SHOT.closed[x.key] < t0);
+  if (!cand.length) return [];
+  let list = (rec.list || []).filter((k) => cand.some((x) => x.key === k));
+  if (!list.length) {
+    const seed = Math.floor(t0 / DAYMS) % cand.length;
+    list = [0, 1, 2].map((i) => cand[(seed + i) % cand.length]).filter(Boolean).map((x) => x.key);
+    rec.list = list;
+    SHOT.warm[date] = rec;
+    saveShot();
+  }
+  return list.map((k) => cand.find((x) => x.key === k)).filter((x) => x && !rec.done.includes(x.key));
+}
+
+function shotPlan() {
+  const run = shotRun();
+  const open = run.filter((x) => !SHOT.closed[x.key]);
+  /* phase 1 must be finished two days before the first paper */
+  const first = new Date(EXAMS[0][1] + "T00:00:00");
+  const end = new Date(first.getTime() - 2 * DAYMS);
+  const daysLeft = Math.max(1, Math.ceil((end - startOfDay()) / DAYMS));
+  const perDay = Math.min(8, Math.max(1, Math.ceil(open.length / daysLeft)));
+  /* a unit the reader sent back comes last in the same session, never next week */
+  const fresh = open.filter((x) => !SHOT.requeue[x.key]).slice(0, perDay);
+  const again = open.filter((x) => SHOT.requeue[x.key]).slice(0, 3);
+  const today = fresh.length ? fresh.concat(again) : open.slice(0, perDay);
+  return { run, open, perDay, today, daysLeft, end };
+}
+
+function unitQuestions(sub, n, limit) {
+  return window.QBANK
+    .filter((q) => {
+      if (q.s !== sub) return false;
+      const a = ansOf(q.id);
+      return a && Number(a.u) === Number(n);
+    })
+    .sort((a, b) => (Number(b.marks) || 5) - (Number(a.marks) || 5))
+    .slice(0, limit);
+}
+
+function markLearned(sub, n) {
+  try {
+    const st = JSON.parse(localStorage.getItem(PROG_KEY)) || {};
+    st[sub] = st[sub] || {};
+    st[sub][n] = true;
+    localStorage.setItem(PROG_KEY, JSON.stringify(st));
+  } catch (e) {}
+}
+
+function unmarkLearned(sub, n) {
+  try {
+    const st = JSON.parse(localStorage.getItem(PROG_KEY)) || {};
+    if (st[sub]) { delete st[sub][n]; localStorage.setItem(PROG_KEY, JSON.stringify(st)); }
+  } catch (e) {}
+}
+
+let shotShowAll = false;
+let shotFocus = null;
+
+/* ---- typed recall scoring -------------------------------------------------
+   The reader writes the answer before seeing it. We do not try to grade English:
+   we check whether the marked ideas are present, using a 5-letter stem so
+   "dependable" counts for "dependability". Three hits and 35% is a pass.      */
+const SAY_STOP = new Set(("about above after again against also because been before being below between both cannot could doing down during each every from further have having here into itself might more most must only other over same shall should some such than that their theirs them then there these they this those through under until very what when where which while whom will with would your yours").split(" "));
+
+function keyIdeas(text) {
+  const seen = new Set();
+  const out = [];
+  for (const raw of String(text || "").toLowerCase().split(/[^a-z0-9]+/)) {
+    if (raw.length < 5 || SAY_STOP.has(raw)) continue;
+    const stem = raw.slice(0, 5);
+    if (seen.has(stem)) continue;
+    seen.add(stem);
+    out.push({ stem, word: raw });
+  }
+  return out;
+}
+
+function coverage(said, target) {
+  const keys = keyIdeas(target);
+  const flat = " " + String(said || "").toLowerCase().replace(/[^a-z0-9]+/g, " ") + " ";
+  const hit = [], miss = [];
+  for (const k of keys) (flat.includes(k.stem) ? hit : miss).push(k.word);
+  const total = keys.length || 1;
+  return { hit, miss, total, pct: Math.round((hit.length / total) * 100) };
+}
+
+/* A pass is 30% of the marked ideas, never fewer than 3 and never more than 10,
+   so a unit with a dense model answer does not demand a transcription. */
+const passNeed = (total) => Math.max(3, Math.min(10, Math.round(total * 0.3)));
+
+function shotCard(x, pos) {
+  const logic = (LOGIC[x.s] || []).find((u) => u.n === x.n) || null;
+  const heat = unitHeat(x.s).find((r) => r.n === x.n) || { q: 0, m: 0 };
+  const qs = unitQuestions(x.s, x.n, 2);
+  const tries = SHOT.requeue[x.key] || 0;
+  const steps = logic ? logic.steps : [];
+  const gateKeys = keyIdeas(x.gate ? x.gate.a : "").length;
+  return `<article class="shot" data-key="${x.key}" id="shot-${x.s}-${x.n}">
+    <div class="shothead">
+      <span class="schip">${x.code}</span>
+      <span class="wtag">UNIT ${x.n}</span>
+      <h3>${esc(x.name)}</h3>
+      ${pos ? `<span class="wtag" style="color:var(--dim)">${pos}</span>` : ""}
+      <span class="wheat">${heat.q} questions · ${heat.m} marks</span>
+    </div>
+    <div class="chainin"><b>You are here because</b>${esc(x.from)}</div>
+    <p class="wone">${esc(logic ? logic.oneLiner : "")}</p>
+    ${steps.length ? `<ol class="wsteps">${steps.map((s) => `<li><div><b>${esc(s.t)}</b><span>${esc(s.d)}</span></div></li>`).join("")}</ol>` : ""}
+    <div class="chainout"><b>This hands forward</b>${esc(x.to)}</div>
+    <div class="shotfoot">
+      <a href="#topic-${x.s}-${x.n}">Read the full unit \u2192</a>
+      <a href="#why-${x.s}-${x.n}">Why it works \u2192</a>
+      <span>${tries ? `Sent back ${tries}\u00d7` : ""}</span>
+    </div>
+    ${qs.length ? `<div class="shotask">
+      <span class="wlab">What the paper does with it · ${qs.length} heaviest of ${heat.q}</span>
+      <ul>${qs.map((q) => `<li><b>${q.marks || 5}m</b>${esc(q.q)}</li>`).join("")}</ul>
+      <button class="ghost" data-ans>Show a model answer</button>
+      <div hidden data-ansbody>${kitHTML(ansOf(qs[0].id), "Model answer · " + (qs[0].marks || 5) + " marks")}</div>
+    </div>` : ""}
+    <div class="gate">
+      <div class="gatehead">
+        <span class="wlab" style="margin:0">Close it — the 60-second test</span>
+        <button class="ghost" data-gate>Show the question</button>
+      </div>
+      <p class="gateq" hidden>${esc(x.gate ? x.gate.q : "")}</p>
+      <div hidden data-gbody>
+        <span class="wlab" style="margin:12px 0 4px">Answer it first — type what you would write</span>
+        <span style="display:block;font-size:11.5px;color:var(--dim);margin:0 0 6px">A pass needs ${passNeed(gateKeys)} of the ${gateKeys} marked ideas, in your own words. Copying the marking scheme is not the test.</span>
+        <textarea data-say rows="3" placeholder="No looking. The claim, the mechanism, the consequence."></textarea>
+        <div class="gatebtns" style="margin-top:0">
+          <button class="act" data-check>Check my answer</button>
+          <span class="hint" data-wing>Ctrl+Enter</span>
+        </div>
+        <div class="gateres" data-res hidden></div>
+        <button class="ghost" data-ga style="margin-top:10px">Show the marked answer</button>
+        <p class="gatea" hidden>${esc(x.gate ? x.gate.a : "")}</p>
+        <div class="ticks">
+          <label><input type="checkbox" data-tick="one"><span>I said the one-liner, in my own words.</span></label>
+          ${steps.map((s, i) => `<label><input type="checkbox" data-tick="${i}"><span>I could name: <b style="color:var(--txt)">${esc(s.t)}</b></span></label>`).join("")}
+        </div>
+        <div class="gatebtns">
+          <button class="act" data-close disabled>Close — never revisit</button>
+          <button class="ghost" data-again>Not yet — bring it back today</button>
+        </div>
+        ${tries >= 2 ? `<p style="margin:9px 0 0;font-size:12px;color:var(--dim)">Third attempt. If it still will not land, read the story once: <a href="#why-${x.s}-${x.n}">Why it works →</a></p>` : ""}
+      </div>
+    </div>
+  </article>`;
+}
+
+function shotView() {
+  stopSpeech();
+  const run = shotRun();
+  if (!run.length) {
+    view.innerHTML = `<h1>One Shot</h1><p class="sub">The chain is still being written. Run <code>node tools/build-chain.mjs</code> once <code>data/chain/*.json</code> exist.</p>`;
+    return;
+  }
+  const plan = shotPlan();
+  const closed = run.length - plan.open.length;
+  const pct = Math.round((closed / run.length) * 100);
+  const warm = warmPicks(run);
+  const nextExam = plan.today[0] ? [plan.today[0].s] : [EXAMS[0][0]];
+  const cards = plan.today.slice();
+  if (shotFocus) {
+    const f = run.find((x) => x.key === shotFocus);
+    if (f && !cards.some((c) => c.key === f.key)) cards.unshift(f);
+  }
+
+  view.innerHTML = `
+    <h1>One Shot</h1>
+    <p class="sub">One ordered pass over all ${run.length} units, in exam order, each one closed by a 60-second test. A unit you close here never enters the plan again — that is the whole method: understand it once, prove it once, retire it.</p>
+
+    <div class="shotstats">
+      <div class="s"><span>Retired</span><b>${closed} / ${run.length}</b><i>${pct}% of the syllabus closed</i></div>
+      <div class="s"><span>Today</span><b>${plan.today.length} card${plan.today.length === 1 ? "" : "s"}</b><i>${plan.perDay}/day to finish on time</i></div>
+      <div class="s"><span>First paper</span><b>${Math.max(0, daysTo(EXAMS[0][1]))}d</b><i>${EXAMS[0][3]} · ${fmtDay(new Date(EXAMS[0][1] + "T00:00:00"))}</i></div>
+      <div class="s"><span>Logic run ends</span><b>${fmtDay(plan.end)}</b><i>then one paper at a time</i></div>
+    </div>
+
+    <div class="paperstrip">
+      ${EXAMS.map(([s, date, code]) => {
+        const all = run.filter((x) => x.s === s);
+        const done = all.filter((x) => SHOT.closed[x.key]).length;
+        const d = daysTo(date);
+        return `<div class="pchip ${done === all.length ? "done" : d <= 3 ? "near" : ""}">
+          <b>${SUBJ[s]}</b><em>${done}/${all.length} closed · ${d <= 0 ? "exam passed" : "exam in " + d + "d"}</em></div>`;
+      }).join("")}
+    </div>
+    <div class="shotbar"><i style="width:${pct}%"></i></div>
+
+    ${warm.length ? `<div class="panel warm">
+      <div class="kithead" style="margin-bottom:2px"><b>Warm-up — ${warm.length} retired unit${warm.length > 1 ? "s" : ""} back on the spot</b></div>
+      <p style="margin:0 0 10px;font-size:12.5px;color:var(--mut);line-height:1.55">Closed on an earlier day. Answer cold; anything that slipped goes back into today's queue instead of waiting for the exam to expose it.</p>
+      ${warm.map((x) => `<div class="warmrow" data-wkey="${x.key}">
+        <div class="warmtop">
+          <span class="schip">${x.code}</span>
+          <span class="warmnm">${x.n}. ${esc(x.name)}</span>
+          <button class="ghost" data-wq>Ask me</button>
+        </div>
+        <div hidden data-wbody>
+          <p class="gateq">${esc(x.gate ? x.gate.q : "")}</p>
+          <button class="ghost" data-wa>Show the answer</button>
+          <p class="gatea" hidden>${esc(x.gate ? x.gate.a : "")}</p>
+          <div class="gatebtns">
+            <button class="ghost" data-wh>Still solid — it stays retired</button>
+            <button class="ghost" data-wr>Reopen into today's queue</button>
+          </div>
+        </div>
+      </div>`).join("")}
+    </div>` : ""}
+
+    <div class="whytools" style="margin-bottom:14px">
+      <button class="ghost" id="shotAll">${shotShowAll ? "Hide the full run" : "Show all " + run.length + " in order"}</button>
+      <span class="hint">${plan.open.length} left · ${plan.daysLeft} day${plan.daysLeft === 1 ? "" : "s"} to the end of the logic run · next: ${SUBJ[nextExam[0]]}</span>
+    </div>
+
+    ${shotShowAll ? `<div class="panel" style="margin-bottom:16px">
+      <div class="kithead" style="margin-bottom:8px"><b>The full run</b><span style="font:11px ui-monospace,monospace;color:var(--dim)">exam order · click a unit to jump to it</span></div>
+      ${EXAMS.map(([s]) => {
+        const all = run.filter((x) => x.s === s);
+        return `<div style="margin-bottom:10px">
+          <div class="wlab" style="margin-bottom:2px">${SUBJ[s]} · ${all.filter((x) => SHOT.closed[x.key]).length}/${all.length}</div>
+          <ul class="rowlist">${all.map((x) => {
+            const isClosed = !!SHOT.closed[x.key];
+            return `<li class="${isClosed ? "closed" : ""}">
+              <span class="dot"></span><span class="nm">${x.n}. ${esc(x.name)}</span>
+              <em>${isClosed ? "retired" : ""}</em>
+              <button class="ghost" data-jump="${x.key}">${isClosed ? "reopen" : "open"}</button>
+            </li>`;
+          }).join("")}</ul></div>`;
+      }).join("")}
+    </div>` : ""}
+
+    ${cards.length ? cards.map((x, i) => shotCard(x, (i + 1) + " of " + cards.length + " today")).join("") : `<div class="panel" style="text-align:center;padding:26px 18px">
+      <p style="margin:0 0 6px;font-size:16px;color:var(--txt);font-weight:600">Today's queue is empty — the whole run is retired.</p>
+      <p style="margin:0;font-size:13px;color:var(--mut)">Nothing left to understand for the first time. From here it is recall only: <a href="#sure">Sure Shot</a> for this paper, then <a href="#drill">Drill</a>.</p>
+    </div>`}
+
+    <div class="panel" style="margin-top:18px">
+      <div class="kithead" style="margin-bottom:6px"><b>Why this ends the revisiting</b></div>
+      <p style="margin:0;font-size:13px;color:var(--mut);line-height:1.7">
+        Reading a unit twice feels like learning and is not. Here every unit is read once and then <b style="color:var(--txt)">produced</b>:
+        the one-liner out loud, the five moving parts named, before the card is allowed to close. A unit that fails the test
+        comes back <b style="color:var(--txt)">inside the same session</b>, not next week, so the gap is fixed while the idea is still warm.
+        The chain line at the top of each card is the one you just closed, so the ${run.length} units stay one argument instead of ${run.length} islands.</p>
+    </div>`;
+
+  const allBtn = document.getElementById("shotAll");
+  if (allBtn) allBtn.addEventListener("click", () => { shotShowAll = !shotShowAll; shotView(); });
+
+  view.querySelectorAll("[data-jump]").forEach((b) => b.addEventListener("click", () => {
+    const key = b.dataset.jump;
+    if (SHOT.closed[key] && b.textContent.trim() === "reopen") {
+      delete SHOT.closed[key];
+      saveShot();
+    }
+    shotFocus = key;
+    shotShowAll = false;
+    shotView();
+    const card = document.getElementById("shot-" + key.replace(".", "-"));
+    if (card) requestAnimationFrame(() => card.scrollIntoView({ block: "start", behavior: "smooth" }));
+  }));
+
+  /* after a card leaves, keep the reader at the top of the next one instead of mid-page */
+  const advance = () => {
+    shotView();
+    const next = document.querySelector(".shot");
+    if (next) next.scrollIntoView({ block: "start" });
+    else window.scrollTo(0, 0);
+  };
+
+  view.querySelectorAll(".warmrow").forEach((row) => {
+    const key = row.dataset.wkey;
+    const ask = row.querySelector("[data-wq]");
+    const body = row.querySelector("[data-wbody]");
+    const gaBtn = row.querySelector("[data-wa]");
+    const ga = row.querySelector(".gatea");
+    const mark = (k) => {
+      const date = new Date().toISOString().slice(0, 10);
+      const rec = SHOT.warm[date] || (SHOT.warm[date] = { list: [], done: [] });
+      if (!rec.done.includes(k)) rec.done.push(k);
+      saveShot();
+    };
+
+    if (ask) ask.addEventListener("click", () => {
+      body.hidden = false;
+      ask.style.display = "none";
+    });
+    if (gaBtn) gaBtn.addEventListener("click", () => {
+      ga.hidden = false;
+      gaBtn.style.display = "none";
+    });
+    row.querySelector("[data-wh]").addEventListener("click", () => {
+      mark(key);
+      shotView();
+    });
+    row.querySelector("[data-wr]").addEventListener("click", () => {
+      delete SHOT.closed[key];
+      SHOT.requeue[key] = 1;
+      mark(key);
+      saveShot();
+      unmarkLearned(key.split(".")[0], Number(key.split(".")[1]));
+      shotView();
+    });
+  });
+
+  view.querySelectorAll(".shot").forEach((card) => {
+    const key = card.dataset.key;
+    const gateBtn = card.querySelector("[data-gate]");
+    const gq = card.querySelector(".gateq");
+    const body = card.querySelector("[data-gbody]");
+    const gaBtn = card.querySelector("[data-ga]");
+    const ga = card.querySelector(".gatea");
+    const ticks = [...card.querySelectorAll("[data-tick]")];
+    const closeBtn = card.querySelector("[data-close]");
+    const againBtn = card.querySelector("[data-again]");
+    const ansBtn = card.querySelector("[data-ans]");
+    const say = card.querySelector("[data-say]");
+    const checkBtn = card.querySelector("[data-check]");
+    const res = card.querySelector("[data-res]");
+    const oneTick = card.querySelector('[data-tick="one"]');
+    const target = card.querySelector(".gatea")?.textContent || "";
+
+    const runCheck = () => {
+      const said = say.value.trim();
+      const words = said.split(/\s+/).filter(Boolean).length;
+      if (words < 12) {
+        res.hidden = false;
+        res.className = "gateres";
+        res.innerHTML = words < 4
+          ? "Write a sentence first \u2014 four words cannot show a mechanism."
+          : "Too thin. The marker wants the claim, the mechanism and the consequence \u2014 write the whole answer before you check it.";
+        return;
+      }
+      const c = coverage(said, target);
+      const need = passNeed(c.total);
+      const pass = c.hit.length >= need;
+      res.hidden = false;
+      res.className = "gateres" + (pass ? " pass" : "");
+      if (pass) {
+        res.innerHTML = `\u2713 <b>${c.hit.length} of ${c.total} marked ideas</b> \u2014 the mechanism is there. The one-liner is ticked for you; name the five parts and close it.`;
+        if (oneTick && !oneTick.checked) {
+          oneTick.checked = true;
+          oneTick.dispatchEvent(new Event("change"));
+        }
+      } else {
+        res.innerHTML = `<b>${c.hit.length} of ${c.total}</b> marked ideas \u2014 ${need} needed. Still missing: ${c.miss.slice(0, 6).map((w) => `<span class="miss">${esc(w)}</span>`).join(" ")}${c.miss.length > 6 ? " \u2026" : ""}<br>Say the whole answer out loud once, then write it again. Do not copy the model answer.`;
+      }
+    };
+    if (checkBtn) checkBtn.addEventListener("click", runCheck);
+    if (say) say.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); runCheck(); }
+    });
+
+    if (ansBtn) ansBtn.addEventListener("click", () => {
+      const box = card.querySelector("[data-ansbody]");
+      box.hidden = !box.hidden;
+      ansBtn.textContent = box.hidden ? "Show a model answer" : "Hide the model answer";
+      if (!box.hidden) wireKit(box);
+    });
+
+    if (gateBtn) gateBtn.addEventListener("click", () => {
+      gq.hidden = false;
+      body.hidden = false;
+      gateBtn.style.display = "none";
+    });
+
+    if (gaBtn) gaBtn.addEventListener("click", () => {
+      ga.hidden = false;
+      gaBtn.style.display = "none";
+    });
+
+    const sync = () => {
+      const hit = ticks.filter((t) => t.checked).length;
+      closeBtn.disabled = hit < ticks.length;
+      closeBtn.textContent = hit < ticks.length
+        ? `Close — never revisit (${hit}/${ticks.length})`
+        : "Close — never revisit";
+    };
+    ticks.forEach((t) => t.addEventListener("change", sync));
+    sync();
+
+    closeBtn.addEventListener("click", () => {
+      if (closeBtn.disabled) return;
+      SHOT.closed[key] = Date.now();
+      delete SHOT.requeue[key];
+      saveShot();
+      markLearned(key.split(".")[0], Number(key.split(".")[1]));
+      if (shotFocus === key) shotFocus = null;
+      card.classList.add("leaving");
+      setTimeout(advance, 240);
+    });
+
+    againBtn.addEventListener("click", () => {
+      SHOT.requeue[key] = (SHOT.requeue[key] || 0) + 1;
+      saveShot();
+      card.classList.add("leaving");
+      setTimeout(advance, 240);
+    });
+  });
+}
+
+function openShot(sub, n) {
+  shotFocus = sub && n ? sub + "." + n : null;
+  route = { view: "shot" };
+  try { history.replaceState(null, "", "#shot" + (sub && n ? "-" + sub + "-" + n : "")); } catch (e) {}
+  document.querySelectorAll("#nav button").forEach((b) => b.classList.toggle("on", b.dataset.view === "shot"));
+  shotView();
+  const card = sub && n ? document.getElementById("shot-" + sub + "-" + n) : null;
+  if (card) requestAnimationFrame(() => card.scrollIntoView({ block: "start", behavior: "smooth" }));
+  else window.scrollTo(0, 0);
+}
+
 function sureView() {
   const list = REPS.filter((c) => sureSub === "all" || c.s === sureSub);
   const hot = list.filter((c) => c.count >= 3);
@@ -1685,6 +2242,7 @@ function render() {
   if (route.view === "topics") topicsView();
   else if (route.view === "topic") topicView();
   else if (route.view === "why") whyView();
+  else if (route.view === "shot") shotView();
   else if (route.view === "sure") sureView();
   else if (route.view === "labs") labsView();
   else if (route.view === "drill") drillView();
@@ -1695,9 +2253,11 @@ function routeHash(raw) {
   const lab = LABS.find((l) => l.id === hash);
   const tm = /^topic-([a-z]+)-(\d+)$/.exec(hash);
   const wm = /^why-([a-z]+)(?:-(\d+))?$/.exec(hash);
+  const sm = /^shot(?:-([a-z]+)-(\d+))?$/.exec(hash);
   if (lab) lab.run();
   else if (tm) { topicSub = tm[1]; openTopic(tm[1], Number(tm[2])); }
   else if (wm) openWhy(wm[1], wm[2] ? Number(wm[2]) : null);
+  else if (sm) openShot(sm[1] || null, sm[2] ? Number(sm[2]) : null);
   else if (hash === "drill" || hash === "progress" || hash === "topics" || hash === "sure" || hash === "labs" || hash === "why") go(hash);
   else render();
 }
