@@ -138,6 +138,11 @@
   .wone{margin:10px 0 0;font-size:17.5px;line-height:1.45;letter-spacing:-.01em;color:var(--txt)}
   .wone::before{content:"“";color:var(--acc);font-weight:700}
   .wone::after{content:"”";color:var(--acc);font-weight:700}
+  .wflow{display:flex;flex-wrap:wrap;gap:5px 6px;align-items:center;margin:9px 0 0}
+  .wflow span{font:600 10.8px/1.45 ui-monospace,monospace;color:var(--txt);
+    background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:3px 7px}
+  .wflow i{color:var(--dim);font-style:normal;font-size:10px}
+  @media (max-width:560px){.wflow span{font-size:10.2px}}
   .wbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
   .wbody{margin-top:14px;border-top:1px dashed var(--line);padding-top:14px}
   .wsec{margin:0 0 13px}
@@ -184,6 +189,13 @@
     border-top:1px solid var(--line);vertical-align:top}
   .wfacts td:first-child{width:34%;color:var(--txt);font-weight:600;padding-right:10px}
   .wworked{margin:0;font-size:12.4px;line-height:1.55;color:var(--mut)}
+  .wdraw{margin:12px 0 0;padding:10px 13px;border-radius:9px;background:var(--panel2);border:1px solid var(--line)}
+  .wdraw > b{display:block;font:600 9.5px/1 ui-monospace,monospace;letter-spacing:.13em;
+    text-transform:uppercase;color:var(--acc);margin-bottom:6px}
+  .wdraw pre{margin:0 0 7px;padding:9px 10px;border-radius:7px;background:var(--bg);
+    border:1px solid var(--line);overflow-x:auto;font:11.5px/1.65 ui-monospace,monospace;
+    color:var(--txt);white-space:pre}
+  .wdraw p{margin:0;font-size:12.4px;line-height:1.55;color:var(--mut)}
   .wguide{margin:12px 0 0;padding-top:10px;border-top:1px dashed var(--line);
     font-size:12.8px;line-height:1.65;color:var(--mut)}
   .wguide b{color:var(--dim)}
@@ -336,6 +348,30 @@
   .firstrun span{font-size:12.5px;line-height:1.55;color:var(--mut);max-width:72ch;display:block}
   .firstrun button{flex:none}
   @media (max-width:560px){.firstrun{gap:10px}.firstrun button{width:100%}}
+  .msub{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 16px}
+  .msub button{font:inherit;font-size:12.5px;color:var(--mut);background:var(--panel2);
+    border:1px solid var(--line);border-radius:999px;padding:7px 12px;cursor:pointer}
+  .msub button.on{color:var(--acc);border-color:var(--acc-line);
+    background:color-mix(in srgb,var(--acc) 10%,transparent)}
+  .mapthesis{margin:0 0 18px;padding:14px 16px;border-radius:11px;background:var(--panel2);border:1px solid var(--line)}
+  .mapthesis p{margin:0;font-size:14.5px;line-height:1.7;color:var(--txt)}
+  .mappace{display:block;margin-top:7px;font:11px ui-monospace,monospace;color:var(--dim)}
+  .maplist{list-style:none;margin:0;padding:0}
+  .maprow{position:relative;padding:0 0 16px 22px;border-left:1px solid var(--line);margin-left:9px}
+  .maprow:last-child{border-left-color:transparent;padding-bottom:4px}
+  .maprow::before{content:"";position:absolute;left:-5px;top:6px;width:9px;height:9px;border-radius:50%;
+    background:var(--panel);border:2px solid var(--dim)}
+  .maprow.done::before{border-color:var(--good);background:var(--good)}
+  .mapname{display:flex;gap:8px;align-items:baseline;text-decoration:none;color:var(--txt)}
+  .mapname b{font-size:14.5px}
+  .mapname .mapn{font:600 11px ui-monospace,monospace;color:var(--acc)}
+  .mapname i{font-style:normal;font-size:10.5px;color:var(--good)}
+  .mapone{margin:4px 0 0;font-size:13px;line-height:1.6;color:var(--mut)}
+  .mapto{margin:7px 0 0;font-size:12.5px;line-height:1.55;color:var(--dim)}
+  .mapto span{display:block;font:600 9px ui-monospace,monospace;letter-spacing:.13em;
+    text-transform:uppercase;color:var(--acc);margin-bottom:2px}
+  .mapcta{margin:6px 0 0;font-size:13px;color:var(--mut)}
+  .maplink{margin:9px 0 0;font-size:13px}
   @media (max-width:820px){.protocol ol{grid-template-columns:1fr 1fr}}
   @media (max-width:560px){.protocol ol{grid-template-columns:1fr}}
   @media (max-width:720px){
@@ -524,6 +560,7 @@
   <div class="brand">CSIT 6 · <b>Learn</b></div>
   <nav id="nav">
     <button data-view="shot">One Shot</button>
+    <button data-view="map">Map</button>
     <button data-view="topics" class="on">Topics</button>
     <button data-view="why">Why</button>
     <button data-view="labs">Labs</button>
@@ -2028,6 +2065,69 @@ const FACTS = {
   }
 };
 
+/* The papers that award marks for a figure. A paragraph can describe a diagram
+   and still leave you guessing where the boxes sit, so these units carry the
+   notation and the layout to reproduce, taken from their own model answers. */
+const DRAWS = {
+  "se.5": {
+    title: "The figure you must be able to draw",
+    spec: [
+      "Actor        stick figure, role name underneath",
+      "Use case     oval, verb phrase (Place Order)",
+      "«include»    dashed arrow TO the shared case (Login)",
+      "«extend»     dashed arrow TO the base case",
+      "Class        box, 3 compartments: name | attributes | methods",
+      "Association  solid line, multiplicity at BOTH ends",
+      "Sequence     lifeline per object; solid arrow = call, dashed = return"
+    ],
+    note: "Every association needs a multiplicity. A missing 1, * or 0..1 loses a mark before the marker reads the boxes."
+  },
+  "se.6": {
+    title: "The figures you must be able to draw",
+    spec: [
+      "MVC            View <-> Controller <-> Model (controller updates model)",
+      "Client-server  Client(s) -> Server (logic) -> Database",
+      "Pipe-filter    Source -> Filter A -> Filter B -> Sink",
+      "Layered        UI -> Domain -> Data (calls only downward)",
+      "Repository     Components <-> one central store"
+    ],
+    note: "For each pattern the paper wants boxes, arrows, one advantage, one disadvantage and one system where it fits."
+  },
+  "cdc.1": {
+    title: "The figure you must be able to draw",
+    spec: [
+      "source -> lexical -> syntax -> semantic -> ICG -> optimiser -> codegen -> target",
+      "",
+      "  symbol table: one TALL box beside all six, two-way arrows",
+      "  error handler: one box beside all six, each phase reports its own class",
+      "",
+      "  bracket lexical + syntax + semantic = FRONT END (analysis)",
+      "  bracket ICG + optimiser + codegen = BACK END (synthesis)"
+    ],
+    note: "Write each box's input above it and output below it. That labelling is what the 5 marks are for."
+  },
+  "ncc.3": {
+    title: "The figure you must be able to draw",
+    spec: [
+      "Kestrel -> exception handler -> HSTS -> HTTPS redirect -> static files",
+      "        -> routing -> authentication -> authorization -> endpoint",
+      "        -> response back out through the same layers"
+    ],
+    note: "Static files sit before authentication on purpose: a stylesheet must not need a login. The first layer that answers ends the journey."
+  },
+  "tw.5": {
+    title: "The figure you must be able to draw",
+    spec: [
+      "oval          start / stop",
+      "rectangle     process",
+      "diamond       decision",
+      "parallelogram input / output",
+      "arrow         direction of flow"
+    ],
+    note: "Label both the Yes and No branch, keep one exit, and add a title and a legend. The four design principles are proximity, alignment, repetition, contrast."
+  }
+};
+
 function shotCard(x, pos) {
   const logic = (LOGIC[x.s] || []).find((u) => u.n === x.n) || null;
   const topic = (TOP[x.s] || []).find((u) => u.n === x.n) || null;
@@ -2055,6 +2155,7 @@ function shotCard(x, pos) {
     </div>
     <div class="chainin"><b>You are here because</b>${esc(x.from)}</div>
     <p class="wone">${esc(logic ? logic.oneLiner : "")}</p>
+    ${steps.length ? `<div class="wflow" aria-label="The mechanism at a glance">${steps.map((s) => `<span>${esc(s.t)}</span>`).join("<i>\u2192</i>")}</div>` : ""}
     ${logic && logic.why ? `<p class="wpress"><b>What happens without it</b>${esc(logic.why)}</p>` : ""}
     ${steps.length ? `<ol class="wsteps">${steps.map((s) => `<li><div><b>${esc(s.t)}</b><span>${esc(s.d)}</span></div></li>`).join("")}</ol>` : ""}
     ${LAB_FOR[x.key] ? `<a class="wlab-link" href="#${LAB_FOR[x.key].id}"><b>Run it, do not just read it</b><span>Open the ${LAB_FOR[x.key].name} lab and watch this unit's mechanism move \u2192</span></a>` : ""}
@@ -2063,6 +2164,11 @@ function shotCard(x, pos) {
       <p class="wformula">${esc(FACTS[x.key].formula)}</p>
       <table>${FACTS[x.key].rows.map((r) => `<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td></tr>`).join("")}</table>
       <p class="wworked">${esc(FACTS[x.key].worked)}</p>
+    </div>` : ""}
+    ${DRAWS[x.key] ? `<div class="wdraw">
+      <b>${esc(DRAWS[x.key].title)}</b>
+      <pre>${esc(DRAWS[x.key].spec.join("\n"))}</pre>
+      <p>${esc(DRAWS[x.key].note)}</p>
     </div>` : ""}
     ${logic && logic.story ? `<div class="wstory"><b>The one case to remember</b><p>${esc(logic.story)}</p></div>` : ""}
     ${topic && topic.traps && topic.traps.length ? `<div class="wtrap"><b>How this answer loses marks</b><ol>${topic.traps.slice(0, 3).map((t) => `<li>${esc(t)}</li>`).join("")}</ol></div>` : ""}
@@ -2179,7 +2285,8 @@ function shotView() {
 
   view.innerHTML = `
     <h1>One Shot</h1>
-    <p class="sub">One ordered pass over all ${run.length} units, in exam order, each card opening with the exact question the previous one left unanswered. A unit you close here never enters the plan again — understand it once, prove it once, retire it.</p>
+    <p class="sub">One ordered pass over all ${run.length} units, in exam order, each card opening with the exact question the previous one left unanswered. A unit you close here never enters the plan again - understand it once, prove it once, retire it.</p>
+    <p class="maplink"><a href="#map-${(plan.today[0] || run[0] || { s: "se" }).s}">See ${SUBJ[(plan.today[0] || run[0] || { s: "se" }).s]} as one chain before you start →</a></p>
 
     <div class="protocol">
       <span class="pk">How one card works</span>
@@ -2623,6 +2730,54 @@ function sureView() {
 }
 
 /* =========================================================
+   Subject map — a subject as one argument
+   ========================================================= */
+let mapSub = "se";
+
+const SUBJ_THESIS = {
+  se: "Software engineering is the discipline that keeps a large system changeable after its authors leave. The subject is one argument: choose a process that matches how wrong the requirements will be, turn wishes into testable requirements, model what you do not yet understand, settle the decisions that are expensive to reverse, cut the code along seams, test the risks you actually named, keep the running system alive, and manage the effort with a plan you keep measuring against reality. Each unit closes the gap the unit before it opened.",
+  cdc: "A compiler is one sentence rewritten in six steps: characters become tokens, tokens are checked against a grammar and become a tree, the tree gets meaning and types, names get addresses, and the tree flattens into instructions a machine can run. Optimisation then removes work without changing the visible result. Real C and C++ compilers split the language-specific front end from a shared optimiser and back end, which is why a compiler course is one pipeline rather than ten topics.",
+  egov: "E-government is not a website; it is the state's record moved online and made trustworthy. The chain runs from direction (who initiates, the state or the citizen), to how far a transaction may go, to the infrastructure that must lie underneath, to the security that keeps a record true and attributable, to the warehouse that makes ten years of records comparable, and finally to the diagnosis of a real deployment: which model, which maturity level, who lost discretion, and what limited it.",
+  ncc: "One HTTP request is the whole subject. Kestrel accepts the message, middleware checks it in a fixed order, routing picks an endpoint, the action binds and validates a model, the database answers through EF Core, state decides what the next request remembers, the browser does what it can while the server re-checks all of it, security names who may pass, and deployment decides where the socket and the secrets live. Every unit is one checkpoint on that single path.",
+  tw: "Technical writing is judged by what the reader can do afterwards. The subject walks one document from reader and purpose, through the writing process, into the short message, then the designed page and the screen, then the report, the resume, the talk and the recommendation that ends in a priced proposal — and closes on ethics: would a reader given only your page reach your conclusion? Each unit is the next thing a real document has to get right.",
+  ecom: "E-commerce is a shop with no walls, held up by five layers that must all hold at once: a business model that says who pays whom, a payment that lets strangers transact safely, a store that records the order and proves the money arrived, a chain of custody that keeps it safe, and marketing that buys attention. SEO and recommendation then try to stop paying for every click, and the last unit makes you explain a real Nepali shop from the network up."
+};
+
+function mapView() {
+  const sub = mapSub;
+  const units = (window.CHAIN[sub] || []).slice();
+  const logic = LOGIC[sub] || [];
+  const isDone = (x) => !!SHOT.closed[sub + "." + x.n];
+  const done = units.filter(isDone).length;
+  view.innerHTML = `
+    <h1>The whole subject, as one chain</h1>
+    <p class="sub">Every unit answers the question the one before it left open. Read this once and ${SUBJ[sub]} stops being ${units.length} topics and becomes one argument — each card is then only the detail of one link.</p>
+    <div class="msub">${EXAMS.map(([s]) => `<button class="${s === sub ? "on" : ""}" data-msub="${s}">${SUBJ[s]}</button>`).join("")}</div>
+    <div class="mapthesis">
+      <span class="wlab">${SUBJ[sub]} in one paragraph</span>
+      <p>${esc(SUBJ_THESIS[sub] || "")}</p>
+      <span class="mappace">${done}/${units.length} retired${done ? "" : " · nothing touched yet"}</span>
+    </div>
+    <ol class="maplist">
+      ${units.map((x) => {
+        const u = logic.find((y) => y.n === x.n) || {};
+        return `<li class="maprow${isDone(x) ? " done" : ""}">
+          <a class="mapname" href="#shot-${sub}-${x.n}"><span class="mapn">${x.n}</span><b>${esc(x.name)}</b>${isDone(x) ? "<i>retired</i>" : ""}</a>
+          <p class="mapone">${esc(u.oneLiner || "")}</p>
+          ${x.to ? `<p class="mapto"><span>leaves open</span>${esc(x.to)}</p>` : ""}
+        </li>`;
+      }).join("")}
+    </ol>
+    <p class="mapcta">${units.length ? `Start at the top: <a href="#shot-${sub}-${units[0].n}">open unit 1 as a card \u2192</a>` : ""}</p>`;
+  view.querySelectorAll("[data-msub]").forEach((b) => b.addEventListener("click", () => {
+    mapSub = b.dataset.msub;
+    try { history.replaceState(null, "", location.pathname + location.search + "#map-" + mapSub); } catch (e) {}
+    mapView();
+    window.scrollTo(0, 0);
+  }));
+}
+
+/* =========================================================
    boot
    ========================================================= */
 function render() {
@@ -2632,6 +2787,7 @@ function render() {
   else if (route.view === "topic") topicView();
   else if (route.view === "why") whyView();
   else if (route.view === "shot") shotView();
+  else if (route.view === "map") mapView();
   else if (route.view === "sure") sureView();
   else if (route.view === "labs") labsView();
   else if (route.view === "drill") drillView();
@@ -2643,10 +2799,16 @@ function routeHash(raw) {
   const tm = /^topic-([a-z]+)-(\d+)$/.exec(hash);
   const wm = /^why-([a-z]+)(?:-(\d+))?$/.exec(hash);
   const sm = /^shot(?:-([a-z]+)-(\d+))?$/.exec(hash);
+  const mm = /^map(?:-([a-z]+))?$/.exec(hash);
   if (lab) lab.run();
   else if (tm) { topicSub = tm[1]; openTopic(tm[1], Number(tm[2])); }
   else if (wm) openWhy(wm[1], wm[2] ? Number(wm[2]) : null);
   else if (sm) openShot(sm[1] || null, sm[2] ? Number(sm[2]) : null);
+  else if (mm) {
+    mapSub = mm[1] || "se";
+    go("map");
+    try { history.replaceState(null, "", location.pathname + location.search + "#map-" + mapSub); } catch (e) {}
+  }
   else if (hash === "drill" || hash === "progress" || hash === "topics" || hash === "sure" || hash === "labs" || hash === "why") go(hash);
   else render();
 }
