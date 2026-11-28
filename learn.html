@@ -533,7 +533,8 @@
     font:600 11px/1 ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;padding:7px 13px}
   .logicseg button[aria-selected="true"]{background:var(--panel);color:var(--txt)}
   .vidlist{display:grid;gap:8px}
-  .vidrow{display:flex;gap:11px;align-items:center;text-decoration:none;color:inherit;
+  .vidrow{display:flex;gap:11px;align-items:center;text-align:left;width:100%;font:inherit;
+    cursor:pointer;text-decoration:none;color:inherit;
     border:1px solid var(--line);border-radius:11px;padding:10px 12px;background:var(--panel2);
     transition:border-color .15s,background .15s}
   .vidrow:hover,.vidrow:focus-visible{border-color:var(--acc);background:var(--acc-weak);outline:none}
@@ -541,6 +542,17 @@
     background:var(--acc);color:#fff;font-size:11px}
   .vidrow b{display:block;font-size:13px;line-height:1.4;font-weight:600}
   .vidrow .vm{display:block;font:11px ui-monospace,monospace;color:var(--dim);margin-top:3px}
+  /* the clip plays here, inside the reel — the iframe exists only after a tap */
+  .vidhead{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;margin:0 0 8px}
+  .vidhead b{font-size:13px;line-height:1.45;font-weight:600}
+  .vidback{flex:0 0 auto;background:none;border:1px solid var(--line);border-radius:7px;
+    color:var(--mut);cursor:pointer;font:600 11px/1 ui-monospace,monospace;padding:6px 9px}
+  .vidback:hover{color:var(--txt);border-color:var(--acc)}
+  .vidframe{position:relative;aspect-ratio:16/9;border-radius:11px;overflow:hidden;
+    background:#000;border:1px solid var(--line)}
+  .vidframe iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+  .vidopen{display:inline-block;margin-top:8px;font-size:12px;color:var(--acc);
+    text-decoration:none;border-bottom:1px dotted var(--acc)}
   .vidnote{margin:10px 0 0;font-size:12px;color:var(--dim);line-height:1.6}
   .vidsearch{display:inline-block;margin-top:8px;font-size:12.5px;color:var(--acc);
     text-decoration:none;border-bottom:1px dotted var(--acc)}
@@ -1655,6 +1667,11 @@ function logicModal() {
   document.body.appendChild(logicEl);
   logicEl.addEventListener("click", (e) => { if (e.target === logicEl) closeLogic(); });
   logicEl.querySelector("[data-lclose]").addEventListener("click", closeLogic);
+  logicEl.querySelector("[data-lvids]").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-vplay]");
+    if (b) { playVideo(Number(b.dataset.vplay)); return; }
+    if (e.target.closest("[data-vback]")) killVideo();
+  });
   logicEl.querySelector("[data-lprev]").addEventListener("click", () => { stopLogic(); stepLogic(-1); });
   logicEl.querySelector("[data-lnext]").addEventListener("click", () => { stopLogic(); stepLogic(1); });
   logicEl.querySelector("[data-lplay]").addEventListener("click", () => {
@@ -1673,6 +1690,7 @@ function showPane(pane) {
     p.hidden = p.dataset.lpane !== pane;
   });
   if (pane !== "logic") stopLogic();
+  if (pane !== "video") killVideo();
 }
 
 function stopLogic() {
@@ -1713,6 +1731,7 @@ function paintLogic() {
 
 function closeLogic() {
   stopLogic();
+  killVideo();
   if (logicEl) logicEl.hidden = true;
   logicSteps = [];
   logicAt = 0;
@@ -1753,28 +1772,65 @@ function openLogic(qid, sub, n, pane) {
 }
 
 /* One or two short clips per unit, matched against the unit's own words.
-   Nothing is embedded: the rows are plain links, so the page still opens and
-   still works with no connection. */
+   The rows are buttons, not links: tapping one swaps in a YouTube embed right
+   here. No iframe is created until that tap, so the page still opens and still
+   works with no connection — and closing the reel removes the iframe, which is
+   the only way to be sure the audio stops. */
+let vidListHTML = "";
+
 function renderVideos(el, sub, n, vid, lg) {
   const box = el.querySelector("[data-lvids]");
   const note = el.querySelector("[data-lvnote]");
   const name = (lg && lg.name)
     || ((TOP[sub] || []).find((u) => u.n === Number(n)) || {}).name
     || "this unit";
+  el._vidData = vid || null;
+  vidListHTML = "";
   if (vid && vid.v && vid.v.length) {
-    box.innerHTML = vid.v.map((v) => `<a class="vidrow" href="https://www.youtube.com/watch?v=${encodeURIComponent(v.id)}" target="_blank" rel="noopener noreferrer">
+    box.innerHTML = vid.v.map((v, i) => `<button type="button" class="vidrow" data-vplay="${i}">
       <span class="vglyph">▶</span>
       <span><b>${esc(v.t)}</b><span class="vm">${esc(v.ch)}${v.len ? " · " + esc(v.len) : ""}</span></span>
-    </a>`).join("");
+    </button>`).join("");
     note.innerHTML = `One or two clips for the whole unit, so the same clip covers every wording of the question. `
       + `They come from channels that teach these exact papers — NSG · IOE and CSIT, and easycsit.com — `
-      + `and only when the clip's title covers this unit's own words. Nothing loads until you tap one.`
+      + `and only when the clip's title covers this unit's own words. `
+      + (location.protocol === "file:"
+        ? `Opened from this folder, a tap sends the clip to YouTube; nothing loads before that.`
+        : `Tap one to play it here; nothing loads before that.`)
       + `<br><a class="vidsearch" href="https://www.youtube.com/results?search_query=${encodeURIComponent(vid.q)}" target="_blank" rel="noopener noreferrer">More videos on ${esc(name)}</a>`;
   } else {
     box.innerHTML = "";
     note.innerHTML = `None of the checked CSIT channels has a clip whose title matches this unit, so nothing is claimed here — search instead.`
       + `<br><a class="vidsearch" href="https://www.youtube.com/results?search_query=${encodeURIComponent(name + " explained")}" target="_blank" rel="noopener noreferrer">Search YouTube for “${esc(name)}”</a>`;
   }
+}
+
+function playVideo(i) {
+  const box = logicEl.querySelector("[data-lvids]");
+  const vid = logicEl._vidData;
+  const v = vid && vid.v && vid.v[i];
+  if (!v) return;
+  /* A file:// page sends no Referer, and YouTube's player refuses to start
+     without one (error 153). Rather than show a broken frame, open the clip
+     where it is guaranteed to work. */
+  if (location.protocol === "file:") {
+    window.open(`https://www.youtube.com/watch?v=${encodeURIComponent(v.id)}`, "_blank", "noopener");
+    return;
+  }
+  if (!box.querySelector(".vidframe")) vidListHTML = box.innerHTML;
+  box.innerHTML = `<div class="vidhead"><b>${esc(v.t)}</b>
+      <button type="button" class="vidback" data-vback>← List</button></div>
+    <div class="vidframe"><iframe
+      src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(v.id)}?autoplay=1&amp;rel=0&amp;modestbranding=1"
+      title="${esc(v.t)}"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
+    <a class="vidopen" href="https://www.youtube.com/watch?v=${encodeURIComponent(v.id)}" target="_blank" rel="noopener noreferrer">Open on YouTube</a>`;
+}
+
+function killVideo() {
+  const box = logicEl && logicEl.querySelector("[data-lvids]");
+  if (box && box.querySelector(".vidframe")) box.innerHTML = vidListHTML;
 }
 
 document.addEventListener("click", (e) => {
