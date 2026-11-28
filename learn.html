@@ -525,6 +525,24 @@
   .logicctl .cap{font:11px ui-monospace,monospace;color:var(--dim);margin-left:auto}
   .logicnote{margin:11px 0 0;font-size:12.4px;line-height:1.6;color:var(--mut)}
   .logicnote b{color:var(--txt)}
+  /* the video pane inside the same reel */
+  .logicseg{display:flex;gap:4px;margin:0 0 12px;padding:3px;background:var(--panel2);
+    border:1px solid var(--line);border-radius:9px;width:max-content}
+  .logicseg button{background:none;border:0;border-radius:6px;color:var(--mut);cursor:pointer;
+    font:600 11px/1 ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;padding:7px 13px}
+  .logicseg button[aria-selected="true"]{background:var(--panel);color:var(--txt)}
+  .vidlist{display:grid;gap:8px}
+  .vidrow{display:flex;gap:11px;align-items:center;text-decoration:none;color:inherit;
+    border:1px solid var(--line);border-radius:11px;padding:10px 12px;background:var(--panel2);
+    transition:border-color .15s,background .15s}
+  .vidrow:hover,.vidrow:focus-visible{border-color:var(--acc);background:var(--acc-weak);outline:none}
+  .vglyph{flex:0 0 32px;height:32px;display:grid;place-items:center;border-radius:8px;
+    background:var(--acc);color:#fff;font-size:11px}
+  .vidrow b{display:block;font-size:13px;line-height:1.4;font-weight:600}
+  .vidrow .vm{display:block;font:11px ui-monospace,monospace;color:var(--dim);margin-top:3px}
+  .vidnote{margin:10px 0 0;font-size:12px;color:var(--dim);line-height:1.6}
+  .vidsearch{display:inline-block;margin-top:8px;font-size:12.5px;color:var(--acc);
+    text-decoration:none;border-bottom:1px dotted var(--acc)}
   @media(max-width:560px){ .logicbox{padding:13px 12px 11px} .logicstage{min-height:190px;padding:13px} }
 
   /* marks + sure shot */
@@ -666,6 +684,7 @@
 <script src="data/chain.js"></script>
 <script src="data/repeats.js"></script>
 <script src="data/sure.js"></script>
+<script src="data/videos.js"></script>
 <script>
 /* =========================================================
    storage
@@ -1363,7 +1382,7 @@ function paintBank() {
         ${q.sec ? `<span class="chip">${q.sec}</span>` : ""}
         ${u ? `<span class="chip">Unit ${u}</span>` : ""}
         ${REPEAT_IDS.has(q.id) ? `<span class="chip" style="color:var(--acc);border-color:var(--acc)">sure shot</span>` : ""}
-        <button class="logicbtn" data-playlogic="${q.id}" title="Play the five-step logic for this question">▶ Logic</button>
+        <button class="logicbtn" data-playlogic="${q.id}" title="Play the five-step logic, or watch a short clip on this unit">▶ Logic · Video</button>
       </div>
       <div class="qwrap"><p class="qtext" tabindex="0">${esc(q.q)}</p>${hintPop(q.id)}</div>
       <div class="pqkit"></div>
@@ -1410,7 +1429,7 @@ function showQuestion() {
         ${q.sec ? `<span class="chip">${q.sec}</span>` : ""}
         <span class="mchip">${q.marks || 5} marks${q.guess ? " · est." : ""}</span>
         <span class="chip">${drill.i + 1} / ${drill.queue.length}</span>
-        <button class="logicbtn" data-playlogic="${q.id}">▶ Play the logic</button>
+        <button class="logicbtn" data-playlogic="${q.id}">▶ Logic · Video</button>
       </div>
       <div class="qwrap"><p class="qtext" tabindex="0" style="margin:0">${esc(q.q)}</p>${hintPop(q.id)}</div>
       <p class="hintline">Answer it out loud or on paper first. Target: ${(q.marks || 5) >= 10 ? "12–14 minutes, one page" : "5–6 minutes, half a page"}.</p>
@@ -1512,6 +1531,7 @@ const ANS = window.ANSWERS || {};
 const TOP = window.TOPICS || {};
 const LOGIC = window.LOGIC || {};
 const REPS = window.REPEATS || [];
+const VIDEOS = window.VIDEOS || {};
 const REPEAT_IDS = new Set(REPS.flatMap((c) => c.ids || []));
 const SUBORDER = ["se", "cdc", "egov", "ncc", "tw", "ecom"];
 
@@ -1605,21 +1625,31 @@ function logicModal() {
   logicEl = document.createElement("div");
   logicEl.className = "logicmodal";
   logicEl.hidden = true;
-  logicEl.innerHTML = `<div class="logicbox" role="dialog" aria-modal="true" aria-label="Logic reel">
+  logicEl.innerHTML = `<div class="logicbox" role="dialog" aria-modal="true" aria-label="Logic reel and video">
     <div class="logichead">
       <div><div class="cap" data-lcap>Logic reel</div><h3 data-ltitle></h3></div>
       <button class="logicx" data-lclose aria-label="Close">×</button>
     </div>
-    <p class="logicq" data-lq hidden></p>
-    <div class="logicstage" data-lstage></div>
-    <div class="logicdots" data-ldots></div>
-    <div class="logicctl">
-      <button class="ghost" data-lprev>← Back</button>
-      <button class="act" data-lplay>Pause</button>
-      <button class="ghost" data-lnext>Next →</button>
-      <span class="cap" data-lcount></span>
+    <div class="logicseg" role="tablist">
+      <button role="tab" data-lseg="logic" aria-selected="true">Logic</button>
+      <button role="tab" data-lseg="video" aria-selected="false">Video</button>
     </div>
-    <p class="logicnote" data-lnote hidden></p>
+    <p class="logicq" data-lq hidden></p>
+    <div data-lpane="logic">
+      <div class="logicstage" data-lstage></div>
+      <div class="logicdots" data-ldots></div>
+      <div class="logicctl">
+        <button class="ghost" data-lprev>← Back</button>
+        <button class="act" data-lplay>Pause</button>
+        <button class="ghost" data-lnext>Next →</button>
+        <span class="cap" data-lcount></span>
+      </div>
+      <p class="logicnote" data-lnote hidden></p>
+    </div>
+    <div data-lpane="video" hidden>
+      <div class="vidlist" data-lvids></div>
+      <p class="vidnote" data-lvnote></p>
+    </div>
   </div>`;
   document.body.appendChild(logicEl);
   logicEl.addEventListener("click", (e) => { if (e.target === logicEl) closeLogic(); });
@@ -1629,7 +1659,19 @@ function logicModal() {
   logicEl.querySelector("[data-lplay]").addEventListener("click", () => {
     if (logicTimer) stopLogic(); else startLogic();
   });
+  logicEl.querySelectorAll("[data-lseg]").forEach((b) =>
+    b.addEventListener("click", () => showPane(b.dataset.lseg)));
   return logicEl;
+}
+
+function showPane(pane) {
+  if (!logicEl) return;
+  logicEl.querySelectorAll("[data-lseg]").forEach((b) =>
+    b.setAttribute("aria-selected", String(b.dataset.lseg === pane)));
+  logicEl.querySelectorAll("[data-lpane]").forEach((p) => {
+    p.hidden = p.dataset.lpane !== pane;
+  });
+  if (pane !== "logic") stopLogic();
 }
 
 function stopLogic() {
@@ -1675,17 +1717,19 @@ function closeLogic() {
   logicAt = 0;
 }
 
-function openLogic(qid, sub, n) {
+function openLogic(qid, sub, n, pane) {
   const a = qid ? ansOf(qid) : null;
   sub = sub || (a ? String(qid).split("-")[0] : "se");
   n = n || (a && a.u ? Number(a.u) : 1);
-  const lg = (LOGIC[sub] || []).find((u) => u.n === Number(n));
-  if (!lg || !lg.steps || !lg.steps.length) return;
+  const lg = (LOGIC[sub] || []).find((u) => u.n === Number(n)) || null;
+  const steps = (lg && lg.steps) || [];
+  const vid = VIDEOS[`${sub}.${n}`] || null;
+  if (!steps.length && !vid) return;
   const el = logicModal();
-  logicSteps = lg.steps;
+  logicSteps = steps;
   logicAt = 0;
   el.querySelector("[data-lcap]").textContent = `Logic reel · ${SUBJ[sub] || sub} · Unit ${n}`;
-  el.querySelector("[data-ltitle]").textContent = lg.name || "";
+  el.querySelector("[data-ltitle]").textContent = (lg && lg.name) || "";
   const q = el.querySelector("[data-lq]");
   if (a) {
     const qq = (window.QBANK.find((x) => x.id === qid) || {}).q || "";
@@ -1696,13 +1740,40 @@ function openLogic(qid, sub, n) {
   note.hidden = false;
   note.innerHTML = (a && a.logic ? `<b>What they are testing:</b> ${esc(a.logic)}<br>` : "")
     + (a && a.how ? `<b>Learn it this way:</b> ${esc(a.how)}<br>` : "")
-    + (lg.from ? `<b>It starts from:</b> ${esc(lg.from)}<br>` : "")
-    + (lg.to ? `<b>It leaves you asking:</b> ${esc(lg.to)}` : "");
+    + (lg && lg.from ? `<b>It starts from:</b> ${esc(lg.from)}<br>` : "")
+    + (lg && lg.to ? `<b>It leaves you asking:</b> ${esc(lg.to)}` : "");
   el.querySelector("[data-ldots]").innerHTML = logicSteps.map(() => "<i></i>").join("");
+  renderVideos(el, sub, n, vid, lg);
   el.hidden = false;
+  showPane(pane || (steps.length ? "logic" : "video"));
   paintLogic();
   const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (!reduce) startLogic(); else stopLogic();
+  if (!reduce && !pane) startLogic(); else stopLogic();
+}
+
+/* One or two short clips per unit, matched against the unit's own words.
+   Nothing is embedded: the rows are plain links, so the page still opens and
+   still works with no connection. */
+function renderVideos(el, sub, n, vid, lg) {
+  const box = el.querySelector("[data-lvids]");
+  const note = el.querySelector("[data-lvnote]");
+  const name = (lg && lg.name)
+    || ((TOP[sub] || []).find((u) => u.n === Number(n)) || {}).name
+    || "this unit";
+  if (vid && vid.v && vid.v.length) {
+    box.innerHTML = vid.v.map((v) => `<a class="vidrow" href="https://www.youtube.com/watch?v=${encodeURIComponent(v.id)}" target="_blank" rel="noopener noreferrer">
+      <span class="vglyph">▶</span>
+      <span><b>${esc(v.t)}</b><span class="vm">${esc(v.ch)}${v.len ? " · " + esc(v.len) : ""}</span></span>
+    </a>`).join("");
+    note.innerHTML = `One or two clips for the whole unit, so the same clip covers every wording of the question. `
+      + `They come from channels that teach these exact papers — NSG · IOE and CSIT, and easycsit.com — `
+      + `and only when the clip's title covers this unit's own words. Nothing loads until you tap one.`
+      + `<br><a class="vidsearch" href="https://www.youtube.com/results?search_query=${encodeURIComponent(vid.q)}" target="_blank" rel="noopener noreferrer">More videos on ${esc(name)}</a>`;
+  } else {
+    box.innerHTML = "";
+    note.innerHTML = `No short clip has been checked for this unit, so nothing is claimed here.`
+      + `<br><a class="vidsearch" href="https://www.youtube.com/results?search_query=${encodeURIComponent(name + " explained")}" target="_blank" rel="noopener noreferrer">Search YouTube for “${esc(name)}”</a>`;
+  }
 }
 
 document.addEventListener("click", (e) => {
@@ -1836,7 +1907,7 @@ function topicView() {
       <div class="stepctl">
         <button class="act" id="stepNext">Next step →</button>
         <button class="ghost" id="stepAll">Show all</button>
-        <button class="ghost" data-playunit="${route.sub}:${u.n}">▶ Play</button>
+        <button class="ghost" data-playunit="${route.sub}:${u.n}">▶ Logic · Video</button>
         <div class="dots">${u.steps.map((_, i) => `<i class="${i === 0 ? "on" : ""}"></i>`).join("")}</div>
       </div>
     </div>
@@ -2434,7 +2505,7 @@ function shotCard(x, pos) {
     <div class="chainin"><b>You are here because</b>${esc(x.from)}</div>
     <p class="wone">${esc(logic ? logic.oneLiner : "")}</p>
     ${steps.length ? `<div class="wflow" aria-label="The mechanism at a glance">${steps.map((s) => `<span>${esc(s.t)}</span>`).join("<i>\u2192</i>")}</div>
-      <button class="logicbtn" data-playunit="${x.s}:${x.n}" style="margin-top:8px">▶ Play the logic</button>` : ""}
+      <button class="logicbtn" data-playunit="${x.s}:${x.n}" style="margin-top:8px">▶ Logic · Video</button>` : ""}
     ${logic && logic.idea ? `<div class="widea"><b>The whole argument in one paragraph</b><p>${esc(logic.idea)}</p></div>` : ""}
     ${logic && logic.why ? `<p class="wpress"><b>What happens without it</b>${esc(logic.why)}</p>` : ""}
     ${steps.length ? `<ol class="wsteps">${steps.map((s) => `<li><div><b>${esc(s.t)}</b><span>${esc(s.d)}</span></div></li>`).join("")}</ol>` : ""}
@@ -3051,7 +3122,7 @@ function sureView() {
           <div class="ansblock" data-ans="${key}">${esc(u.top.ans)}</div>` : ""}
         <div class="sureacts">
           <button class="mem ${mem ? "on" : ""}" data-mem="${key}">${mem ? "✓ Memorised" : "Mark memorised"}</button>
-          ${u.top ? `<button class="ghost" data-playlogic="${u.top.id}">▶ Play the logic</button>` : ""}
+          ${u.top ? `<button class="ghost" data-playlogic="${u.top.id}">▶ Logic · Video</button>` : ""}
           <a class="link" href="#shot-${s}-${u.n}">Open the full card →</a>
         </div>
       </div>
