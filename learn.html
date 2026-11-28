@@ -1771,7 +1771,7 @@ function renderVideos(el, sub, n, vid, lg) {
       + `<br><a class="vidsearch" href="https://www.youtube.com/results?search_query=${encodeURIComponent(vid.q)}" target="_blank" rel="noopener noreferrer">More videos on ${esc(name)}</a>`;
   } else {
     box.innerHTML = "";
-    note.innerHTML = `No short clip has been checked for this unit, so nothing is claimed here.`
+    note.innerHTML = `None of the checked CSIT channels has a clip whose title matches this unit, so nothing is claimed here — search instead.`
       + `<br><a class="vidsearch" href="https://www.youtube.com/results?search_query=${encodeURIComponent(name + " explained")}" target="_blank" rel="noopener noreferrer">Search YouTube for “${esc(name)}”</a>`;
   }
 }
