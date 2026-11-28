@@ -2773,6 +2773,7 @@ function sureView() {
   const marksDone = visible.reduce((a, x) => a + (SURE_MEM[x.s + "." + x.u.n] ? x.u.m : 0), 0);
   const done = visible.filter((x) => SURE_MEM[x.s + "." + x.u.n]).length;
   const allOpen = visible.length > 0 && visible.every((x) => SURE_OPEN.has(x.s + "." + x.u.n));
+  const next = visible.find((x) => !SURE_MEM[x.s + "." + x.u.n]);
   const pct = marks ? Math.round((marksDone / marks) * 100) : 0;
   const allMarks = Object.values(SURE.subjects).reduce((a, s) => a + s.totalM, 0);
   const topMarks = Object.values(SURE.subjects).reduce(
@@ -2833,6 +2834,8 @@ function sureView() {
       </div>
       <div class="surebar"><i style="width:${pct}%"></i></div>
     </div>
+    ${next ? `<div style="margin:-4px 0 16px"><button class="act" data-start="${next.s}.${next.u.n}">Memorise ${esc(next.u.name)} →</button></div>`
+      : `<p class="sub" style="margin:-4px 0 16px">Every answer in this list is marked memorised. Switch subject or open all answers for a cold pass.</p>`}
     <div class="subchips">
       <button data-sub="all" class="${sureSub === "all" ? "on" : ""}">All subjects</button>
       ${subs.map((s) => `<button data-sub="${s}" class="${s === sureSub ? "on" : ""}">${SUBJ[s]} (${SURE.subjects[s].units.length})</button>`).join("")}
@@ -2893,6 +2896,13 @@ function sureView() {
       if (open) SURE_OPEN.add(k); else SURE_OPEN.delete(k);
     }
     sureView();
+  }));
+  view.querySelectorAll("[data-start]").forEach((b) => b.addEventListener("click", () => {
+    const k = b.dataset.start;
+    SURE_OPEN.add(k);
+    sureView();
+    const el = view.querySelector("#sure-" + k.replace(".", "-"));
+    if (el) el.scrollIntoView({ block: "start", behavior: "smooth" });
   }));
   view.querySelectorAll("[data-open]").forEach((el) => el.addEventListener("click", () => {
     const k = el.dataset.open;
