@@ -1,0 +1,806 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CSIT 6 · The 30 cuts</title>
+<script>
+  try { var t = localStorage.getItem("csit6.theme");
+    if (!t) t = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", t);
+  } catch (e) { document.documentElement.setAttribute("data-theme", "dark"); }
+</script>
+<style>
+  :root{
+    --bg:#0a0c10;--panel:#11141a;--panel2:#161a22;--line:#232936;
+    --txt:#e7eaf0;--mut:#9aa3b6;--dim:#697389;
+    --acc:#6ee7b7;--warn:#fbbf24;--bad:#f87171;
+  }
+  html[data-theme="light"]{
+    --bg:#f7f8f5;--panel:#fff;--panel2:#f1f4ec;--line:#e0e5da;
+    --txt:#151a17;--mut:#4f5a6d;--dim:#8b93a1;
+    --acc:#0e8f63;--warn:#a16207;--bad:#b91c1c;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+    font:15px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased;padding:22px 16px 70px}
+  .wrap{max-width:760px;margin:0 auto}
+  header{display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;justify-content:space-between;margin-bottom:6px}
+  .brand{font:600 11px/1 ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+  .brand b{color:var(--acc)}
+  button{font:inherit}
+  .theme{background:none;border:1px solid var(--line);border-radius:7px;color:var(--mut);
+    cursor:pointer;font-size:12px;padding:6px 10px}
+  .theme:hover{color:var(--txt);border-color:var(--acc)}
+  h1{margin:10px 0 4px;font-size:clamp(21px,5vw,28px);letter-spacing:-.02em;line-height:1.2}
+  .sub{margin:0;color:var(--mut);font-size:13.5px;line-height:1.55;max-width:60ch}
+  .bar{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 12px}
+  .bar button{background:var(--panel);border:1px solid var(--line);border-radius:999px;
+    color:var(--mut);cursor:pointer;font:600 11px/1 ui-monospace,monospace;letter-spacing:.06em;
+    padding:7px 12px;text-transform:uppercase}
+  .bar button[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:#06231a}
+  html[data-theme="light"] .bar button[aria-pressed="true"]{color:#fff}
+  .prog{margin:0 0 14px;font:12px/1.4 ui-monospace,monospace;color:var(--dim)}
+  .prog b{color:var(--acc)}
+  .cut{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin:0 0 9px;overflow:hidden}
+  .cut[open]{border-color:color-mix(in srgb,var(--acc) 45%,var(--line))}
+  .cut summary{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:baseline;
+    padding:12px 14px;cursor:pointer;list-style:none}
+  .cut summary::-webkit-details-marker{display:none}
+  .cut summary::after{content:"+";grid-row:1/3;grid-column:2;align-self:center;
+    color:var(--dim);font:400 18px/1 ui-monospace,monospace}
+  .cut[open] summary::after{content:"–"}
+  .tag{grid-column:1;font:600 10.5px/1.4 ui-monospace,monospace;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--acc)}
+  .nm{grid-column:1;font-size:14.5px;font-weight:600;line-height:1.35}
+  .mk{grid-column:1;font:11px/1.4 ui-monospace,monospace;color:var(--dim);margin-top:3px}
+  .body{padding:2px 14px 14px;border-top:1px solid var(--line)}
+  .q{margin:12px 0;padding:10px 12px;background:var(--panel2);border-left:3px solid var(--acc);
+    border-radius:0 8px 8px 0;font-size:13.5px;line-height:1.55;color:var(--mut)}
+  .warn{margin:0 0 12px;padding:9px 11px;border:1px solid color-mix(in srgb,var(--warn) 40%,var(--line));
+    border-radius:8px;background:color-mix(in srgb,var(--warn) 10%,transparent);
+    font-size:12.5px;line-height:1.5;color:var(--txt)}
+  .ans p{margin:0 0 10px;font-size:14.5px;line-height:1.62}
+  .ans p:last-child{margin-bottom:0}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+  .go{color:var(--acc);text-decoration:none;font-size:12.5px;border-bottom:1px dotted var(--acc)}
+  .done{margin-left:auto;background:none;border:1px solid var(--line);border-radius:8px;
+    color:var(--mut);cursor:pointer;font-size:12px;padding:7px 11px}
+  .done[aria-pressed="true"]{background:color-mix(in srgb,var(--acc) 18%,transparent);
+    border-color:var(--acc);color:var(--acc)}
+  .cut[data-state="1"] .tag::before{content:"✓ ";color:var(--acc)}
+  footer{margin-top:26px;color:var(--dim);font-size:12px;line-height:1.6}
+  @media(max-width:420px){ body{padding:18px 12px 60px} .cut summary{padding:11px 12px} .body{padding:2px 12px 12px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="brand"><b>CSIT 6</b> · the thirty</span>
+    <button class="theme" id="theme" type="button">Light / dark</button>
+  </header>
+  <h1>The 30 answers, cut to the question</h1>
+  <p class="sub">Every line is verbatim from the answer bank — nothing rewritten. 30 answers,
+  3,429 words in total. Open one, read it once, close it, then write it from memory
+  in Learn.</p>
+
+  <div class="bar" role="group" aria-label="Filter by subject">
+    <button type="button" data-f="all" aria-pressed="true">All 30</button>
+    <button type="button" data-f="se" aria-pressed="false">SE 5</button>
+    <button type="button" data-f="cdc" aria-pressed="false">CDC 5</button>
+    <button type="button" data-f="egov" aria-pressed="false">EGOV 5</button>
+    <button type="button" data-f="ncc" aria-pressed="false">NCC 5</button>
+    <button type="button" data-f="tw" aria-pressed="false">TW 5</button>
+    <button type="button" data-f="ecom" aria-pressed="false">ECOM 5</button>
+  </div>
+  <p class="prog" id="prog"></p>
+
+  <details class="cut" data-sub="se" data-unit="se.10" data-state="0" id="cut-se-10">
+  <summary>
+    <span class="tag">SE · se.10</span>
+    <span class="nm">Software Management</span>
+    <span class="mk">10 marks · 161 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">In the software development process, how does software configuration management facilitate the changes that may occur during different stages of a software development life cycle? Justify your explanation with example.</p>
+    
+    <div class="ans"><p>Software configuration management (SCM) identifies, controls and tracks every item that makes up a product — code, documents, test data, build scripts — so change is deliberate, traceable and reversible.</p>
+<p>Activities — identification, version control, change control, status reporting and release — run in every phase: Requirements: each requirement and SRS draft is a versioned configuration item; changes pass through a change request and the change control board (CCB).</p>
+<p>Design: UML models are baselined; a design change is impact-analysed through a traceability matrix before approval.</p>
+<p>Implementation: work is done on Git branches, so two programmers cannot silently overwrite each other.</p>
+<p>Testing: test cases are versioned with the code, so a failure is reproducible against the exact build.</p>
+<p>Release and maintenance: numbered baselines allow rollback and trace a defect to the shipped version.</p>
+<p>Example: the bus fare changes — a request is raised, the CCB approves, requirement, design and tests are updated together and released as v2.1 while v2.0 stays for rollback.</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-se-10">Open in Learn →</a>
+      <button type="button" class="done" data-done="se.10" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="se" data-unit="se.8" data-state="0" id="cut-se-8">
+  <summary>
+    <span class="tag">SE · se.8</span>
+    <span class="nm">Software Testing</span>
+    <span class="mk">5 marks · 80 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">Difference between verification and validation. Explain software inspection process.</p>
+    
+    <div class="ans"><p>Verification asks &#39;are we building the product right?&#39; — it confirms that a work product conforms to its specification.</p>
+<p>It is static: reviews, inspections, walkthroughs.</p>
+<p>Validation asks &#39;are we building the right product?&#39; — it confirms that the system meets the user&#39;s real need.</p>
+<p>It is dynamic: testing with real data, acceptance and beta testing.</p>
+<p>So verification compares the artefact with the specification, while validation compares the product with the need; a system can be verified against a wrong specification.</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-se-8">Open in Learn →</a>
+      <button type="button" class="done" data-done="se.8" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="se" data-unit="se.2" data-state="0" id="cut-se-2">
+  <summary>
+    <span class="tag">SE · se.2</span>
+    <span class="nm">Software Processes</span>
+    <span class="mk">10 marks · 125 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">Explain how prototyping model help in developing software? Differentiate between Evolutionary and throw-away prototype model.</p>
+    
+    <div class="ans"><p>Prototyping helps because a prototype is built early, shown to users and refined, so it (1) clarifies vague or conflicting requirements that interviews miss; (2) checks feasibility of technology or interface before heavy investment; (3) improves communication — users react to a working screen far better than to a document; (4) cuts requirement risk and rework by finding errors while change is cheap; (5) supports incremental delivery where an evolutionary prototype grows into the product.</p>
+<p>Evolutionary prototype: built with real architecture and quality, then refined through versions until it is the delivered system.</p>
+<p>Used when requirements are unclear and the domain changes fast — web and mobile products.</p>
+<p>Advantage: early feedback, always a working system.</p>
+<p>Risk: poor structure creeps in, documentation lags, temporary code ships.</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-se-2">Open in Learn →</a>
+      <button type="button" class="done" data-done="se.2" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="se" data-unit="se.4" data-state="0" id="cut-se-4">
+  <summary>
+    <span class="tag">SE · se.4</span>
+    <span class="nm">Requirements Engineering</span>
+    <span class="mk">10 marks · 135 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">Explain the main activities used in requirements engineering. What are the desirable characteristics of a good SRS documents? Explain with example.</p>
+    
+    <div class="ans"><p>Requirements engineering has four core activities plus management: Elicitation — gather needs through interviews, observation, questionnaires, document analysis and prototyping.</p>
+<p>Analysis and negotiation — classify, prioritise and resolve conflicting stakeholder demands.</p>
+<p>Specification — record agreed requirements in an SRS using structured natural language, use cases or models.</p>
+<p>Validation — confirm the requirements are valid, complete, consistent, realistic and verifiable via reviews, prototyping and test generation.</p>
+<p>Requirements management — control change with requests, impact analysis and traceability.</p>
+<p>A good SRS is: complete (nothing missing), consistent (no contradictions), unambiguous, verifiable (each requirement testable), traceable (linked to design and tests), feasible, prioritised and uniquely identified.</p>
+<p>Example: &quot;The system should be fast&quot; is a bad line.</p>
+<p>&quot;The system shall confirm a seat booking within 3 seconds for 500 concurrent users&quot; is unambiguous, verifiable and traceable to test case T-21.</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-se-4">Open in Learn →</a>
+      <button type="button" class="done" data-done="se.4" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="se" data-unit="se.5" data-state="0" id="cut-se-5">
+  <summary>
+    <span class="tag">SE · se.5</span>
+    <span class="nm">System Modeling</span>
+    <span class="mk">5 marks · 71 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">Differentiate between structural and behavioral models. What is the importance of behavioral model.</p>
+    
+    <div class="ans"><p>A structural model describes the static organisation of a system — its components and how they connect — and says nothing about execution.</p>
+<p>A behavioural model describes what happens at run time: states, events, transitions and activity flow.</p>
+<p>Structural: class, component and deployment diagrams — e.g.</p>
+<p>Bus, Ticket and Passenger with associations and multiplicity.</p>
+<p>Behavioural: state machine, activity and sequence diagrams — e.g.</p>
+<p>a Ticket moving reserved → paid → cancelled.</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-se-5">Open in Learn →</a>
+      <button type="button" class="done" data-done="se.5" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="cdc" data-unit="cdc.2" data-state="0" id="cut-cdc-2">
+  <summary>
+    <span class="tag">CDC · cdc.2</span>
+    <span class="nm">Lexical Analysis and Syntax Analysis</span>
+    <span class="mk">10 marks · 121 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">Give an example of reduce-reduce conflict. Construct the SLR parsing table for the following grammar.</p>
+    <p class="warn"><b>This question asks you to build something.</b> The text below is the setup and the reasoning — practise the table, derivation or design on paper.</p>
+    <div class="ans"><p>Reduce-reduce conflict: one state contains two completed items with different left sides and a common lookahead.</p>
+<p>Example: S -&gt; aAd | bBd | aBe | bAe, A -&gt; c, B -&gt; c.</p>
+<p>After reading a c, the state is {A -&gt; c., B -&gt; c.}.</p>
+<p>FOLLOW(A) = FOLLOW(B) = {d, e}, so SLR puts reduce A -&gt; c and reduce B -&gt; c in both the d and e columns — a reduce-reduce conflict.</p>
+<p>LR(1) separates them because the lookaheads differ by context ({A -&gt; c., d} and {B -&gt; c., e} after a), and LALR merges those states and conflicts again.</p>
+<p>SLR table for E -&gt; (L) | a, L -&gt; L, E | E.</p>
+<p>Augment to S&#39; -&gt; E.</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-cdc-2">Open in Learn →</a>
+      <button type="button" class="done" data-done="cdc.2" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="cdc" data-unit="cdc.7" data-state="0" id="cut-cdc-7">
+  <summary>
+    <span class="tag">CDC · cdc.7</span>
+    <span class="nm">Intermediate Code Generation</span>
+    <span class="mk">10 marks · 129 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">What is backpatching? Why is it used in code generation? Generate three-address code with backpatching for the following code:</p>
+    
+    <div class="ans"><p>Backpatching: generating code in a single pass while jump targets are still unknown.</p>
+<p>A jump is emitted with an empty target field and its instruction number is collected in a list (truelist or falselist); when the target label becomes known, the list is patched.</p>
+<p>Functions: makelist(i) creates a list containing i; merge(p1,p2) concatenates two lists; backpatch(p,L) writes label L into the target field of every instruction in p.</p>
+<p>Used for boolean expressions, if and while.</p>
+<p>while (a&lt;b) { if (c&lt;d) x=y+z; else x=y-z; } 100: if a&lt;b goto 102 102: if c&lt;d goto 104 104: t1 = y + z 105: x = t1 107: t2 = y - z 108: x = t2 Backpatching: after a&lt;b, truelist = {100} and falselist = {101}; backpatch({100},102) when the body begins.</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-cdc-7">Open in Learn →</a>
+      <button type="button" class="done" data-done="cdc.7" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="cdc" data-unit="cdc.3" data-state="0" id="cut-cdc-3">
+  <summary>
+    <span class="tag">CDC · cdc.3</span>
+    <span class="nm">Syntax-Directed Translation</span>
+    <span class="mk">10 marks · 144 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">Define Syntax directed definition. Construct annotated parse tree for the input expression (5*3+2)*5 according to the following</p>
+    <p class="warn"><b>This question asks you to build something.</b> The text below is the setup and the reasoning — practise the table, derivation or design on paper.</p>
+    <div class="ans"><p>A syntax-directed definition attaches semantic rules to each production; an annotated parse tree is the parse tree with every attribute value written beside its node.</p>
+<p>E -&gt; E1 + T   { E.val = E1.val + T.val } E -&gt; T        { E.val = T.val } T -&gt; T1 * F   { T.val = T1.val * F.val } T -&gt; F        { T.val = F.val } F -&gt; ( E )    { F.val = E.val } F -&gt; digit    { F.val = digit.lexval } Input (5 * 3 + 2) * 5.</p>
+<p>Tree and values, bottom-up: Leaves: F(5) val 5, F(3) val 3, F(2) val 2, F(5) val 5.</p>
+<p>Inner 5 * 3: T -&gt; T1 * F with T1 = F(5) = 5 and F = 3, so T.val = 15; then T -&gt; F gives the left operand of + the value 15.</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-cdc-3">Open in Learn →</a>
+      <button type="button" class="done" data-done="cdc.3" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="cdc" data-unit="cdc.1" data-state="0" id="cut-cdc-1">
+  <summary>
+    <span class="tag">CDC · cdc.1</span>
+    <span class="nm">Introduction to Compiler</span>
+    <span class="mk">10 marks · 124 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">Difference between compiler and interpreter. “Symbol table is necessary component of compiler”. Justify this statement with examples.</p>
+    
+    <div class="ans"><p>Translation: a compiler translates the whole program into object code before running it; an interpreter executes the source statement by statement.</p>
+<p>Output: the compiler produces an object or executable file; the interpreter produces only results, no file.</p>
+<p>Speed: compiled code runs faster because decoding happens once; interpretation is slower.</p>
+<p>Errors: the compiler scans everything and reports all errors together; the interpreter stops at the first error.</p>
+<p>Memory: the compiler needs space for the object code and is itself larger; the interpreter needs less.</p>
+<p>Examples: C, C++, Go are compiled; Python, JavaScript, Ruby are interpreted.</p>
+<p>Java uses both (javac then the JVM).</p>
+<p>Symbol table is a necessary component — every phase uses it: Lexical analysis inserts each identifier as it is recognised, with its lexeme.</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-cdc-1">Open in Learn →</a>
+      <button type="button" class="done" data-done="cdc.1" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="cdc" data-unit="cdc.8" data-state="0" id="cut-cdc-8">
+  <summary>
+    <span class="tag">CDC · cdc.8</span>
+    <span class="nm">Code Generation</span>
+    <span class="mk">10 marks · 118 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">Discuss about the different factors affecting target code generation.</p>
+    
+    <div class="ans"><p>Factors affecting target code generation: Target machine instruction set: which operations exist.</p>
+<p>With no multiply instruction the generator must emit shifts and adds; register-to-register and register-to-memory machines need different sequences.</p>
+<p>Number and types of registers: more registers mean fewer loads, stores and spills, and floating-point registers change how reals are moved.</p>
+<p>Addressing modes: indexed, indirect and auto-increment modes let x = y[i] become one instruction instead of separate address arithmetic.</p>
+<p>Instruction cost and timing: the generator must pick the cheapest correct sequence, not the most obvious one, and must respect delayed branches and pipeline stalls.</p>
+<p>IR form and quality: three-address code organised into basic blocks with good temporaries produces better code than a raw tree with redundant temporaries.</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-cdc-8">Open in Learn →</a>
+      <button type="button" class="done" data-done="cdc.8" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="egov" data-unit="egov.2" data-state="0" id="cut-egov-2">
+  <summary>
+    <span class="tag">EGOV · egov.2</span>
+    <span class="nm">Models of E-Governance</span>
+    <span class="mk">10 marks · 116 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">What is the E-Governance maturity model? Explain the various maturity levels along with their characteristics.</p>
+    
+    <div class="ans"><p>The e-governance maturity model describes the stages a government passes through as ICT use deepens — from putting information online to integrating services across departments.</p>
+<p>The widely used model has five levels: Level 1 Emerging (Information): static website, brochures, notices.</p>
+<p>Level 2 Enhanced: larger content, searchable databases, downloadable forms, still no interaction.</p>
+<p>Level 3 Interactive: two-way — e-mail contact, online forms, status enquiry, simple transactions begin.</p>
+<p>Level 4 Transactional: the complete service online with secure payment and authentication — certificate issued, tax paid, licence renewed.</p>
+<p>Example: IRD e-filing, e-passport appointment.</p>
+<p>Level 5 Connected (Seamless): integrated single window across departments, data entered once, proactive and participatory services.</p>
+<p>Example: Nagarik App drawing identity, tax and land data together.</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-egov-2">Open in Learn →</a>
+      <button type="button" class="done" data-done="egov.2" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="egov" data-unit="egov.3" data-state="0" id="cut-egov-3">
+  <summary>
+    <span class="tag">EGOV · egov.3</span>
+    <span class="nm">E-Government Infrastructure Development</span>
+    <span class="mk">5 marks · 74 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">What is e-readiness? Discuss the data system infrastructural preparedness of e-readiness.</p>
+    
+    <div class="ans"><p>E-readiness is the degree to which a country is prepared to participate in the digital economy and deliver services electronically.</p>
+<p>It is measured across infrastructure, affordability, human skills, business environment, legal framework and government adoption — indices such as the UN EGDI and the Networked Readiness Index.</p>
+<p>Data system infrastructural preparedness asks whether government can supply trustworthy, shareable data.</p>
+<p>Core registries — citizen/national ID, land, business, vehicle, tax — each with a unique identifier.</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-egov-3">Open in Learn →</a>
+      <button type="button" class="done" data-done="egov.3" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="egov" data-unit="egov.1" data-state="0" id="cut-egov-1">
+  <summary>
+    <span class="tag">EGOV · egov.1</span>
+    <span class="nm">Introduction to E-Government and E-Governance</span>
+    <span class="mk">10 marks · 116 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">What are the present global trends of growth in E-Governance? Discuss with examples from developed and developing nations.</p>
+    
+    <div class="ans"><p>Global e-governance growth is driven by five shifts: Mobile-first delivery: services move from desktop portals to apps and SMS.</p>
+<p>India&#39;s UMANG and Nepal&#39;s Nagarik App bundle many services into one app.</p>
+<p>Digital identity as the base layer: Aadhaar in India, the National ID in Nepal, e-Estonia&#39;s ID-card — every service authenticates against one identity.</p>
+<p>Cloud and shared infrastructure: governments rent capacity instead of building silos, e.g.</p>
+<p>government cloud programmes and Nepal&#39;s Government Integrated Data Centre.</p>
+<p>Open data and interoperability: data portals, one-stop gateways and API integration replace departmental islands.</p>
+<p>Participation and AI: e-petitions, online consultation, chatbots and analytics for policy.</p>
+<p>Developed nations lead in transformation — Estonia&#39;s e-Residency, Denmark&#39;s mandatory digital post, UK&#39;s GOV.UK single domain.</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-egov-1">Open in Learn →</a>
+      <button type="button" class="done" data-done="egov.1" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="egov" data-unit="egov.4" data-state="0" id="cut-egov-4">
+  <summary>
+    <span class="tag">EGOV · egov.4</span>
+    <span class="nm">Security for E-Government</span>
+    <span class="mk">5 marks · 66 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">Explain the Security Management Model for e-government systems.</p>
+    
+    <div class="ans"><p>The security management model for e-government is a continuous cycle that keeps security aligned with services, rather than a one-time technical fix.</p>
+<p>Governance and policy: security policy, data classification, roles such as a CISO, legal compliance.</p>
+<p>Risk assessment: inventory assets, then risk = threat × vulnerability × impact, prioritised by impact on critical services.</p>
+<p>Control implementation: physical, network, host, application, data and identity controls in depth.</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-egov-4">Open in Learn →</a>
+      <button type="button" class="done" data-done="egov.4" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="egov" data-unit="egov.6" data-state="0" id="cut-egov-6">
+  <summary>
+    <span class="tag">EGOV · egov.6</span>
+    <span class="nm">Case Studies</span>
+    <span class="mk">5 marks · 64 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">How can we use human resource management software to support E-Government? Explain.</p>
+    
+    <div class="ans"><p>HRMIS supports e-government by putting civil-service people data and transactions into one trusted system.</p>
+<p>Personnel records: one authoritative employee file — post, qualification, service history, training.</p>
+<p>Establishment control: sanctioned versus filled posts, so vacancy shows by office.</p>
+<p>Attendance and leave: biometric or app-based attendance, online leave with automatic balance.</p>
+<p>Payroll and pension: salary, allowances, deductions and pension computed and paid through the treasury system.</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-egov-6">Open in Learn →</a>
+      <button type="button" class="done" data-done="egov.6" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="ncc" data-unit="ncc.1" data-state="0" id="cut-ncc-1">
+  <summary>
+    <span class="tag">NCC · ncc.1</span>
+    <span class="nm">Language Preliminaries</span>
+    <span class="mk">10 marks · 123 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">Define lambda expression. Distinguish between expression lambda and statement lambda. Write a program for asynchronous file read. List the benefits of Async and Await.</p>
+    <p class="warn"><b>This question asks you to build something.</b> The text below is the setup and the reasoning — practise the table, derivation or design on paper.</p>
+    <div class="ans"><p>Lambda expression — an anonymous function written as (parameters) =&gt; body, used to create a delegate or LINQ predicate without a named method.</p>
+<p>Expression lambda — body is one expression whose value is returned: x =&gt; x * 2, or nums.Where(n =&gt; n % 2 == 0).</p>
+<p>Statement lambda — body is a block with braces, several statements and an explicit return: (a, b) =&gt; { var s = a + b; return s; }.</p>
+<p>async Task&lt;string&gt; ReadAsync() { using var sr = new StreamReader(&quot;data.txt&quot;); // string text = await ReadAsync(); The compiler turns each await into a state machine: the thread returns to the pool until the read completes, then execution resumes.</p>
+<p>Frees the request thread, so the server handles more users.</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-ncc-1">Open in Learn →</a>
+      <button type="button" class="done" data-done="ncc.1" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="ncc" data-unit="ncc.4" data-state="0" id="cut-ncc-4">
+  <summary>
+    <span class="tag">NCC · ncc.4</span>
+    <span class="nm">Creating ASP.NET Core MVC Applications</span>
+    <span class="mk">10 marks · 118 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">What are different Action Result Types in ASP.NET Core MVC? Explain with examples. Design an API Controller that returns JSON response for a Product entity (ProductId, Name, Price, Category) with GET, POST, PUT, and DELETE operations.</p>
+    <p class="warn"><b>This question asks you to build something.</b> The text below is the setup and the reasoning — practise the table, derivation or design on paper.</p>
+    <div class="ans"><p>Action results are what an action returns; ASP.NET Core executes them to build the response.</p>
+<p>View()/ViewResult — renders a .cshtml.</p>
+<p>PartialView() — fragment only.</p>
+<p>Json()/JsonResult — serialised JSON.</p>
+<p>Content() — plain text or HTML string.</p>
+<p>File() — bytes or stream with a content type.</p>
+<p>Ok(), NotFound(), BadRequest(), NoContent(), StatusCode() — raw HTTP codes.</p>
+<p>Challenge() — 401 through the authentication handler.</p>
+<p>EmptyResult — no body.</p>
+<p>API controller for Product(ProductId, Name, Price, Category): public class ProductsController : ControllerBase { private readonly AppDbContext _db; public ProductsController(AppDbContext db) =&gt; _db = db; [HttpGet] public async Task&lt;IActionResult&gt; GetAll() =&gt; [HttpGet(&quot;{id:int}&quot;)] public async Task&lt;IActionResult&gt; Get(int id) { var p = await _db.Products.FindAsync(id); return p == null ?</p>
+<p>[HttpPost] public async Task&lt;IActionResult&gt; Post(Product p) {</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-ncc-4">Open in Learn →</a>
+      <button type="button" class="done" data-done="ncc.4" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="ncc" data-unit="ncc.8" data-state="0" id="cut-ncc-8">
+  <summary>
+    <span class="tag">NCC · ncc.8</span>
+    <span class="nm">Securing ASP.NET Core</span>
+    <span class="mk">10 marks · 123 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">Explain the uses of cookies. What types of vulnerabilities can occur in web application? Show the case of Cross-site Scripting attack.</p>
+    
+    <div class="ans"><p>Cookies - small name-value text (4 KB maximum) the server sends in Set-Cookie and the browser returns on every request to that domain.</p>
+<p>Uses: session ID so a stateless protocol remembers the user; authentication ticket and remember-me; shopping cart for anonymous visitors; theme and language preference; consent flags; analytics and A/B tracking.</p>
+<p>Set safely: Response.Cookies.Append(&quot;theme&quot;, &quot;dark&quot;, new CookieOptions { HttpOnly = true, Secure = true, SameSite = SameSiteMode.Strict }); Vulnerabilities that can occur: XSS, SQL injection, CSRF, open redirect, broken access control/IDOR, insecure deserialization, sensitive data exposure, clickjacking, misconfiguration, weak authentication.</p>
+<p>XSS case - a comment box stores raw input.</p>
+<p>If the view renders it with @Html.Raw(comment) instead of encoded output, the script runs in every visitor&#39;s browser and steals the session cookie.</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-ncc-8">Open in Learn →</a>
+      <button type="button" class="done" data-done="ncc.8" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="ncc" data-unit="ncc.5" data-state="0" id="cut-ncc-5">
+  <summary>
+    <span class="tag">NCC · ncc.5</span>
+    <span class="nm">Working with Database</span>
+    <span class="mk">10 marks · 119 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">List some advantages of Entity Framework over ADO.NET. Assume a database named “IOST” with a table FACULTY(Course_Name, CourseID, No_of_Semester, fee). Insert some records using ADO.NET and retrive the fee of records having name CSIT.</p>
+    
+    <div class="ans"><p>Advantages of Entity Framework over ADO.NET: No hand-written SQL or manual mapping — entities and DbSet&lt;T&gt; instead.</p>
+<p>LINQ gives compile-time checking instead of strings.</p>
+<p>Change tracking with SaveChanges as a unit of work.</p>
+<p>Relationships through navigation properties, loaded with Include or lazily.</p>
+<p>Code-First migrations keep the schema in version control.</p>
+<p>Provider independence: one API for SQL Server, PostgreSQL, SQLite.</p>
+<p>Parameterised by default, so SQL injection risk drops, and async APIs throughout.</p>
+<p>Insert into FACULTY (ADO.NET): using var con = new SqlConnection(cs); con.Open(); string ins = &quot;INSERT INTO FACULTY(Course_Name,CourseID,No_of_Semester,fee) VALUES(@n,@c,@s,@f)&quot;; foreach (var f in list) { using var cmd = new SqlCommand(ins, con); Retrieve the fee for CSIT: using var q = new SqlCommand(&quot;SELECT fee FROM FACULTY WHERE Course_Name=@n&quot;, con);</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-ncc-5">Open in Learn →</a>
+      <button type="button" class="done" data-done="ncc.5" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="ncc" data-unit="ncc.6" data-state="0" id="cut-ncc-6">
+  <summary>
+    <span class="tag">NCC · ncc.6</span>
+    <span class="nm">State Management</span>
+    <span class="mk">10 marks · 121 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">How do you manage state on stateless HTTP? How do you validate form using JQuery? Describe with your own assumptions.</p>
+    
+    <div class="ans"><p>HTTP is stateless: each request is independent, so the server cannot tell that two requests came from the same user.</p>
+<p>State is therefore carried by the client or stored on the server under an identifier.</p>
+<p>Client-side: query string (?page=2), hidden fields, cookies (session id, auth ticket — set HttpOnly, Secure, SameSite), localStorage/sessionStorage, and a JWT held in memory.</p>
+<p>Server-side: Session (per user, SessionId cookie, AddSession/UseSession), TempData (survives one redirect), ViewData/ViewBag (one request), Cache (application-wide), HttpContext.Items (one request).</p>
+<p>Pattern: on login the server creates a session, sets an HttpOnly cookie and stores the cart in the session store; every later request sends the cookie and the server reloads the state.</p>
+<p>jQuery validation (registration form): $(&quot;#reg&quot;).on(&quot;submit&quot;, function (e) { var ok = true;</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-ncc-6">Open in Learn →</a>
+      <button type="button" class="done" data-done="ncc.6" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="tw" data-unit="tw.1" data-state="0" id="cut-tw-1">
+  <summary>
+    <span class="tag">TW · tw.1</span>
+    <span class="nm">What Is Technical Writing</span>
+    <span class="mk">10 marks · 131 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">Write in detail on advantages and disadvantages using Facebook, Twitter and google+ for communication. In your write up use these expressions! in brief, whereas, however, though, even though, at first, in general, finally.</p>
+    
+    <div class="ans"><p>Social media are now everyday workplace communication tools.</p>
+<p>In brief, they give reach and speed; the cost is distraction.</p>
+<p>Facebook: in general, it is the widest net — pages and groups reach parents, students and customers in one post.</p>
+<p>At first a college page looks informal, though it works well for announcements and event photographs.</p>
+<p>However, mixing personal and professional contacts blurs boundaries.</p>
+<p>Twitter: fast, public and text-first.</p>
+<p>It suits live updates and complaints, whereas Facebook suits longer posts and images.</p>
+<p>Even though a short limit forces brevity, it also invites misunderstanding.</p>
+<p>Google+: built for circles and long technical posts; it never reached a mass Nepali audience, so topic communities came with low reach.</p>
+<p>Common drawbacks: rumour spreads faster than correction, tone is easily misread, and privacy settings change without notice.</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-tw-1">Open in Learn →</a>
+      <button type="button" class="done" data-done="tw.1" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="tw" data-unit="tw.3" data-state="0" id="cut-tw-3">
+  <summary>
+    <span class="tag">TW · tw.3</span>
+    <span class="nm">The Writing Process</span>
+    <span class="mk">10 marks · 165 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">Explain the complete technical writing process from planning to publishing. How does collaborative writing enhance or complicate this process? Discuss the advantages, challenges, and conflict resolution strategies in collaborative writing. Support your answer with examples from software documentation or IT project scenarios.</p>
+    
+    <div class="ans"><p>Planning, drafting, revising, copyediting, publishing.</p>
+<p>Collaboration changes how each stage runs, not the stages themselves.</p>
+<p>Planning: one writer fixes purpose, audience and outline; sections and deadlines are assigned.</p>
+<p>Drafting: parts are written in parallel by whoever is closest to the knowledge — a developer writes the API reference, a tester the known issues.</p>
+<p>Revising: a comment-and-track-changes review cycle, where conflicts surface.</p>
+<p>Copyediting: one editor applies a single style sheet so the document reads in one voice.</p>
+<p>Publishing: one owner controls the final version and the archive.</p>
+<p>Advantages: expertise coverage, speed, peer review, stakeholder buy-in.</p>
+<p>Challenges: coordination cost, inconsistent voice, version conflicts, free-riding, slow decisions.</p>
+<p>Conflict resolution: agree outline and style guide before writing; give one editor final say on language; settle disputes by evidence and reader need, not seniority; escalate to the document owner with a deadline; log every decision in the shared file.</p>
+<p>Example: a manual by four authors fails when each names the same button differently — the style sheet is the fix.</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-tw-3">Open in Learn →</a>
+      <button type="button" class="done" data-done="tw.3" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="tw" data-unit="tw.7" data-state="0" id="cut-tw-7">
+  <summary>
+    <span class="tag">TW · tw.7</span>
+    <span class="nm">Information Reports</span>
+    <span class="mk">10 marks · 130 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">Describe the structure and key components of a technical report. How does this structure enhance the report’s effectiveness?</p>
+    
+    <div class="ans"><p>A technical report has a fixed architecture because readers do not read it front to back; they hunt for a section.</p>
+<p>Front matter: title page, letter of transmittal, table of contents, list of figures and an executive summary, which alone lets a manager decide in two minutes.</p>
+<p>Introduction — background, problem, purpose, scope, limitations, method.</p>
+<p>Findings — evidence under headings, with tables and figures.</p>
+<p>Conclusions — what the evidence shows, with no new material.</p>
+<p>Recommendations — specific, actionable, prioritised and costed.</p>
+<p>Back matter: references, appendices for raw data and questionnaires, glossary and index.</p>
+<p>Why it works: a predictable location saves search time; the summary and recommendations serve decision-makers; appendices keep detail available without bloating the body; references make claims checkable; headings allow selective reading; and a stated limitation builds credibility.</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-tw-7">Open in Learn →</a>
+      <button type="button" class="done" data-done="tw.7" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="tw" data-unit="tw.4" data-state="0" id="cut-tw-4">
+  <summary>
+    <span class="tag">TW · tw.4</span>
+    <span class="nm">Brief Correspondence</span>
+    <span class="mk">10 marks · 122 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">You are now studying IT in a reputed campus under Tribhuvan University, Nepal. The campus has a well-equipped computer lab. You remember the school where you completed your secondary-level education. Most schools in Nepal have only a couple of desktop computers. You want to donate about a dozen computers to the school by raising funds. Write a letter to the Chief District Officer requesting him/her to permit you to collect donations. Include the specifications of the computers and the price list with the letter.</p>
+    
+    <div class="ans"><p>House No.</p>
+<p>14, Kupondole, Lalitpur The Chief District Officer District Administration Office, Lalitpur Subject: Request for permission to collect donations for a school computer lab I am a sixth-semester B.Sc.</p>
+<p>CSIT student at [Campus], Lalitpur.</p>
+<p>I wish to donate twelve computers to Shree Janata Secondary School, where I studied, and request your permission to collect public donations for this purpose from 1 December to 31 January.</p>
+<p>Most community schools in Nepal have one or two working computers for hundreds of students.</p>
+<p>This donation would give the school a 12-seat lab for its computer science classes.</p>
+<p>Specifications and estimated cost per unit: Intel Core i3, 8 GB RAM, 256 GB SSD, 19-inch monitor, keyboard and mouse — Rs 42,000.</p>
+<p>Twelve units: Rs 5,04,000.</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-tw-4">Open in Learn →</a>
+      <button type="button" class="done" data-done="tw.4" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="tw" data-unit="tw.5" data-state="0" id="cut-tw-5">
+  <summary>
+    <span class="tag">TW · tw.5</span>
+    <span class="nm">Document Design and Graphics</span>
+    <span class="mk">5 marks · 63 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">Make a flow-chart diagram of your dream application.</p>
+    
+    <div class="ans"><p>Flow chart — CampusBus, a bus-tracking app for Kathmandu commuters.</p>
+<p>Symbols: oval = start/stop, rectangle = process, diamond = decision, parallelogram = input/output, arrow = flow.</p>
+<p>Parallelogram: Read GPS location and route number Rectangle: Send location to server every 15 seconds Parallelogram: Display nearest buses and arrival times Yes → Rectangle: Show map with live bus positions → Diamond: Bus within 5 minutes?</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-tw-5">Open in Learn →</a>
+      <button type="button" class="done" data-done="tw.5" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="ecom" data-unit="ecom.2" data-state="0" id="cut-ecom-2">
+  <summary>
+    <span class="tag">ECOM · ecom.2</span>
+    <span class="nm">E-commerce Business Model</span>
+    <span class="mk">10 marks · 121 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">What is B 2 B e-commerce? Discuss various B 2 B business models.</p>
+    
+    <div class="ans"><p>B2B e-commerce covers transactions between organisations — a manufacturer buying parts, a retailer buying stock.</p>
+<p>Compared with B2C it has fewer but larger buyers, higher order values, negotiated prices, longer approval cycles, and EDI or API integration instead of a consumer checkout.</p>
+<p>E-distributor — one firm sells its own catalogue to many business buyers at posted prices, e.g.</p>
+<p>Grainger; in Nepal, a hardware wholesaler with a dealer portal.</p>
+<p>E-procurement — sells procurement software and services that automate requisition to payment, e.g.</p>
+<p>Ariba; value comes from spend control and less maverick buying.</p>
+<p>Exchange — many buyers and sellers trade commodities at spot prices, e.g.</p>
+<p>Industry consortium — an exchange owned by large firms in one industry, restricted membership and negotiated contracts, e.g.</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-ecom-2">Open in Learn →</a>
+      <button type="button" class="done" data-done="ecom.2" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="ecom" data-unit="ecom.3" data-state="0" id="cut-ecom-3">
+  <summary>
+    <span class="tag">ECOM · ecom.3</span>
+    <span class="nm">Electronic Payment System</span>
+    <span class="mk">10 marks · 124 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">What is a dual signature? Describe the dual signature operations? How is dual signature used during purchase request operation of SET protocol?</p>
+    
+    <div class="ans"><p>A dual signature lets a cardholder sign order information (OI) and payment information (PI) so that the merchant sees only OI and the bank only PI, yet both can prove they belong to the same purchase.</p>
+<p>Compute H(OI) and H(PI).</p>
+<p>Concatenate and hash again: H(H(OI) || H(PI)).</p>
+<p>Encrypt with the cardholder&#39;s private key — the dual signature DS.</p>
+<p>Send the merchant OI, H(PI), DS; send the gateway PI, H(OI), DS.</p>
+<p>Merchant hashes OI, joins it with H(PI), decrypts DS with the public key and compares; the gateway does the mirror check.</p>
+<p>Each party verifies using its own half plus the digest of the half it never sees, so neither reads the other&#39;s data, but a mismatch proves tampering.</p>
+<p>This gives confidentiality, integrity and non-repudiation.</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-ecom-3">Open in Learn →</a>
+      <button type="button" class="done" data-done="ecom.3" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="ecom" data-unit="ecom.5" data-state="0" id="cut-ecom-5">
+  <summary>
+    <span class="tag">ECOM · ecom.5</span>
+    <span class="nm">Security in E-Commerce</span>
+    <span class="mk">10 marks · 121 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">How are digital signatures used in e-commerce security? How often are social engineering attacks vulnerable to e-commerce? Being an e-commerce security expert, how can you combat social engineering attacks?</p>
+    
+    <div class="ans"><p>A digital signature is the hash of a message encrypted with the sender&#39;s private key.</p>
+<p>The receiver re-hashes the message and decrypts the signature with the sender&#39;s public-key certificate; a match proves the message is unaltered and came from the key holder.</p>
+<p>Uses in e-commerce: authenticating buyers and merchants, protecting order and payment messages, giving non-repudiation, securing SET&#39;s dual signature, and satisfying the Electronic Transactions Act 2063, which gives digital signatures legal validity.</p>
+<p>Social engineering is highly effective against e-commerce because staff handle many low-value contacts, trust a familiar brand voice, and hold refund, KYC and admin powers worth money.</p>
+<p>Attacks: phishing, pretexting as eSewa support, fake courier calls, baiting, tailgating.</p>
+<p>Awareness training with simulated phishing and a no-blame reporting rule.</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-ecom-5">Open in Learn →</a>
+      <button type="button" class="done" data-done="ecom.5" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="ecom" data-unit="ecom.6" data-state="0" id="cut-ecom-6">
+  <summary>
+    <span class="tag">ECOM · ecom.6</span>
+    <span class="nm">Digital Marketing</span>
+    <span class="mk">10 marks · 133 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">What is digital marketing? Why is it essential in e-commerce? How do marketing metrics like click-through rate, bounce-back rate and conversion rate influence E-mail marketing?</p>
+    
+    <div class="ans"><p>Digital marketing is promotion through digital channels — search, display, social, e-mail, mobile, affiliate and content — with measurable response at every step.</p>
+<p>It is essential because a storefront has no physical presence: digital channels create discovery, cost per acquisition is trackable, targeting is precise, content builds trust before purchase, and campaigns can be tested within days.</p>
+<p>For a Nepali seller, Facebook, Instagram and an e-mail list reach buyers far cheaper than print.</p>
+<p>CTR = clicks ÷ delivered × 100.</p>
+<p>It measures subject line, offer and creative relevance; a low CTR means rewrite the subject, segment the list or sharpen the call to action.</p>
+<p>Bounce-back rate = bounced ÷ sent × 100.</p>
+<p>Hard bounces mean stale addresses, so prune the list; a spike signals deliverability or spam-filter trouble, which also harms sender reputation.</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-ecom-6">Open in Learn →</a>
+      <button type="button" class="done" data-done="ecom.6" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+<details class="cut" data-sub="ecom" data-unit="ecom.1" data-state="0" id="cut-ecom-1">
+  <summary>
+    <span class="tag">ECOM · ecom.1</span>
+    <span class="nm">Introduction</span>
+    <span class="mk">5 marks · 71 words</span>
+  </summary>
+  <div class="body">
+    <p class="q">Briefly explain the electronic transaction act of Nepal.</p>
+    
+    <div class="ans"><p>The Electronic Transactions Act, 2063 (2006) is Nepal&#39;s legal foundation for e-commerce and e-governance: it gives electronic records and signatures the standing of paper, regulates certifying authorities and punishes computer crime.</p>
+<p>Legal recognition — electronic records, contracts and signatures are valid and enforceable if they meet the reliability test, and are admissible as evidence.</p>
+<p>Authentication — digital signatures are verified through certificates from licensed certifying authorities; subscribers must protect private keys.</p></div>
+    <div class="row">
+      <a class="go" href="learn.html#sure-ecom-1">Open in Learn →</a>
+      <button type="button" class="done" data-done="ecom.1" aria-pressed="false">Mark recalled</button>
+    </div>
+  </div>
+</details>
+
+  <footer>
+    Generated by <code>tools/build-cuts.mjs</code> from <code>MINIMUM.md</code>.
+    Progress is kept in this browser only.
+  </footer>
+</div>
+<script>
+(function(){
+  var KEY = "csit6.cuts";
+  var done = {};
+  try { done = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { done = {}; }
+  var save = function(){ try { localStorage.setItem(KEY, JSON.stringify(done)); } catch (e) {} };
+
+  var cuts = Array.prototype.slice.call(document.querySelectorAll(".cut"));
+  var prog = document.getElementById("prog");
+
+  function paint(){
+    var n = 0;
+    cuts.forEach(function(c){
+      var u = c.getAttribute("data-unit");
+      var on = !!done[u];
+      c.setAttribute("data-state", on ? "1" : "0");
+      var b = c.querySelector("[data-done]");
+      if (b) b.setAttribute("aria-pressed", on ? "true" : "false");
+      if (on) n++;
+    });
+    prog.innerHTML = "<b>" + n + "</b> of " + cuts.length + " marked recalled";
+  }
+
+  document.addEventListener("click", function(e){
+    var d = e.target.closest("[data-done]");
+    if (d) {
+      e.preventDefault();
+      var u = d.getAttribute("data-done");
+      if (done[u]) delete done[u]; else done[u] = 1;
+      save(); paint();
+      return;
+    }
+    var f = e.target.closest("[data-f]");
+    if (f) {
+      var want = f.getAttribute("data-f");
+      document.querySelectorAll("[data-f]").forEach(function(b){
+        b.setAttribute("aria-pressed", String(b === f));
+      });
+      cuts.forEach(function(c){
+        c.hidden = want !== "all" && c.getAttribute("data-sub") !== want;
+      });
+    }
+  });
+
+  document.getElementById("theme").addEventListener("click", function(){
+    var n = document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", n);
+    try { localStorage.setItem("csit6.theme", n); } catch (e) {}
+  });
+
+  paint();
+})();
+</script>
+</body>
+</html>
