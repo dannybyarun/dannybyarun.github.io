@@ -495,6 +495,37 @@
   .hintbtn{background:none;border:0;color:var(--dim);font:inherit;font-size:11.5px;cursor:pointer;
     padding:2px 0;text-decoration:underline dotted;text-underline-offset:3px}
   .hintbtn:hover{color:var(--acc)}
+  .logicbtn{background:none;border:1px solid var(--line);border-radius:6px;color:var(--mut);
+    font:600 11px/1 ui-monospace,monospace;padding:5px 8px;cursor:pointer;white-space:nowrap;
+    transition:color .15s,border-color .15s,background .15s}
+  .logicbtn:hover{color:var(--acc);border-color:var(--acc);background:var(--acc-weak)}
+  .logicmodal{position:fixed;inset:0;z-index:90;display:grid;place-items:center;padding:16px;
+    background:rgba(6,8,12,.66);backdrop-filter:blur(5px)}
+  .logicmodal[hidden]{display:none}
+  .logicbox{width:min(680px,100%);max-height:90vh;overflow:auto;background:var(--panel);
+    border:1px solid var(--line);border-radius:16px;padding:16px 16px 13px;
+    box-shadow:0 26px 80px rgba(0,0,0,.5)}
+  .logichead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+  .logichead h3{margin:0;font-size:15px;line-height:1.3}
+  .logichead .cap{font:600 10px/1.4 ui-monospace,monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--acc)}
+  .logicx{background:none;border:0;color:var(--dim);font-size:22px;line-height:1;cursor:pointer;padding:0 2px}
+  .logicx:hover{color:var(--txt)}
+  .logicq{font-size:12.8px;line-height:1.55;color:var(--mut);margin:0 0 10px}
+  .logicstage{position:relative;min-height:176px;border:1px solid var(--line);border-radius:12px;
+    background:var(--panel2);padding:16px;overflow:hidden}
+  .logicstep .num{font:600 10px/1 ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--acc)}
+  .logicstep h4{margin:9px 0 7px;font-size:16px;line-height:1.3}
+  .logicstep p{margin:0;font-size:13.2px;line-height:1.65;color:var(--mut)}
+  .logicstep.in{animation:logicIn .42s ease both}
+  @keyframes logicIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  .logicdots{display:flex;gap:5px;margin:11px 0 0}
+  .logicdots i{height:3px;flex:1;border-radius:2px;background:var(--line);transition:background .2s}
+  .logicdots i.on{background:var(--acc)}
+  .logicctl{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .logicctl .cap{font:11px ui-monospace,monospace;color:var(--dim);margin-left:auto}
+  .logicnote{margin:11px 0 0;font-size:12.4px;line-height:1.6;color:var(--mut)}
+  .logicnote b{color:var(--txt)}
+  @media(max-width:560px){ .logicbox{padding:13px 12px 11px} .logicstage{min-height:190px;padding:13px} }
 
   /* marks + sure shot */
   .mchip{font:600 10.5px/1 ui-monospace,monospace;background:color-mix(in srgb,var(--acc) 16%,transparent);
@@ -1332,6 +1363,7 @@ function paintBank() {
         ${q.sec ? `<span class="chip">${q.sec}</span>` : ""}
         ${u ? `<span class="chip">Unit ${u}</span>` : ""}
         ${REPEAT_IDS.has(q.id) ? `<span class="chip" style="color:var(--acc);border-color:var(--acc)">sure shot</span>` : ""}
+        <button class="logicbtn" data-playlogic="${q.id}" title="Play the five-step logic for this question">▶ Logic</button>
       </div>
       <div class="qwrap"><p class="qtext" tabindex="0">${esc(q.q)}</p>${hintPop(q.id)}</div>
       <div class="pqkit"></div>
@@ -1378,6 +1410,7 @@ function showQuestion() {
         ${q.sec ? `<span class="chip">${q.sec}</span>` : ""}
         <span class="mchip">${q.marks || 5} marks${q.guess ? " · est." : ""}</span>
         <span class="chip">${drill.i + 1} / ${drill.queue.length}</span>
+        <button class="logicbtn" data-playlogic="${q.id}">▶ Play the logic</button>
       </div>
       <div class="qwrap"><p class="qtext" tabindex="0" style="margin:0">${esc(q.q)}</p>${hintPop(q.id)}</div>
       <p class="hintline">Answer it out loud or on paper first. Target: ${(q.marks || 5) >= 10 ? "12–14 minutes, one page" : "5–6 minutes, half a page"}.</p>
@@ -1561,7 +1594,128 @@ function wireKit(root) {
   });
 }
 
-/* unit heat = how many real questions and marks each unit carries */
+/* ---- the logic reel: a five-step animation of the unit's causal chain ----
+   Every question maps to a unit, and every unit's chain is already in
+   data/logic.js. This plays it one step at a time, so the "video" is the
+   argument itself rather than one file per question. */
+let logicEl = null, logicTimer = null, logicAt = 0, logicSteps = [];
+
+function logicModal() {
+  if (logicEl) return logicEl;
+  logicEl = document.createElement("div");
+  logicEl.className = "logicmodal";
+  logicEl.hidden = true;
+  logicEl.innerHTML = `<div class="logicbox" role="dialog" aria-modal="true" aria-label="Logic reel">
+    <div class="logichead">
+      <div><div class="cap" data-lcap>Logic reel</div><h3 data-ltitle></h3></div>
+      <button class="logicx" data-lclose aria-label="Close">×</button>
+    </div>
+    <p class="logicq" data-lq hidden></p>
+    <div class="logicstage" data-lstage></div>
+    <div class="logicdots" data-ldots></div>
+    <div class="logicctl">
+      <button class="ghost" data-lprev>← Back</button>
+      <button class="act" data-lplay>Pause</button>
+      <button class="ghost" data-lnext>Next →</button>
+      <span class="cap" data-lcount></span>
+    </div>
+    <p class="logicnote" data-lnote hidden></p>
+  </div>`;
+  document.body.appendChild(logicEl);
+  logicEl.addEventListener("click", (e) => { if (e.target === logicEl) closeLogic(); });
+  logicEl.querySelector("[data-lclose]").addEventListener("click", closeLogic);
+  logicEl.querySelector("[data-lprev]").addEventListener("click", () => { stopLogic(); stepLogic(-1); });
+  logicEl.querySelector("[data-lnext]").addEventListener("click", () => { stopLogic(); stepLogic(1); });
+  logicEl.querySelector("[data-lplay]").addEventListener("click", () => {
+    if (logicTimer) stopLogic(); else startLogic();
+  });
+  return logicEl;
+}
+
+function stopLogic() {
+  if (logicTimer) { clearInterval(logicTimer); logicTimer = null; }
+  const b = logicEl && logicEl.querySelector("[data-lplay]");
+  if (b) b.textContent = "Play";
+}
+
+function startLogic() {
+  stopLogic();
+  if (!logicSteps.length) return;
+  if (logicAt >= logicSteps.length - 1) { logicAt = 0; paintLogic(); }
+  const b = logicEl.querySelector("[data-lplay]");
+  b.textContent = "Pause";
+  logicTimer = setInterval(() => {
+    if (logicAt >= logicSteps.length - 1) { stopLogic(); b.textContent = "Replay"; return; }
+    logicAt++;
+    paintLogic();
+  }, 1600);
+}
+
+function stepLogic(d) {
+  logicAt = Math.max(0, Math.min(logicSteps.length - 1, logicAt + d));
+  paintLogic();
+}
+
+function paintLogic() {
+  if (!logicEl || !logicSteps.length) return;
+  const s = logicSteps[logicAt];
+  logicEl.querySelector("[data-lstage]").innerHTML =
+    `<div class="logicstep in"><span class="num">Step ${logicAt + 1} of ${logicSteps.length}</span>
+      <h4>${esc(s.t)}</h4><p>${esc(s.d)}</p></div>`;
+  logicEl.querySelectorAll("[data-ldots] i").forEach((d, i) => d.classList.toggle("on", i <= logicAt));
+  logicEl.querySelector("[data-lcount]").textContent = `${logicAt + 1}/${logicSteps.length}`;
+  const play = logicEl.querySelector("[data-lplay]");
+  if (!logicTimer && logicAt === logicSteps.length - 1) play.textContent = "Replay";
+}
+
+function closeLogic() {
+  stopLogic();
+  if (logicEl) logicEl.hidden = true;
+  logicSteps = [];
+  logicAt = 0;
+}
+
+function openLogic(qid, sub, n) {
+  const a = qid ? ansOf(qid) : null;
+  sub = sub || (a ? String(qid).split("-")[0] : "se");
+  n = n || (a && a.u ? Number(a.u) : 1);
+  const lg = (LOGIC[sub] || []).find((u) => u.n === Number(n));
+  if (!lg || !lg.steps || !lg.steps.length) return;
+  const el = logicModal();
+  logicSteps = lg.steps;
+  logicAt = 0;
+  el.querySelector("[data-lcap]").textContent = `Logic reel · ${SUBJ[sub] || sub} · Unit ${n}`;
+  el.querySelector("[data-ltitle]").textContent = lg.name || "";
+  const q = el.querySelector("[data-lq]");
+  if (a) {
+    const qq = (window.QBANK.find((x) => x.id === qid) || {}).q || "";
+    q.hidden = false;
+    q.innerHTML = `<b>Question:</b> ${esc(qq)}`;
+  } else q.hidden = true;
+  const note = el.querySelector("[data-lnote]");
+  note.hidden = false;
+  note.innerHTML = (a && a.logic ? `<b>What they are testing:</b> ${esc(a.logic)}<br>` : "")
+    + (a && a.how ? `<b>Learn it this way:</b> ${esc(a.how)}<br>` : "")
+    + (lg.from ? `<b>It starts from:</b> ${esc(lg.from)}<br>` : "")
+    + (lg.to ? `<b>It leaves you asking:</b> ${esc(lg.to)}` : "");
+  el.querySelector("[data-ldots]").innerHTML = logicSteps.map(() => "<i></i>").join("");
+  el.hidden = false;
+  paintLogic();
+  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!reduce) startLogic(); else stopLogic();
+}
+
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-playlogic]");
+  if (b) { e.preventDefault(); openLogic(b.dataset.playlogic); return; }
+  const ub = e.target.closest("[data-playunit]");
+  if (ub) { e.preventDefault(); const [s, n] = ub.dataset.playunit.split(":"); openLogic(null, s, Number(n)); }
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && logicEl && !logicEl.hidden) closeLogic();
+});
+
+
 function unitHeat(sub) {
   const rows = (TOP[sub] || []).map((u) => ({ n: u.n, name: u.name, q: 0, m: 0 }));
   const byN = new Map(rows.map((r) => [r.n, r]));
@@ -1682,6 +1836,7 @@ function topicView() {
       <div class="stepctl">
         <button class="act" id="stepNext">Next step →</button>
         <button class="ghost" id="stepAll">Show all</button>
+        <button class="ghost" data-playunit="${route.sub}:${u.n}">▶ Play</button>
         <div class="dots">${u.steps.map((_, i) => `<i class="${i === 0 ? "on" : ""}"></i>`).join("")}</div>
       </div>
     </div>
@@ -2278,7 +2433,8 @@ function shotCard(x, pos) {
     </div>
     <div class="chainin"><b>You are here because</b>${esc(x.from)}</div>
     <p class="wone">${esc(logic ? logic.oneLiner : "")}</p>
-    ${steps.length ? `<div class="wflow" aria-label="The mechanism at a glance">${steps.map((s) => `<span>${esc(s.t)}</span>`).join("<i>\u2192</i>")}</div>` : ""}
+    ${steps.length ? `<div class="wflow" aria-label="The mechanism at a glance">${steps.map((s) => `<span>${esc(s.t)}</span>`).join("<i>\u2192</i>")}</div>
+      <button class="logicbtn" data-playunit="${x.s}:${x.n}" style="margin-top:8px">▶ Play the logic</button>` : ""}
     ${logic && logic.idea ? `<div class="widea"><b>The whole argument in one paragraph</b><p>${esc(logic.idea)}</p></div>` : ""}
     ${logic && logic.why ? `<p class="wpress"><b>What happens without it</b>${esc(logic.why)}</p>` : ""}
     ${steps.length ? `<ol class="wsteps">${steps.map((s) => `<li><div><b>${esc(s.t)}</b><span>${esc(s.d)}</span></div></li>`).join("")}</ol>` : ""}
@@ -2895,6 +3051,7 @@ function sureView() {
           <div class="ansblock" data-ans="${key}">${esc(u.top.ans)}</div>` : ""}
         <div class="sureacts">
           <button class="mem ${mem ? "on" : ""}" data-mem="${key}">${mem ? "✓ Memorised" : "Mark memorised"}</button>
+          ${u.top ? `<button class="ghost" data-playlogic="${u.top.id}">▶ Play the logic</button>` : ""}
           <a class="link" href="#shot-${s}-${u.n}">Open the full card →</a>
         </div>
       </div>
