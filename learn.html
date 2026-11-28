@@ -2805,7 +2805,7 @@ function sureView() {
         <p class="sureans">${esc(u.idea)}</p>
         ${u.one ? `<p class="sureq" style="margin-top:8px"><b>One line:</b> ${esc(u.one)}</p>` : ""}
         <h4>Questions it answers (${u.q})</h4>
-        <ul class="asklist">${u.ask.map((a) => `<li>${esc(a.y)} · ${a.marks}m — ${esc(a.q)}</li>`).join("")}</ul>
+        <ul class="asklist">${u.ask.map((a) => `<li>${esc(a.y)} · ${a.marks}m${a.rep > 1 ? ` · ${a.rep}×` : ""} — ${esc(a.q)}</li>`).join("")}</ul>
         ${u.q > u.ask.length ? `<p class="sureq" style="font-size:12px">…and ${u.q - u.ask.length} more on the full card.</p>` : ""}
         <h4>Hit these points</h4>
         <div class="surekeys">${u.keys.map((k) => `<span>${esc(k)}</span>`).join("")}</div>
