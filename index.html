@@ -175,7 +175,12 @@
   button.reset{background:transparent;border:1px solid var(--line);color:var(--dim);padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer}
   button.reset:hover{color:var(--bad);border-color:var(--bad)}
 
-  @media(max-width:560px){ body{padding:18px 12px 60px} .grid{grid-template-columns:1fr} }
+  @media(max-width:560px){
+    body{padding:18px 12px 60px} .grid{grid-template-columns:1fr}
+    .head-right{flex-wrap:wrap;justify-content:flex-end;gap:8px}
+    .clock{display:none}
+    .reader-btn{padding:0 11px}
+  }
 </style>
 </head>
 <body>
@@ -189,6 +194,7 @@
     <div class="head-right">
       <div class="clock" id="clock"></div>
       <a class="theme reader-btn" href="learn.html#topics" title="Topics, interactive labs and question drill">Learn</a>
+      <a class="theme reader-btn" href="learn.html#sure" title="The 30 answers that carry 75% of past marks">Sure shot</a>
       <a class="theme reader-btn" href="reader.html" title="Open the offline reader">Reader</a>
       <button class="theme" id="theme" aria-label="Toggle light and dark mode" title="Toggle light / dark">
         <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
