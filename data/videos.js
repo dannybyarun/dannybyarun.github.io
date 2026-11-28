@@ -1,7 +1,9 @@
 /* Short, syllabus-matched clips — one or two per unit.
    Sources: the NSG - IOE and CSIT chapter catalogue and easycsit.com's
    chapter→video map, both collected by tools/*.mjs. Every id is real; a unit
-   with no clip that matches its own words is absent on purpose. */
+   with no clip that matches its own words is absent on purpose.
+   WHOLE is the one lecture a subject uploads instead of chapters (TW), offered
+   only where there is no per-unit clip. */
 window.VIDEOS = {
  "se.1": {
   "q": "Introduction Software Engineering CSIT 6th sem",
@@ -89,8 +91,8 @@ window.VIDEOS = {
   "v": [
    {
     "id": "ef9kv87Lg6I",
-    "t": "Architectural Design",
-    "ch": "NSG - IOE and CSIT",
+    "t": "Software Engineering - 6 | Architectural Design | CSIT 6th Sem",
+    "ch": "NSG – IOE and CSIT",
     "len": "28:28",
     "sec": 1708
    },
@@ -286,6 +288,18 @@ window.VIDEOS = {
     "ch": "NSG – IOE and CSIT",
     "len": "6:01",
     "sec": 361
+   }
+  ]
+ },
+ "cdc.9": {
+  "q": "Code Optimization Compiler Design CSIT 6th sem",
+  "v": [
+   {
+    "id": "dbt6KYuc_9k",
+    "t": "Code Optimization Techniques | Compiler Design 24 | NSG - IOE CSIT",
+    "ch": "NSG – IOE and CSIT",
+    "len": "11:50",
+    "sec": 710
    }
   ]
  },
@@ -517,6 +531,25 @@ window.VIDEOS = {
     "ch": "NSG – IOE and CSIT",
     "len": "17:37",
     "sec": 1057
+   },
+   {
+    "id": "nCSaf6GEg1g",
+    "t": "XSS Attack, SQLI, CSRF & Open Redirect | Net Centric Computing - 18 | CSIT 6th Sem | NSG IOE CSIT",
+    "ch": "NSG – IOE and CSIT",
+    "len": "23:35",
+    "sec": 1415
+   }
+  ]
+ },
+ "ncc.9": {
+  "q": "Hosting and Deployment Net Centric Computing CSIT 6th sem",
+  "v": [
+   {
+    "id": "GzWyUmdGGjc",
+    "t": "Web Server, Hosting Model & deployment | Net Centric Computing - 19 | CSIT 6th Sem | NSG IOE CSIT",
+    "ch": "NSG – IOE and CSIT",
+    "len": "11:32",
+    "sec": 692
    }
   ]
  },
@@ -524,18 +557,11 @@ window.VIDEOS = {
   "q": "Introduction E Commerce CSIT 6th sem",
   "v": [
    {
-    "id": "NDpBH8YjMH0",
-    "t": "Features & Function of E Commerce System | E Commerce - 15 | CSIT 6th Sem | NSG - IOE CSIT",
+    "id": "y4TidCGN3Qs",
+    "t": "E Commerce - 1 | Introduction in One Shot | CSIT 6th Sem",
     "ch": "NSG – IOE and CSIT",
-    "len": "4:38",
-    "sec": 278
-   },
-   {
-    "id": "MXP9wshZj5g",
-    "t": "Types & Challenges of E Commerce | E Commerce - 3 | CSIT 6th Sem | NSG - IOE CSIT",
-    "ch": "NSG – IOE and CSIT",
-    "len": "5:05",
-    "sec": 305
+    "len": "20:21",
+    "sec": 1221
    }
   ]
  },
@@ -645,5 +671,15 @@ window.VIDEOS = {
     "sec": 265
    }
   ]
+ }
+};
+
+window.WHOLE = {
+ "tw": {
+  "id": "tNoOQ848Hpo",
+  "t": "Technical Writing in One Shot | CSIT 6th Sem | NSG IOE CSIT",
+  "ch": "NSG – IOE and CSIT",
+  "len": "2:45:03",
+  "sec": 9903
  }
 };

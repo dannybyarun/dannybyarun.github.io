@@ -1546,6 +1546,7 @@ const TOP = window.TOPICS || {};
 const LOGIC = window.LOGIC || {};
 const REPS = window.REPEATS || [];
 const VIDEOS = window.VIDEOS || {};
+const WHOLE = window.WHOLE || {};
 const REPEAT_IDS = new Set(REPS.flatMap((c) => c.ids || []));
 const SUBORDER = ["se", "cdc", "egov", "ncc", "tw", "ecom"];
 
@@ -1745,7 +1746,7 @@ function openLogic(qid, sub, n, pane) {
   const lg = (LOGIC[sub] || []).find((u) => u.n === Number(n)) || null;
   const steps = (lg && lg.steps) || [];
   const vid = VIDEOS[`${sub}.${n}`] || null;
-  if (!steps.length && !vid) return;
+  if (!steps.length && !vid && !WHOLE[sub]) return;
   const el = logicModal();
   logicSteps = steps;
   logicAt = 0;
@@ -1800,9 +1801,27 @@ function renderVideos(el, sub, n, vid, lg) {
         : `Tap one to play it here; nothing loads before that.`)
       + `<br><a class="vidsearch" href="https://www.youtube.com/results?search_query=${encodeURIComponent(vid.q)}" target="_blank" rel="noopener noreferrer">More videos on ${esc(name)}</a>`;
   } else {
-    box.innerHTML = "";
-    note.innerHTML = `None of the checked CSIT channels has a clip whose title matches this unit, so nothing is claimed here — search instead.`
-      + `<br><a class="vidsearch" href="https://www.youtube.com/results?search_query=${encodeURIComponent(name + " explained")}" target="_blank" rel="noopener noreferrer">Search YouTube for “${esc(name)}”</a>`;
+    const w = WHOLE[sub];
+    if (w) {
+      /* the subject uploads one lecture instead of chapters, so it is the only
+         real clip that exists — offered as a whole-subject fallback, labelled */
+      el._vidData = { q: name, v: [w] };
+      box.innerHTML = `<button type="button" class="vidrow" data-vplay="0">
+        <span class="vglyph">▶</span>
+        <span><b>${esc(w.t)}</b><span class="vm">${esc(w.ch)}${w.len ? " · " + esc(w.len) : ""} · whole subject</span></span>
+      </button>`;
+      note.innerHTML = `No clip covers this unit on its own. The only lecture this subject has on the checked CSIT `
+        + `channel is one recording of the whole paper, ${esc(w.len || "long")} — it is not a summary of ${esc(name)}, `
+        + `so use it only for the parts you are stuck on.`
+        + (location.protocol === "file:"
+          ? ` Opened from this folder, a tap sends it to YouTube.`
+          : ` Tap it to play here.`)
+        + `<br><a class="vidsearch" href="https://www.youtube.com/results?search_query=${encodeURIComponent(name + " explained")}" target="_blank" rel="noopener noreferrer">Search YouTube for “${esc(name)}”</a>`;
+    } else {
+      box.innerHTML = "";
+      note.innerHTML = `None of the checked CSIT channels has a clip whose title matches this unit, so nothing is claimed here — search instead.`
+        + `<br><a class="vidsearch" href="https://www.youtube.com/results?search_query=${encodeURIComponent(name + " explained")}" target="_blank" rel="noopener noreferrer">Search YouTube for “${esc(name)}”</a>`;
+    }
   }
 }
 
