@@ -531,6 +531,10 @@
   .surebody h4{margin:14px 0 5px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
   .surebody h4:first-child{margin-top:0}
   .sureans{font-size:13.6px;line-height:1.65;margin:0}
+  .surebody textarea{width:100%;margin:9px 0 7px;background:var(--panel2);border:1px solid var(--line);
+    color:var(--txt);border-radius:9px;padding:10px 12px;font:inherit;font-size:13.5px;line-height:1.55;
+    resize:vertical;outline:none;min-height:86px}
+  .surebody textarea:focus{border-color:var(--acc)}
   .surekeys{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
   .surekeys span{font-size:11.5px;color:var(--mut);background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:3px 7px}
   .sureacts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center}
@@ -1739,6 +1743,55 @@ const SURE_MEM = loadSureMem();
 const SURE_OPEN = new Set();
 const saveSureMem = () => { try { localStorage.setItem(SURE_KEY, JSON.stringify(SURE_MEM)); } catch (e) {} };
 
+/* The typed recall test for a sure shot. Same scorer, same reversal net and same
+   repair pointer as the One Shot gate, so an answer that passes here is the
+   answer the full card would accept. */
+const SURE_LAST = {};
+const SURE_SAID = {};
+function sureCheck(key, said) {
+  const [sub, ns] = key.split(".");
+  const unit = (((window.SURE || {}).subjects || {})[sub] || { units: [] }).units.find((u) => u.n === Number(ns));
+  const gate = unit && unit.gate;
+  if (!gate) return { pass: false, cls: "gateres", html: "This unit has no gate yet." };
+  const words = String(said).trim().split(/\s+/).filter(Boolean).length;
+  if (words < 12) {
+    return { pass: false, cls: "gateres", html: words < 4
+      ? "Write a sentence first — four words cannot show a mechanism."
+      : "Too thin. The marker wants the claim, the mechanism and the consequence — write the whole answer before you check it." };
+  }
+  const flat = " " + String(said).toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim() + " ";
+  const ch = ((window.CHAIN || {})[sub] || []).find((u) => u.n === Number(ns));
+  const anti = (ch && ch.gate && ch.gate.anti) || [];
+  const reversed = anti.find((p) =>
+    flat.includes(" " + String(p).toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim() + " ")
+  ) || "";
+  const lg = ((window.LOGIC || {})[sub] || []).find((u) => u.n === Number(ns)) || null;
+  if (reversed) {
+    const stems = keyIdeas(reversed).map((k) => k.stem);
+    const best = (((lg && lg.steps) || []).map((s) => {
+      const f = " " + (s.t + " " + s.d).toLowerCase().replace(/[^a-z0-9]+/g, " ") + " ";
+      return { t: s.t, n: stems.filter((st) => f.includes(st)).length };
+    }).sort((a, b) => b.n - a.n)[0]) || null;
+    return { pass: false, cls: "gateres", html: `<b>Reversed mechanism.</b> Those are the card's words, but the cause and the effect are the wrong way round, so every sentence still scores and the argument is backwards.`
+      + (best && best.n ? `<br>Re-read only: <b>${esc(best.t)}</b>.` : "")
+      + `<br>Say the card's direction out loud once, then write the answer again.` };
+  }
+  const c = coverage(said, gate.a);
+  const need = passNeed(c.total);
+  if (c.hit.length >= need) {
+    return { pass: true, cls: "gateres pass", html: `✓ <b>${c.hit.length} of ${c.total}</b> marked ideas — the mechanism is there. Marked memorised; the next answer is ready.` };
+  }
+  const missed = new Set(c.miss.map((m) => m.stem));
+  const repair = ((lg && lg.steps) || []).filter((s) => {
+    const f = (" " + s.t + " " + s.d + " ").toLowerCase().replace(/[^a-z0-9]+/g, " ");
+    return [...missed].some((st) => f.includes(st));
+  }).map((s) => s.t);
+  const missChips = c.miss.slice(0, 6).map((m) => `<span class="miss">${esc(m.word)}</span>`).join(" ");
+  return { pass: false, cls: "gateres", html: `<b>${c.hit.length} of ${c.total}</b> marked ideas — ${need} needed. Still missing: ${missChips}${c.miss.length > 6 ? " …" : ""}`
+    + (repair.length ? `<br>Re-read only: <b>${repair.map(esc).join(", ")}</b>.` : "")
+    + `<br>Say the whole answer out loud once, then write it again. Do not copy the marked answer.` };
+}
+
 /* =========================================================
    WHY IT WORKS — the intuition layer (story first, marks second)
    ========================================================= */
@@ -2810,9 +2863,14 @@ function sureView() {
         ${u.q > u.ask.length ? `<p class="sureq" style="font-size:12px">…and ${u.q - u.ask.length} more on the full card.</p>` : ""}
         <h4>Hit these points</h4>
         <div class="surekeys">${u.keys.map((k) => `<span>${esc(k)}</span>`).join("")}</div>
-        ${u.gate ? `<h4>Recall gate</h4>
+        ${u.gate ? `<h4>Recall gate — type it from memory</h4>
           <p class="sureq" style="margin-top:0">${esc(u.gate.q)}</p>
-          <button class="ghost" data-reveal="${key}" style="margin-top:8px">Show the marked answer</button>
+          <textarea data-say="${key}" rows="3" placeholder="No looking. The claim, the mechanism, the consequence.">${esc(SURE_SAID[key] || "")}</textarea>
+          <div class="sureacts" style="margin-top:8px">
+            <button class="act" data-check="${key}">Check my answer</button>
+            <button class="ghost" data-reveal="${key}">Show the marked answer</button>
+          </div>
+          <div class="${SURE_LAST[key] ? SURE_LAST[key].cls : "gateres"}" data-res="${key}" ${SURE_LAST[key] ? "" : "hidden"}>${SURE_LAST[key] ? SURE_LAST[key].html : ""}</div>
           <div class="ansblock" data-ans="${key}">${esc(u.gate.a)}</div>` : ""}
         <div class="sureacts">
           <button class="mem ${mem ? "on" : ""}" data-mem="${key}">${mem ? "✓ Memorised" : "Mark memorised"}</button>
@@ -2899,6 +2957,8 @@ function sureView() {
   }));
   view.querySelectorAll("[data-start]").forEach((b) => b.addEventListener("click", () => {
     const k = b.dataset.start;
+    /* one answer on the desk at a time: opening the next closes the rest */
+    for (const x of visible) SURE_OPEN.delete(x.s + "." + x.u.n);
     SURE_OPEN.add(k);
     sureView();
     const el = view.querySelector("#sure-" + k.replace(".", "-"));
@@ -2914,9 +2974,44 @@ function sureView() {
     const a = view.querySelector(`[data-ans="${b.dataset.reveal}"]`);
     if (a) { a.classList.add("show"); b.textContent = "Marked answer shown"; }
   }));
+  view.querySelectorAll("[data-say]").forEach((t) => {
+    t.addEventListener("input", () => { SURE_SAID[t.dataset.say] = t.value; });
+    t.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        e.preventDefault();
+        const b = view.querySelector(`[data-check="${t.dataset.say}"]`);
+        if (b) b.click();
+      }
+    });
+  });
+  view.querySelectorAll("[data-check]").forEach((b) => b.addEventListener("click", () => {
+    const k = b.dataset.check;
+    const t = view.querySelector(`[data-say="${k}"]`);
+    const said = t ? t.value.trim() : "";
+    SURE_SAID[k] = said;
+    const r = sureCheck(k, said);
+    SURE_LAST[k] = { cls: r.cls, html: r.html };
+    if (r.pass) {
+      SURE_MEM[k] = Date.now();
+      saveSureMem();
+      SURE_OPEN.add(k);
+      const next = visible.find((x) => !SURE_MEM[x.s + "." + x.u.n]);
+      if (next) {
+        const nk = next.s + "." + next.u.n;
+        SURE_LAST[k].html += `<div style="margin-top:10px"><button class="ghost" data-start="${nk}">Next: ${esc(next.u.name)} →</button></div>`;
+      }
+      sureView();
+      const el = view.querySelector("#sure-" + k.replace(".", "-"));
+      if (el) el.scrollIntoView({ block: "start", behavior: "smooth" });
+    } else {
+      const res = view.querySelector(`[data-res="${k}"]`);
+      if (res) { res.hidden = false; res.className = r.cls; res.innerHTML = r.html; }
+    }
+  }));
   view.querySelectorAll("[data-mem]").forEach((b) => b.addEventListener("click", () => {
     const k = b.dataset.mem;
-    if (SURE_MEM[k]) delete SURE_MEM[k]; else SURE_MEM[k] = Date.now();
+    if (SURE_MEM[k]) { delete SURE_MEM[k]; delete SURE_LAST[k]; }
+    else SURE_MEM[k] = Date.now();
     saveSureMem();
     sureView();
   }));
@@ -2997,11 +3092,25 @@ function routeHash(raw) {
   const tm = /^topic-([a-z]+)-(\d+)$/.exec(hash);
   const wm = /^why-([a-z]+)(?:-(\d+))?$/.exec(hash);
   const sm = /^shot(?:-([a-z]+)-(\d+))?$/.exec(hash);
+  const um = /^sure-([a-z]+)-(\d+)$/.exec(hash);
   const mm = /^map(?:-([a-z]+))?$/.exec(hash);
   if (lab) lab.run();
   else if (tm) { topicSub = tm[1]; openTopic(tm[1], Number(tm[2])); }
   else if (wm) openWhy(wm[1], wm[2] ? Number(wm[2]) : null);
   else if (sm) openShot(sm[1] || null, sm[2] ? Number(sm[2]) : null);
+  else if (um) {
+    const ss = um[1], nn = Number(um[2]);
+    const sub = (((window.SURE || {}).subjects || {})[ss]) || null;
+    const idx = sub ? sub.units.findIndex((u) => u.n === nn) : -1;
+    sureSub = ss;
+    sureAll = idx >= 5;
+    SURE_OPEN.add(ss + "." + nn);
+    go("sure");
+    requestAnimationFrame(() => {
+      const el = document.getElementById("sure-" + ss + "-" + nn);
+      if (el) el.scrollIntoView({ block: "start" });
+    });
+  }
   else if (mm) {
     mapSub = mm[1] || "se";
     go("map");
